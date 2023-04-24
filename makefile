@@ -19,7 +19,7 @@ define movebase
 	
 endef
 
-
+default: shiwake.pdf
 all: $(PDFTARGET)
 muflx: $(MX2TARGET)
 biblio: $(BIBTARGET)

@@ -1,6 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{bookkeeping}
   [2023/02/05 v1.0.0 bookkeeping macros]
+\RequirePackage[colorlinks=true]{hyperref}
+\RequirePackage{pxjahyper}
 \RequirePackage{etoolbox}
 \RequirePackage{dcolumn}
 
@@ -45,6 +47,17 @@
 0月は開始仕訳用，13月は閉鎖用．
 \fi
 
+\def\registryAccType#1{%
+  \stepcounter{AccountTypeNumber}%
+  \csdef{BK@AccType\the\c@AccountTypeNumber}{#1}%
+  \newcounter{AccountNumber#1}%
+}
+\registryAccType{A}% 資産 (Asset)
+\registryAccType{L}% 負債 (Liability)
+\registryAccType{N}% 総資産 (Net asset)
+\registryAccType{R}% 収益 (Revenue)
+\registryAccType{E}% 費用 (Expence)
+\registryAccType{M}% その他 (Misc.)
 % #1: Account type
 % #2: Account Ledger Balance
 % #3: Account Name
@@ -62,6 +75,7 @@
   \register@Acc@Mon@Bal
 % \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccountNumber#1}}%
 }
+\def\Account@getAccID#1{\csuse{revAccountID#1}}%
 \def\register@Acc@Mon@Bal{%
   \ifnum\BKtemp@countA<13\relax
     \global\advance\BKtemp@countA\@ne\relax
@@ -71,17 +85,6 @@
     \expandafter\register@Acc@Mon@Bal
   \fi
 }
-\def\registryAccType#1{%
-  \stepcounter{AccountTypeNumber}%
-  \csdef{BK@AccType\the\c@AccountTypeNumber}{#1}%
-  \newcounter{AccountNumber#1}%
-}
-\registryAccType{A}% 資産 (Asset)
-\registryAccType{L}% 負債 (Liability)
-\registryAccType{N}% 総資産 (Net asset)
-\registryAccType{R}% 収益 (Revenue)
-\registryAccType{E}% 費用 (Expence)
-\registryAccType{M}% その他 (Misc.)
 \def\selectAccount#1#2{%
   \edef\currAccountID{\expandonce{\csname AccountID#1#2\endcsname}}%
   \edef\currAccount@Type{\expandonce{\csname Account#1#2@Type\endcsname}}%
@@ -100,9 +103,11 @@
 * JEDebit: 借方
   * Account<JEID>: 勘定科目名
   * Value<JEID>: 取引額
+  * LEID<JEID>: LEID
 * JECredit: 貸方
   * Account<JEID>
   * Value<JEID>
+  * LEID<JEID>: LEID
 * JEAccountDesc<JEID>: 摘要
 * ifJEAccouuntDesc<JEID>: 摘要の有無
 * JELine<JEID>: 仕訳帳での行数
@@ -142,7 +147,9 @@
   \JE@AccouuntDesc{}{\iffalse}%
   \csgdef{JELine\the\c@JENumber}{2}%
   \ledger@entry{#3}{#5}{D}{#4}%
+  %\csxdef{JEDebitAccouunt\the\c@JENumber}{\LE@tmpA-\csuse{Account\LE@tmpA @LedgerNumber}}%
   \ledger@entry{#5}{#3}{C}{#4}%
+  %\csxdef{JECreditValue\the\c@JENumber}{\LE@tmpA-\csuse{Account\LE@tmpA @LedgerNumber}}%
 }
 \newcommand{\journalentry}{%
   \@ifstar{\sjourn@lentry}{\journ@lentry}%
@@ -151,24 +158,28 @@
   #1&#2&#3&#4&#5\\%
 }
 \def\PJ@Transaction#1{% #1: journal entry ID
-  \gdef\@tmp@PJ{\\ & & \multicolumn{2}{l|}{\csname JEAccouuntDesc#1\endcsname} &}%
-  #1
-  & \csname JEMonth#1\endcsname /\csname JEDay#1\endcsname
-  &   （\csname JEDebitAccouunt#1\endcsname） & & \csname JEDebitValue#1\endcsname  & \\%
-  & & &（\csname JECreditAccouunt#1\endcsname）   & & \csname JECreditValue#1\endcsname
+  \gdef\@tmp@PJ{\\ & & \multicolumn{2}{l|}{\csname JEAccouuntDesc#1\endcsname} &&}%
+  #1\label{JEID:#1}%
+    & \csname JEMonth#1\endcsname /\csname JEDay#1\endcsname
+    &   （\csname JEDebitAccouunt#1\endcsname） &
+    & %\hyperref[LEID:]{}
+    & \csname JEDebitValue#1\endcsname  & \\%
+  & & &（\csname JECreditAccouunt#1\endcsname）
+    &
+    & & \csname JECreditValue#1\endcsname
   \csname ifJEAccouuntDesc#1\endcsname
     \@tmp@PJ
   \fi
   \\\hline
 }
 \def\PJ@CarryPrev{\gdef\n@xtprev{}%
-  & & 前頁繰越& & \the\sum@debit & \the\sum@credit \\\hline
+  & & 前頁繰越& & & \the\sum@debit & \the\sum@credit \\\hline
 }
 \def\PJ@CarryForward{%
-  & & & 次頁繰越 & \the\sum@debit & \the\sum@credit \\\hline
+  & & & 次頁繰越 & &\the\sum@debit & \the\sum@credit \\\hline
 }
 \def\PJ@Terminate{%
-  & & & 総計 & \the\sum@debit & \the\sum@credit \\\hline
+  & & & 総計 & &\the\sum@debit & \the\sum@credit \\\hline
 }
 \def\PJ@Loop@Table{%
   \gdef\n@xt{}%
@@ -192,12 +203,14 @@
 }
 \def\PJ@Loop{%
   \begin{table}[ht]\centering
-  \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r}
-    \makebox[2\zw]{ID}& \multicolumn{1}{c|}{date}%
-%                     & \multicolumn{2}{c|}{\makebox[11\zw][c]{摘}\makebox[11\zw][c]{要}}%
-                      & \makebox[10\zw][c]{摘}
-                      & \makebox[10\zw][c]{要}%
-                      & \makebox[5\zw][c]{借方} & \makebox[5\zw][c]{貸方} \\ \hline
+  \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r|r}
+    \makebox[2\zw]{ID}%
+    & \multicolumn{1}{c|}{date}%
+    & \makebox[10\zw][c]{摘}
+    & \makebox[10\zw][c]{要}%
+    & \makebox[2\zw][c]{LEID}%
+    & \makebox[5\zw][c]{借方}%
+    & \makebox[5\zw][c]{貸方} \\ \hline
     \n@xtprev
     \PJ@Loop@Table
   \end{tabular}
@@ -233,41 +246,42 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 必ずしも持たせる必要はないと思うけど処理がめんどいと思う．
 \fi
 
+
 % #1: Account name
 % #2: Partner account name
 % #3: is account Debit? (boolean; D or C)
 % #4: Account value
 \def\ledger@entry#1#2#3#4{%
-  \BKtemp@countA=\csname revAccountID#1\endcsname\relax% tempcountA <- AccID
-  \edef\reserved@a{\csname AccountType#1\endcsname\the\BKtemp@countA}% \reserved@a <- <AccType><AccID>
-  \BKtemp@countB=\csname Account\reserved@a @LedgerNumber\endcsname\relax% tempcountB <- Account@LedgerNumber
+  \BKtemp@countA=\Account@getAccID{#1}%\csname revAccountID#1\endcsname\relax% tempcountA <- AccID
+  \edef\LE@tmpA{\csname AccountType#1\endcsname\the\BKtemp@countA}% \LE@tmpA <- <AccType><AccID>
+  \BKtemp@countB=\csname Account\LE@tmpA @LedgerNumber\endcsname\relax% tempcountB <- Account@LedgerNumber
   \advance\BKtemp@countB\@ne
-  \csxdef{Account\reserved@a @LedgerNumber}{\the\BKtemp@countB}%
-  \csxdef{Account\reserved@a @Ledger\the\BKtemp@countB @JEID}{%
+  \csxdef{Account\LE@tmpA @LedgerNumber}{\the\BKtemp@countB}%
+  \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEID}{%
     \the\c@JENumber}% refference JEID
-  \csxdef{Account\reserved@a @Ledger\the\BKtemp@countB @PartnerAccount}{#2}%
-  \csxdef{Account\reserved@a @Ledger\the\BKtemp@countB @JEDesc}{\csuse{JEAccouuntDesc\the\c@JENumber}}%
-  \csgdef{Account\reserved@a @Ledger\the\BKtemp@countB @IsAccountDebit}{#3}%
-  \csgdef{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}{#4}%
+  \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @PartnerAccount}{#2}%
+  \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEDesc}{\csuse{JEAccouuntDesc\the\c@JENumber}}%
+  \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @IsAccountDebit}{#3}%
+  \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}{#4}%
   \BKtemp@countA=\csuse{JEMonth\the\c@JENumber}\relax% tempcountA <- JEMonth
-  \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Balance}{%
-    \the\numexpr\csuse{Account\reserved@a @Month\the\BKtemp@countA @Balance}%
-    + \csuse{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}\relax
+  \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}{%
+    \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}%
+    + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
   }%
   \if#3D%
-    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Debit}{%
-      \the\numexpr\csuse{Account\reserved@a @Month\the\BKtemp@countA @Debit}%
-      + \csuse{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}\relax
+    \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Debit}{%
+      \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Debit}%
+      + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
     }%
   \fi
   \if#3C%
-  \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Credit}{%
-    \the\numexpr\csuse{Account\reserved@a @Month\the\BKtemp@countA @Credit}%
-    + \csuse{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}\relax
+  \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Credit}{%
+    \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Credit}%
+    + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
   }%
   \fi
 }
-\def\ledgermonthlyclosing#1{% #1: closing month
+\newcommand{\ledgermonthlyclosing}[1]{% #1: closing month
   \BKtemp@countC\z@\relax
   \BKtemp@countD\z@\relax
   \stepcounter{ClosingMonthNumber}%
@@ -292,15 +306,17 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \expandafter\ledgermonthlyclosing@loop
   \fi
 }
-% #1: JEID
+% #1: LEID
 % #2: Month/Day
-% #3: Desc.
-% #4: Debit
-% #5: Credit
-% #6: Balance type
-% #7: Balance
-\def\PGL@printline#1#2#3#4#5#6#7#8{%
-  #1&#2&#3&#4&#5&#6&#7&#8\\%
+% #3: Account title
+% #4: Desc.
+% #5: JEID
+% #6: Debit
+% #7: Credit
+% #8: Balance type
+% #9: Balance
+\def\PGL@printline#1#2#3#4#5#6#7#8#9{%
+  #1&#2&#3&#4&#5&#6&#7&#8&#9\\%
 }
 
 \def\PGL@Transaction#1{% #1: ladger entry ID
@@ -317,13 +333,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \csname Account\BK@AccType\the\BKtemp@countA
             @LedgerBalanceType\endcsname}%
   \PGL@printline{%
+    #1 \label{LEID:\BK@AccType-\the\BKtemp@countA-#1}%
+  }{%
     \csname JEMonth\the\BKtemp@countB\endcsname /\csname JEDay\the\BKtemp@countB\endcsname
   }{%
     \csname Account\BK@AccType\the\BKtemp@countA @Ledger#1@PartnerAccount\endcsname
   }{%
     \csuse{Account\BK@AccType\the\BKtemp@countA @Ledger#1@JEDesc}%
   }{%
-    \the\BKtemp@countB
+    \hyperref[JEID:\the\BKtemp@countB]{\the\BKtemp@countB}%
   }{%
     \if\Acc@Ledg@IsAccDeb D\relax%
       \csname Account\BK@AccType\the\BKtemp@countA @Ledger#1@AccountValue\endcsname
@@ -355,7 +373,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 \def\PGL@CarryPrev{%
   \gdef\n@xtprev{}%
-  \PGL@printline{}{前頁繰越}{}{}{\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+  \PGL@printline{}{}{前頁繰越}{}{}{\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
   \hline
 }
 \def\PGL@MonthlyClosing{%
@@ -369,16 +387,16 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \global\sum@debit\z@\relax \global\sum@credit\z@\relax
   \csxdef{Account\BK@AccType\the\c@AccountIDiterator
           @Month\tmp@PGL@ClosingMonth @Balance}{\the\c@LedgerEntryBalance}%
-  \PGL@printline{}{\tmp@PGL@ClosingMonth 月決算}{}{}%
+  \PGL@printline{}{}{\tmp@PGL@ClosingMonth 月決算}{}{}%
      {\csuse{Account\BK@AccType\the\c@AccountIDiterator @Month\tmp@PGL@ClosingMonth @Debit}}%
      {\csuse{Account\BK@AccType\the\c@AccountIDiterator @Month\tmp@PGL@ClosingMonth @Credit}}{}{}\hline
 }
 \def\PGL@CarryForward{%
-  \PGL@printline{}{\multicolumn{1}{r|}{次頁繰越}}{}{}{\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+  \PGL@printline{}{}{\multicolumn{1}{r|}{次頁繰越}}{}{}{\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
   \hline
 }
 \def\PGL@Terminate{%
-  \PGL@printline{}{}{}{}{\the\sum@debit}{\the\sum@credit}{}{}\hline
+  \PGL@printline{}{}{}{}{}{\the\sum@debit}{\the\sum@credit}{}{}\hline
 }
 
 \newcommand{\printgeneralledger}{%
@@ -409,8 +427,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 \def\PGL@ACLoop{%
   \begin{table}[ht]\centering
-  \begin{tabular}{D{/}{/}{2/2}|l|l|r|r|r|c|r}
-  \PGL@printline{\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
+  \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
+  \PGL@printline{}%
+                {\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
                 {\makebox[7\zw]{相手勘定科目}}%
                 {\multicolumn{1}{c|}{\makebox[10\zw]{摘}\makebox[10\zw]{要}}}%
                 {\makebox[2\zw]{ID}}%
