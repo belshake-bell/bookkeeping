@@ -1,0 +1,591 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{bookkeeping}
+  [2023/02/05 v1.0.0 bookkeeping macros]
+\RequirePackage{etoolbox}
+\RequirePackage{dcolumn}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcounter{JENumber}
+\newcounter{JEIDiterator}
+\newcounter{AccountTypeNumber}
+\newcounter{AccountTypeiterator}
+\newcounter{AccountIDiterator}
+\newcounter{AccLdgIDiterator}
+\newcounter{LedgerEntryBalance}
+\newcounter{ClosingMonthNumber}
+\newcounter{MonthIterator}
+
+\newcounter{tableLineNumber}
+\def\maxtablelinenumber{30}
+\newcount\sum@debit
+\newcount\sum@credit
+\newcount\BKtemp@countA
+\newcount\BKtemp@countB
+\newcount\BKtemp@countC
+\newcount\BKtemp@countD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Account
+% #1: Account balance(Debit(D) or Credit(C))
+% #2: Account name
+\iffalse
+勘定科目．
+勘定科目の種類が<AccType>の勘定科目の総登録数はAccountNumber<AccType>カウンタで得られる．
+
+勘定科目IDを<AccType><AccID>と表すことにする．
+* AccountID<AccType><AccID>: <AccID>から勘定科目名を得る
+* revAccountID<勘定科目名>: 勘定科目名から<AccID>を得る
+
+* Account<AccType><AccID>@Name: 勘定科目名を得る．
+* Account<AccType><AccID>@LedgerNumber: 勘定科目に登録された取引登録数．この数字でイテレータの分岐をさせる．
+* Account<AccType><AccID>@LedgerBalanceType: 勘定科目が借方残高(D)か貸方残高(C)か．
+* Account<AccType><AccID>@Month<month>@Balance: 月ごとの残高．
+* Account<AccType><AccID>@Month<month>@Debit: 月ごとの借方合計．
+* Account<AccType><AccID>@Month<month>@Credit: 月ごとの貸方合計．
+
+0月は開始仕訳用，13月は閉鎖用．
+\fi
+
+% #1: Account type
+% #2: Account Ledger Balance
+% #3: Account Name
+%
+\def\registerAccountID#1#2#3{%
+  \global\advance\csuse{c@AccountNumber#1}\@ne\relax%
+  \csgdef{AccountID#1\the\csname c@AccountNumber#1\endcsname}{#3}% ID -> Account Name
+  \csxdef{revAccountID#3}{\the\csname c@AccountNumber#1\endcsname}% ID <- Account Name
+  \csgdef{AccountType#3}{#1}% AccType <- Account Name
+  \csgdef{Account#1\the\csname c@AccountNumber#1\endcsname @Name}{#3}%
+  \csgdef{Account#1\the\csname c@AccountNumber#1\endcsname @LedgerNumber}{0}%
+  \csgdef{Account#1\the\csname c@AccountNumber#1\endcsname @LedgerBalanceType}{#2}%
+  \BKtemp@countA=-1\relax
+  \edef\reserved@a{#1\the\csuse{c@AccountNumber#1}}%
+  \register@Acc@Mon@Bal
+% \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccountNumber#1}}%
+}
+\def\register@Acc@Mon@Bal{%
+  \ifnum\BKtemp@countA<13\relax
+    \global\advance\BKtemp@countA\@ne\relax
+    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Balance}{0}%
+    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Debit}{0}%
+    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Credit}{0}%
+    \expandafter\register@Acc@Mon@Bal
+  \fi
+}
+\def\registryAccType#1{%
+  \stepcounter{AccountTypeNumber}%
+  \csdef{BK@AccType\the\c@AccountTypeNumber}{#1}%
+  \newcounter{AccountNumber#1}%
+}
+\registryAccType{A}% 資産 (Asset)
+\registryAccType{L}% 負債 (Liability)
+\registryAccType{N}% 総資産 (Net asset)
+\registryAccType{R}% 収益 (Revenue)
+\registryAccType{E}% 費用 (Expence)
+\registryAccType{M}% その他 (Misc.)
+\def\selectAccount#1#2{%
+  \edef\currAccountID{\expandonce{\csname AccountID#1#2\endcsname}}%
+  \edef\currAccount@Type{\expandonce{\csname Account#1#2@Type\endcsname}}%
+  \edef\currAccount@LedgerNumber{\expandonce{\csname Account#1#2@LedgerNumber\endcsname}}%
+  \edef\currAccount@LedgerBalanceType{\expandonce{\csname Account#1#2@LedgerBalanceType\endcsname}}%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% journalentry (JE)
+\iffalse
+取引の仕訳．
+取引仕訳の総登録数はJENumberカウンタで得られる．
+
+取引IDを<JEID>と表すことにすると
+* JEMonth<JEID>: 取引月
+* JEDay<JEID>: 取引日
+* JEDebit: 借方
+  * Account<JEID>: 勘定科目名
+  * Value<JEID>: 取引額
+* JECredit: 貸方
+  * Account<JEID>
+  * Value<JEID>
+* JEAccountDesc<JEID>: 摘要
+* ifJEAccouuntDesc<JEID>: 摘要の有無
+* JELine<JEID>: 仕訳帳での行数
+
+複合仕訳にするとなると科目の個数と各科目についてID割り振りが必要かなぁ……
+面倒なのでやらないと思う．
+\fi
+\def\JE@Debit#1#2{%
+  \csgdef{JEDebitAccouunt\the\c@JENumber}{#1}%
+  \csgdef{JEDebitValue\the\c@JENumber}{#2}%
+}
+\def\JE@Credit#1#2{%
+  \csgdef{JECreditAccouunt\the\c@JENumber}{#1}%
+  \csgdef{JECreditValue\the\c@JENumber}{#2}%
+}
+\def\JE@AccouuntDesc#1#2{%
+  \csgdef{JEAccouuntDesc\the\c@JENumber}{#1}%
+  \csgdef{ifJEAccouuntDesc\the\c@JENumber}{#2}%
+}
+\newcommand{\journ@lentry}[6]{%
+  \stepcounter{JENumber}%
+  \csgdef{JEMonth\the\c@JENumber}{#1}%
+  \csgdef{JEDay\the\c@JENumber}{#2}%
+  \JE@Debit{#3}{#4}%
+  \JE@Credit{#5}{#4}%
+  \JE@AccouuntDesc{#6}{\iftrue}%
+  \csgdef{JELine\the\c@JENumber}{3}%
+  \ledger@entry{#3}{#5}{D}{#4}%
+  \ledger@entry{#5}{#3}{C}{#4}%
+}
+\newcommand{\sjourn@lentry}[5]{%
+  \stepcounter{JENumber}%
+  \csgdef{JEMonth\the\c@JENumber}{#1}%
+  \csgdef{JEDay\the\c@JENumber}{#2}%
+  \JE@Debit{#3}{#4}%
+  \JE@Credit{#5}{#4}%
+  \JE@AccouuntDesc{}{\iffalse}%
+  \csgdef{JELine\the\c@JENumber}{2}%
+  \ledger@entry{#3}{#5}{D}{#4}%
+  \ledger@entry{#5}{#3}{C}{#4}%
+}
+\newcommand{\journalentry}{%
+  \@ifstar{\sjourn@lentry}{\journ@lentry}%
+}
+\def\PJ@printline#1#2#3#4#5{%
+  #1&#2&#3&#4&#5\\%
+}
+\def\PJ@Transaction#1{% #1: journal entry ID
+  \gdef\@tmp@PJ{\\ & & \multicolumn{2}{l|}{\csname JEAccouuntDesc#1\endcsname} &}%
+  #1
+  & \csname JEMonth#1\endcsname /\csname JEDay#1\endcsname
+  &   （\csname JEDebitAccouunt#1\endcsname） & & \csname JEDebitValue#1\endcsname  & \\%
+  & & &（\csname JECreditAccouunt#1\endcsname）   & & \csname JECreditValue#1\endcsname
+  \csname ifJEAccouuntDesc#1\endcsname
+    \@tmp@PJ
+  \fi
+  \\\hline
+}
+\def\PJ@CarryPrev{\gdef\n@xtprev{}%
+  & & 前頁繰越& & \the\sum@debit & \the\sum@credit \\\hline
+}
+\def\PJ@CarryForward{%
+  & & & 次頁繰越 & \the\sum@debit & \the\sum@credit \\\hline
+}
+\def\PJ@Terminate{%
+  & & & 総計 & \the\sum@debit & \the\sum@credit \\\hline
+}
+\def\PJ@Loop@Table{%
+  \gdef\n@xt{}%
+  \ifnum\c@JEIDiterator>\numexpr\c@JENumber-1\relax
+    \PJ@Terminate
+  \else
+    \ifnum\c@tableLineNumber>\numexpr\maxtablelinenumber-1\relax
+      \gdef\n@xt{\PJ@Loop}%
+      \gdef\n@xtprev{\PJ@CarryPrev}%
+      \PJ@CarryForward
+    \else
+      \refstepcounter{JEIDiterator}%
+      \global\advance\c@tableLineNumber\csname JELine\the\c@JEIDiterator\endcsname\relax
+      \global\advance\sum@debit\csname JEDebitValue\the\c@JEIDiterator\endcsname\relax
+      \global\advance\sum@credit\csname JECreditValue\the\c@JEIDiterator\endcsname\relax
+      \PJ@Transaction{\the\c@JEIDiterator}%
+      \expandafter\expandafter\expandafter\PJ@Loop@Table\expandafter\expandafter
+%     \gdef\n@xt{\PJ@Loop@Table}%
+    \fi
+  \fi
+}
+\def\PJ@Loop{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r}
+    \makebox[2\zw]{ID}& \multicolumn{1}{c|}{date}%
+%                     & \multicolumn{2}{c|}{\makebox[11\zw][c]{摘}\makebox[11\zw][c]{要}}%
+                      & \makebox[10\zw][c]{摘}
+                      & \makebox[10\zw][c]{要}%
+                      & \makebox[5\zw][c]{借方} & \makebox[5\zw][c]{貸方} \\ \hline
+    \n@xtprev
+    \PJ@Loop@Table
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \global\c@tableLineNumber\z@\relax
+  \n@xt
+}
+\newcommand{\printjournal}{%
+  \setcounter{JEIDiterator}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+  \PJ@Loop
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% general ledger (GL)
+\iffalse
+総勘定元帳．
+勘定科目ID(AccID)および各勘定科目ごとの取引登録ID(AccLdgID)，それによりによって参照される要素を持つ．
+
+!externな内容
+* Account<AccType><AccID>@LedgerNumber: 勘定科目に登録された取引登録数．この数字でイテレータの分岐をさせる．
+!externな内容ここまで
+
+* Account<AccType><AccID>@Ledger<AccLdgID>@JEID: 登録された取引の取引ID．
+* Account<AccType><AccID>@Ledger<AccLdgID>@PartnerAccount: 登録された取引の相手勘定科目．
+* Account<AccType><AccID>@Ledger<AccLdgID>@JEDesc: 登録された取引の摘要．
+* Account<AccType><AccID>@Ledger<AccLdgID>@IsAccountDebit: 登録された取引での借貸がどちらだったか．
+* Account<AccType><AccID>@Ledger<AccLdgID>@AccountValue: 登録された取引での取引額．
+
+JEIDで取引の月日が分かるのでデータとして持つ必要はない．
+一方で相手科目は持たせた方が楽っぽい？
+必ずしも持たせる必要はないと思うけど処理がめんどいと思う．
+\fi
+
+% #1: Account name
+% #2: Partner account name
+% #3: is account Debit? (boolean; D or C)
+% #4: Account value
+\def\ledger@entry#1#2#3#4{%
+  \BKtemp@countA=\csname revAccountID#1\endcsname\relax% tempcountA <- AccID
+  \edef\reserved@a{\csname AccountType#1\endcsname\the\BKtemp@countA}% \reserved@a <- <AccType><AccID>
+  \BKtemp@countB=\csname Account\reserved@a @LedgerNumber\endcsname\relax% tempcountB <- Account@LedgerNumber
+  \advance\BKtemp@countB\@ne
+  \csxdef{Account\reserved@a @LedgerNumber}{\the\BKtemp@countB}%
+  \csxdef{Account\reserved@a @Ledger\the\BKtemp@countB @JEID}{%
+    \the\c@JENumber}% refference JEID
+  \csxdef{Account\reserved@a @Ledger\the\BKtemp@countB @PartnerAccount}{#2}%
+  \csxdef{Account\reserved@a @Ledger\the\BKtemp@countB @JEDesc}{\csuse{JEAccouuntDesc\the\c@JENumber}}%
+  \csgdef{Account\reserved@a @Ledger\the\BKtemp@countB @IsAccountDebit}{#3}%
+  \csgdef{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}{#4}%
+  \BKtemp@countA=\csuse{JEMonth\the\c@JENumber}\relax% tempcountA <- JEMonth
+  \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Balance}{%
+    \the\numexpr\csuse{Account\reserved@a @Month\the\BKtemp@countA @Balance}%
+    + \csuse{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}\relax
+  }%
+  \if#3D%
+    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Debit}{%
+      \the\numexpr\csuse{Account\reserved@a @Month\the\BKtemp@countA @Debit}%
+      + \csuse{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}\relax
+    }%
+  \fi
+  \if#3C%
+  \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Credit}{%
+    \the\numexpr\csuse{Account\reserved@a @Month\the\BKtemp@countA @Credit}%
+    + \csuse{Account\reserved@a @Ledger\the\BKtemp@countB @AccountValue}\relax
+  }%
+  \fi
+}
+\def\ledgermonthlyclosing#1{% #1: closing month
+  \BKtemp@countC\z@\relax
+  \BKtemp@countD\z@\relax
+  \stepcounter{ClosingMonthNumber}%
+  \gdef\reserved@b{#1}%
+  \ledgermonthlyclosing@loop
+}
+\def\ledgermonthlyclosing@loop{% loop for each AccType
+  \ifnum\the\BKtemp@countD<5\relax
+    \global\advance\BKtemp@countD\@ne
+    \global\BKtemp@countC\z@\relax
+    \xdef\reserved@c{\csname BK@AccType\the\BKtemp@countD \endcsname}%
+    \expandafter\ledgermonthlyclosing@l@@p
+  \fi
+}
+\def\ledgermonthlyclosing@l@@p{% loop for each AccID
+  \ifnum\the\BKtemp@countC<\the\csname c@AccountNumber\reserved@c \endcsname
+    \global\advance\BKtemp@countC\@ne
+    \xdef\reserved@a{\csname Account\reserved@c\the\BKtemp@countC @Name\endcsname}%
+    \expandafter\ledger@entry\expandafter{\reserved@a}{\reserved@b}{}{0}%
+    \expandafter\ledgermonthlyclosing@l@@p
+  \else
+    \expandafter\ledgermonthlyclosing@loop
+  \fi
+}
+% #1: JEID
+% #2: Month/Day
+% #3: Desc.
+% #4: Debit
+% #5: Credit
+% #6: Balance type
+% #7: Balance
+\def\PGL@printline#1#2#3#4#5#6#7#8{%
+  #1&#2&#3&#4&#5&#6&#7&#8\\%
+}
+
+\def\PGL@Transaction#1{% #1: ladger entry ID
+  \global\BKtemp@countA=%
+    \the\c@AccountIDiterator\relax% tempcountA <- AccID
+  \global\BKtemp@countB=%
+    \csname Account\BK@AccType\the\BKtemp@countA
+            @Ledger#1@JEID\endcsname\relax%
+    % tempcountB <- Account[AccID].Ledger[AccLdgID].JEID
+  \xdef\Acc@Ledg@IsAccDeb{%
+    \csname Account\BK@AccType\the\BKtemp@countA
+            @Ledger#1@IsAccountDebit\endcsname}%
+  \xdef\Acc@LedgBal{%
+    \csname Account\BK@AccType\the\BKtemp@countA
+            @LedgerBalanceType\endcsname}%
+  \PGL@printline{%
+    \csname JEMonth\the\BKtemp@countB\endcsname /\csname JEDay\the\BKtemp@countB\endcsname
+  }{%
+    \csname Account\BK@AccType\the\BKtemp@countA @Ledger#1@PartnerAccount\endcsname
+  }{%
+    \csuse{Account\BK@AccType\the\BKtemp@countA @Ledger#1@JEDesc}%
+  }{%
+    \the\BKtemp@countB
+  }{%
+    \if\Acc@Ledg@IsAccDeb D\relax%
+      \csname Account\BK@AccType\the\BKtemp@countA @Ledger#1@AccountValue\endcsname
+      \global\advance\sum@debit
+                     \csname Account\BK@AccType\the\BKtemp@countA
+                             @Ledger#1@AccountValue\endcsname
+    \fi
+  }{%
+    \if\Acc@Ledg@IsAccDeb C\relax%
+      \csname Account\BK@AccType\the\BKtemp@countA @Ledger#1@AccountValue\endcsname
+      \global\advance\sum@credit
+                     \csname Account\BK@AccType\the\BKtemp@countA
+                             @Ledger#1@AccountValue\endcsname
+    \fi
+  }{%
+    \if\Acc@LedgBal D%
+      借\else 貸%
+    \fi
+  }{%
+    \if\Acc@Ledg@IsAccDeb\Acc@LedgBal
+      \global\advance\c@LedgerEntryBalance
+                     \csname Account\BK@AccType\the\BKtemp@countA
+                             @Ledger#1@AccountValue\endcsname\relax
+    \else
+      \global\advance\c@LedgerEntryBalance
+                    -\csname Account\BK@AccType\the\BKtemp@countA
+                             @Ledger#1@AccountValue\endcsname\relax
+    \fi \the\c@LedgerEntryBalance}%
+}
+\def\PGL@CarryPrev{%
+  \gdef\n@xtprev{}%
+  \PGL@printline{}{前頁繰越}{}{}{\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+  \hline
+}
+\def\PGL@MonthlyClosing{%
+  \xdef\Acc@LedgBal{%
+    \csname Account\BK@AccType\the\c@AccountIDiterator
+            @LedgerBalanceType\endcsname}%
+  \xdef\tmp@PGL@ClosingMonth{%
+    \csname Account\BK@AccType\the\c@AccountIDiterator
+            @Ledger\the\c@AccLdgIDiterator
+            @PartnerAccount\endcsname}% \tmp@PGL@ClosingMonth <- Closing month
+  \global\sum@debit\z@\relax \global\sum@credit\z@\relax
+  \csxdef{Account\BK@AccType\the\c@AccountIDiterator
+          @Month\tmp@PGL@ClosingMonth @Balance}{\the\c@LedgerEntryBalance}%
+  \PGL@printline{}{\tmp@PGL@ClosingMonth 月決算}{}{}%
+     {\csuse{Account\BK@AccType\the\c@AccountIDiterator @Month\tmp@PGL@ClosingMonth @Debit}}%
+     {\csuse{Account\BK@AccType\the\c@AccountIDiterator @Month\tmp@PGL@ClosingMonth @Credit}}{}{}\hline
+}
+\def\PGL@CarryForward{%
+  \PGL@printline{}{\multicolumn{1}{r|}{次頁繰越}}{}{}{\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+  \hline
+}
+\def\PGL@Terminate{%
+  \PGL@printline{}{}{}{}{\the\sum@debit}{\the\sum@credit}{}{}\hline
+}
+
+\newcommand{\printgeneralledger}{%
+  \setcounter{AccountTypeiterator}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+  \PGL@Loop
+}
+\def\PGL@Loop{%
+  \ifnum\c@AccountTypeiterator<\c@AccountTypeNumber\relax
+    \stepcounter{AccountTypeiterator}%
+    \letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
+    \setcounter{AccountIDiterator}{0}%
+    \expandafter\PGL@L@@p
+  \fi
+}
+\def\PGL@L@@p{%
+  \ifnum\c@AccountIDiterator<\csname c@AccountNumber\BK@AccType \endcsname
+    \stepcounter{AccountIDiterator}%
+    \expandafter\subsection\expandafter{\csname Account\BK@AccType\the\c@AccountIDiterator @Name\endcsname}%
+    \setcounter{AccLdgIDiterator}{0}%
+    \setcounter{LedgerEntryBalance}{0}%
+    \global\sum@debit\z@\relax\global\sum@credit\z@\relax
+    \expandafter\PGL@ACLoop
+  \else
+    \expandafter\PGL@Loop
+  \fi
+}
+\def\PGL@ACLoop{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{D{/}{/}{2/2}|l|l|r|r|r|c|r}
+  \PGL@printline{\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
+                {\makebox[7\zw]{相手勘定科目}}%
+                {\multicolumn{1}{c|}{\makebox[10\zw]{摘}\makebox[10\zw]{要}}}%
+                {\makebox[2\zw]{ID}}%
+                {\makebox[4\zw]{借方}}%
+                {\makebox[4\zw]{貸方}}%
+                {\makebox[3\zw]{借or貸}}%
+                {\makebox[4\zw]{残高}}\hline
+    \n@xtprev
+    \PGL@ACLoop@Table
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \global\c@tableLineNumber\z@\relax
+  \n@xt
+}
+\def\PGL@ACLoop@Table{%
+  \ifnum\c@AccLdgIDiterator>\numexpr\csname Account\BK@AccType\the\c@AccountIDiterator @LedgerNumber\endcsname-1\relax
+%   \hline
+    \PGL@Terminate
+  \else
+    \ifnum\c@tableLineNumber>\numexpr\maxtablelinenumber-1\relax
+      \hline
+      \gdef\n@xt{\PGL@ACLoop}%
+      \gdef\n@xtprev{\PGL@CarryPrev}%
+      \PGL@CarryForward
+    \else
+      \gdef\n@xt{\PGL@L@@p}%
+      \stepcounter{AccLdgIDiterator}%
+      \ifnum\csname Account\BK@AccType\the\c@AccountIDiterator
+                    @Ledger\the\c@AccLdgIDiterator
+                    @AccountValue\endcsname=0\relax
+        \addtocounter{tableLineNumber}{3}%
+        \PGL@MonthlyClosing%
+      \else
+        \stepcounter{tableLineNumber}%
+        \PGL@Transaction{\the\c@AccLdgIDiterator}%
+      \fi
+      \expandafter\expandafter\expandafter\PGL@ACLoop@Table\expandafter\expandafter
+    \fi
+  \fi
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Trial balance (TB)
+\def\TB@printTable#1#2#3#4#5{%
+  #1&#2&#3&#4&#5\\%
+}
+\def\TB@L@@p@T@ble{%
+  \xdef\reserved@a{\BK@AccType\the\c@AccountIDiterator}%
+  \xdef\Acc@LedgBal{%
+    \csname Account\reserved@a @LedgerBalanceType\endcsname}%
+  \TB@printTable{%
+    \if\Acc@LedgBal D%
+      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
+      \global\advance\BKtemp@countA\csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{%
+        \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}%
+        + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      }%
+    \fi
+  }{%
+    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}%
+    \global\advance\BKtemp@countB\csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Debit}{%
+      \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @Debit}%
+      + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
+    }%
+  }{%
+    \csuse{Account\reserved@a @Name}%
+  }{%
+    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}%
+    \global\advance\BKtemp@countC\csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Credit}{%
+      \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @Credit}%
+      + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
+    }%
+  }{%
+    \if\Acc@LedgBal C%
+      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
+      \global\advance\BKtemp@countD\csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}{%
+        \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}%
+        + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      }%
+    \fi
+  }%
+}
+\def\TB@L@@p@Table{%
+  \ifnum\c@AccountIDiterator<\csname c@AccountNumber\BK@AccType \endcsname
+    \stepcounter{AccountIDiterator}%
+%   \typeout{4: AccountIDiterator=\the\c@AccountIDiterator}%
+    \TB@L@@p@T@ble
+    \expandafter\TB@L@@p@Table
+  \else
+    \TB@Loop@Table
+  \fi
+}
+\def\TB@Loop@Table{%
+  \ifnum\c@AccountTypeiterator<\c@AccountTypeNumber\relax
+    \stepcounter{AccountTypeiterator}%
+    \global\letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{0}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Debit}{0}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}{0}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Credit}{0}%
+    \setcounter{AccountIDiterator}{0}%
+%   \typeout{3: AccountTypeiterator=\BK@AccType}%
+    \expandafter\TB@L@@p@Table
+  \fi
+}
+\def\TB@L@@p{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{rrcrr}
+    \multicolumn{2}{c}{借方}&&\multicolumn{2}{c}{貸方}\\%
+    \TB@printTable{\makebox[5\zw]{残高}}{\makebox[5\zw]{合計}}%
+                  {\makebox[10\zw]{勘定科目}}{\makebox[5\zw]{合計}}%
+                  {\makebox[5\zw]{残高}}\hline%
+    \TB@Loop@Table
+    \hline
+    \TB@printTable@sumAccType
+    \hline
+    \TB@printTable{\the\BKtemp@countA}{\the\BKtemp@countB}%
+                  {合計}%
+                  {\the\BKtemp@countC}{\the\BKtemp@countD}\hline%
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \TB@Loop
+}
+\def\TB@Loop{%
+  \ifnum\c@MonthIterator<\c@ClosingMonthNumber
+    \stepcounter{MonthIterator}%
+    \BKtemp@countA\z@ \BKtemp@countB\z@
+    \BKtemp@countC\z@ \BKtemp@countD\z@
+    \expandafter\subsection\expandafter{\the\c@MonthIterator 月}%
+    \setcounter{AccountTypeiterator}{0}%
+%   \typeout{2: MonthIterator=\the\c@MonthIterator}%
+    \expandafter\TB@L@@p
+  \fi
+}
+\newcommand{\printmonthlytrialbalance}{%
+  \setcounter{MonthIterator}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+% \typeout{1}%
+  \TB@Loop
+}
+\def\TB@printTable@sumAccType{%
+  \TB@printTable{\csuse{AccountA@Month\the\c@MonthIterator @sumDebit}}%
+                {\csuse{AccountA@Month\the\c@MonthIterator @Debit}}%
+                {資産}%
+                {\csuse{AccountA@Month\the\c@MonthIterator @Credit}}%
+                {}%
+  \TB@printTable{}%
+                {\csuse{AccountL@Month\the\c@MonthIterator @Debit}}%
+                {負債}%
+                {\csuse{AccountL@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountL@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printTable{}%
+                {\csuse{AccountN@Month\the\c@MonthIterator @Debit}}%
+                {総資産}%
+                {\csuse{AccountN@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountN@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printTable{}%
+                {\csuse{AccountR@Month\the\c@MonthIterator @Debit}}%
+                {収益}%
+                {\csuse{AccountR@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountR@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printTable{\csuse{AccountE@Month\the\c@MonthIterator @sumDebit}}%
+                {\csuse{AccountE@Month\the\c@MonthIterator @Debit}}%
+                {費用}%
+                {\csuse{AccountE@Month\the\c@MonthIterator @Credit}}%
+                {}%
+  \TB@printTable{\csuse{AccountM@Month\the\c@MonthIterator @sumDebit}}%
+                {\csuse{AccountM@Month\the\c@MonthIterator @Debit}}%
+                {その他}%
+                {\csuse{AccountM@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountM@Month\the\c@MonthIterator @sumCredit}}%
+}
