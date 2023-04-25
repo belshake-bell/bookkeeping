@@ -6,6 +6,35 @@
 \RequirePackage{etoolbox}
 \RequirePackage{dcolumn}
 
+\iffalse
+# bookkeepingパッケージ
+## 使い方
+* \usepakage{bookkeeping}で読み込みます．
+* \registerAccountID{<AccType>}{<AccLegbal>}{<勘定科目名>}で
+  勘定科目を登録します．
+  * <AccType>は勘定科目の種類で
+      A: 資産 (Asset)
+      L: 負債 (Liability)
+      N: 総資産 (Net asset)
+      R: 収益 (Revenue)
+      E: 費用 (Expence)
+      M: その他 (Misc.)
+    です
+  * <AccLegbal>は借方残高(D)か貸方残高(C)かです．
+* \journalentry{月}{日}{借方勘定科目}{金額}{貸方勘定科目}{摘要}で
+  仕訳を登録します．
+  \journalentry*{月}{日}{借方勘定科目}{金額}{貸方勘定科目}で
+  摘要なしの仕訳を登録出来ます．
+  * 今のところ単一仕訳方式のみ対応です．
+  * 開始仕訳はそれ用に勘定科目を設定して行ってください．
+* 月替わりには\ledgermonthlyclosing{月}を入れます．
+* 全部終わったら\printjournalで仕訳帳を，
+  \printgeneralledgerで総勘定元帳を，
+  \printmonthlytrialbalanceで月ごとの残高試算表を出力します，
+#
+\fi
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcounter{JENumber}
 \newcounter{JEIDiterator}
