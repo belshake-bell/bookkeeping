@@ -232,17 +232,17 @@
 %    \begin{macrocode}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcounter{JENumber}
+\newcounter{JECount}
 \newcounter{JEIDiterator}
-\newcounter{AccountTypeNumber}
+\newcounter{AccountTypeCount}
 \newcounter{AccountTypeiterator}
 \newcounter{AccountIDiterator}
 \newcounter{AccLdgIDiterator}
 \newcounter{LedgerEntryBalance}
-\newcounter{ClosingMonthNumber}
+\newcounter{ClosingMonthCount}
 \newcounter{MonthIterator}
 
-\newcounter{tableLineNumber}
+\newcounter{tableLineCount}
 \def\maxtablelinenumber{30}
 \def\BK@closingmonth{13}
 \newcount\sum@debit
@@ -259,7 +259,7 @@
 % \item
 %   \cmd{\csuse}\argchar{BK@AccType\meta{AccTypeID}}で\meta{AccType}を得る．
 % \item
-%   \cntname{AccountNumber\meta{AccType}}カウンタで
+%   \cntname{AccountCount\meta{AccType}}カウンタで
 %   勘定科目の種類が\meta{AccType}の勘定科目の総登録数を得る．
 % \end{itemize}
 %
@@ -270,7 +270,7 @@
 % \begin{description}
 % \item[\cntname{Name}]
 %   勘定科目名を得る．
-% \item[\cntname{LedgerNumber}]
+% \item[\cntname{LedgerCount}]
 %   勘定科目に登録された取引登録数．
 %   この数字でイテレータの分岐をさせる．
 %   （2024-01-15：NumberよりもCountの方がいいかも）
@@ -310,9 +310,9 @@
 %% registerAccType: 勘定科目の種類の登録
 %% #1: Account type name
 \def\registerAccType#1{%
-  \stepcounter{AccountTypeNumber}%
-  \csdef{BK@AccType\the\c@AccountTypeNumber}{#1}%
-  \newcounter{AccountNumber#1}%
+  \stepcounter{AccountTypeCount}%
+  \csdef{BK@AccType\the\c@AccountTypeCount}{#1}%
+  \newcounter{AccountCount#1}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -335,17 +335,17 @@
 %% #2: Account Ledger Balance (Debit(D) or Credit(C))
 %% #3: Account Name
 \newcommand{\registerAccountID}[3]{%
-  \global\advance\csuse{c@AccountNumber#1}\@ne\relax%
+  \global\advance\csuse{c@AccountCount#1}\@ne\relax%
   \csgdef{revAccount#3@Type}{#1}% AccType <- Account Name
   \csxdef{revAccount#3@ID}%
-    {\the\csname c@AccountNumber#1\endcsname}% ID <- Account Name
-  \csgdef{Account#1\the\csuse{c@AccountNumber#1}@Name}{#3}%
-  \csgdef{Account#1\the\csuse{c@AccountNumber#1}@LedgerNumber}{0}%
-  \csgdef{Account#1\the\csuse{c@AccountNumber#1}@LedgerBalanceType}{#2}%
+    {\the\csname c@AccountCount#1\endcsname}% ID <- Account Name
+  \csgdef{Account#1\the\csuse{c@AccountCount#1}@Name}{#3}%
+  \csgdef{Account#1\the\csuse{c@AccountCount#1}@LedgerCount}{0}%
+  \csgdef{Account#1\the\csuse{c@AccountCount#1}@LedgerBalanceType}{#2}%
   \BKtemp@countA=-1\relax
-  \edef\reserved@a{#1\the\csuse{c@AccountNumber#1}}%
+  \edef\reserved@a{#1\the\csuse{c@AccountCount#1}}%
   \register@Acc@Mon@Bal
-% \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccountNumber#1}}%
+% \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccountCount#1}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -387,7 +387,7 @@
 % \subsection{仕訳と仕訳帳}
 % \subsubsection{仕訳}
 % 取引の仕訳．
-% 取引仕訳の総登録数は\cntname{JENumber}カウンタで得られる．
+% 取引仕訳の総登録数は\cntname{JECount}カウンタで得られる．
 %
 % 取引IDを\meta{JEID}で表す．
 % 取引仕訳の各要素には\cntname{\cmd{\JE}\meta{JEID}@\meta{prop.}}で
@@ -436,7 +436,7 @@
 % ただし頑張るかは未定．
 \iffalse
 取引の仕訳．
-取引仕訳の総登録数はJENumberカウンタで得られる．
+取引仕訳の総登録数はJECountカウンタで得られる．
 
 取引IDを<JEID>と表すことにすると
 * JE<JEID>@Month: 取引月
@@ -461,44 +461,44 @@
 %    \begin{macrocode}
 %% journalentry (JE)
 \def\registerJE@Date#1#2{%
-  \csgdef{JE\the\c@JENumber @Month}{#1}%
-  \csgdef{JE\the\c@JENumber @Day}{#2}%
+  \csgdef{JE\the\c@JECount @Month}{#1}%
+  \csgdef{JE\the\c@JECount @Day}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\registerJE@Debit}\par
 %    \begin{macrocode}
 \def\registerJE@Debit#1#2{%
-  \csgdef{JE\the\c@JENumber @Debit@Accouunt}{#1}%
-  \csgdef{JE\the\c@JENumber @Debit@Value}{#2}%
+  \csgdef{JE\the\c@JECount @Debit@Accouunt}{#1}%
+  \csgdef{JE\the\c@JECount @Debit@Value}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\registerJE@Credit}\par
 %    \begin{macrocode}
 \def\registerJE@Credit#1#2{%
-  \csgdef{JE\the\c@JENumber @Credit@Accouunt}{#1}%
-  \csgdef{JE\the\c@JENumber @Credit@Value}{#2}%
+  \csgdef{JE\the\c@JECount @Credit@Accouunt}{#1}%
+  \csgdef{JE\the\c@JECount @Credit@Value}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\registerJE@AccountDesc}\par
 %    \begin{macrocode}
 \def\registerJE@AccountDesc#1#2{%
-  \csgdef{JE\the\c@JENumber @AccountDesc}{#1}%
-  \csgdef{ifJE\the\c@JENumber @AccountDesc}{#2}%
+  \csgdef{JE\the\c@JECount @AccountDesc}{#1}%
+  \csgdef{ifJE\the\c@JECount @AccountDesc}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\journ@lentry}\par
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
-  \stepcounter{JENumber}%
+  \stepcounter{JECount}%
   \registerJE@Date{#1}{#2}%
   \registerJE@Debit{#3}{#4}%
   \registerJE@Credit{#5}{#4}%
   \registerJE@AccountDesc{#6}{\iftrue}%
-  \csgdef{JE\the\c@JENumber @Line}{3}%
+  \csgdef{JE\the\c@JECount @Line}{3}%
   \ledger@entry{#3}{#5}{D}{#4}%
   \ledger@entry{#5}{#3}{C}{#4}%
 }
@@ -507,12 +507,12 @@
 % \begin{macro}{\sjourn@lentry}\par
 %    \begin{macrocode}
 \newcommand{\sjourn@lentry}[5]{%
-  \stepcounter{JENumber}%
+  \stepcounter{JECount}%
   \registerJE@Date{#1}{#2}%
   \registerJE@Debit{#3}{#4}%
   \registerJE@Credit{#5}{#4}%
   \registerJE@AccountDesc{}{\iffalse}%
-  \csgdef{JE\the\c@JENumber @Line}{2}%
+  \csgdef{JE\the\c@JECount @Line}{2}%
   \ledger@entry{#3}{#5}{D}{#4}%
   \ledger@entry{#5}{#3}{C}{#4}%
 }
@@ -641,16 +641,16 @@
 %    \begin{macrocode}
 \def\PJ@Loop@Table{%
   \gdef\n@xt{}%
-  \ifnum\c@JEIDiterator>\numexpr\c@JENumber-1\relax
+  \ifnum\c@JEIDiterator>\numexpr\c@JECount-1\relax
     \PJ@Terminate
   \else
-    \ifnum\c@tableLineNumber>\numexpr\maxtablelinenumber-1\relax
+    \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
       \gdef\n@xt{\PJ@Loop}%
       \gdef\n@xtprev{\PJ@CarryPrev}%
       \PJ@CarryForward
     \else
       \refstepcounter{JEIDiterator}%
-      \global\advance\c@tableLineNumber
+      \global\advance\c@tableLineCount
         \csuse{JE\the\c@JEIDiterator @Line}\relax
       \global\advance\sum@debit
         \csuse{JE\the\c@JEIDiterator @Debit@Value}\relax
@@ -681,7 +681,7 @@
   \end{tabular}
   \end{table}
   \clearpage
-  \global\c@tableLineNumber\z@\relax
+  \global\c@tableLineCount\z@\relax
   \n@xt
 }
 %    \end{macrocode}
@@ -729,7 +729,7 @@
 それによって参照される要素を持つ．
 
 !externな内容
-* Account<AccType><AccID>@LedgerNumber: 勘定科目に登録された取引登録数．
+* Account<AccType><AccID>@LedgerCount: 勘定科目に登録された取引登録数．
                                         この数字でイテレータの分岐をさせる．
 !externな内容ここまで
 
@@ -764,21 +764,21 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
 \def\ledger@entry#1#2#3#4{%
   \edef\LE@tmpA{\Account@getAccTypeAccID{#1}}% \LE@tmpA <- <AccType><AccID>
-  \BKtemp@countB=\csuse{Account\LE@tmpA @LedgerNumber}\relax
-  % tempcountB <- Account<AccType><AccID>@LedgerNumber
+  \BKtemp@countB=\csuse{Account\LE@tmpA @LedgerCount}\relax
+  % tempcountB <- Account<AccType><AccID>@LedgerCount
   \advance\BKtemp@countB\@ne
-  \csxdef{Account\LE@tmpA @LedgerNumber}{\the\BKtemp@countB}%
+  \csxdef{Account\LE@tmpA @LedgerCount}{\the\BKtemp@countB}%
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
     {\LE@tmpA-\the\BKtemp@countB}%
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEID}{%
-    \the\c@JENumber}% refference JEID
+    \the\c@JECount}% refference JEID
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @PartnerAccount}{#2}%
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEDesc}%
-    {\csuse{JE\the\c@JENumber @AccountDesc}}%
+    {\csuse{JE\the\c@JECount @AccountDesc}}%
   \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @IsAccountDebit}{#3}%
   \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}{#4}%
   % Account balance, Debit and Credit in the month
-  \BKtemp@countA=\csuse{JE\the\c@JENumber @Month}\relax% tempcountA <- JE@Month
+  \BKtemp@countA=\csuse{JE\the\c@JECount @Month}\relax% tempcountA <- JE@Month
   \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}{%
     \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}%
     + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
@@ -812,7 +812,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \newcommand{\ledgermonthlyclosing}[1]{% #1: closing month
   \BKtemp@countC\z@\relax
   \BKtemp@countD\z@\relax
-  \stepcounter{ClosingMonthNumber}%
+  \stepcounter{ClosingMonthCount}%
   \gdef\reserved@b{#1}%
   \ledgermonthlyclosing@loop
 }
@@ -821,7 +821,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\ledgermonthlyclosing@loop}\par
 %    \begin{macrocode}
 \def\ledgermonthlyclosing@loop{% loop for each AccType
-  \ifnum\the\BKtemp@countD<\c@AccountTypeNumber\relax
+  \ifnum\the\BKtemp@countD<\c@AccountTypeCount\relax
     \global\advance\BKtemp@countD\@ne
     \global\BKtemp@countC\z@\relax
     \xdef\reserved@c{\csname BK@AccType\the\BKtemp@countD \endcsname}%
@@ -834,7 +834,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\ledgermonthlyclosing@l@@p}\par
 %    \begin{macrocode}
 \def\ledgermonthlyclosing@l@@p{% loop for each AccID
-  \ifnum\the\BKtemp@countC<\the\csname c@AccountNumber\reserved@c \endcsname
+  \ifnum\the\BKtemp@countC<\the\csname c@AccountCount\reserved@c \endcsname
     \global\advance\BKtemp@countC\@ne
     \xdef\reserved@a{\csuse{Account\reserved@c\the\BKtemp@countC @Name}}%
     \expandafter\ledger@entry\expandafter{\reserved@a}{\reserved@b}{\relax}{0}%
@@ -975,7 +975,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \cntname{AccountIDiterator}を回す．
 %    \begin{macrocode}
 \def\PGL@Loop{%
-  \ifnum\c@AccountTypeiterator<\c@AccountTypeNumber\relax
+  \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
     \letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
     \setcounter{AccountIDiterator}{0}%
@@ -989,7 +989,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \cntname{AccLdgIDiterator}を回す．
 %    \begin{macrocode}
 \def\PGL@L@@p{%
-  \ifnum\c@AccountIDiterator<\csname c@AccountNumber\BK@AccType \endcsname
+  \ifnum\c@AccountIDiterator<\csname c@AccountCount\BK@AccType \endcsname
     \stepcounter{AccountIDiterator}%
     \expandafter\subsection\expandafter%
       {\csuse{Account\BK@AccType\the\c@AccountIDiterator @Name}}%
@@ -1022,7 +1022,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \end{tabular}
   \end{table}
   \clearpage
-  \global\c@tableLineNumber\z@\relax
+  \global\c@tableLineCount\z@\relax
   \n@xt
 }
 %    \end{macrocode}
@@ -1031,11 +1031,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \begin{macrocode}
 \def\PGL@ACLoop@Table{%
   \ifnum\c@AccLdgIDiterator>\numexpr
-      \csuse{Account\BK@AccType\the\c@AccountIDiterator @LedgerNumber}-1\relax
+      \csuse{Account\BK@AccType\the\c@AccountIDiterator @LedgerCount}-1\relax
     \hline
     \PGL@Terminate
   \else
-    \ifnum\c@tableLineNumber>\numexpr\maxtablelinenumber-1\relax
+    \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
       \hline
       \gdef\n@xt{\PGL@ACLoop}%
       \gdef\n@xtprev{\PGL@CarryPrev}%
@@ -1046,10 +1046,10 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       \ifnum\csname Account\BK@AccType\the\c@AccountIDiterator
                     @Ledger\the\c@AccLdgIDiterator
                     @AccountValue\endcsname=0\relax
-        \stepcounter{tableLineNumber}%
+        \stepcounter{tableLineCount}%
         \PGL@MonthlyClosing%
       \else
-        \stepcounter{tableLineNumber}%
+        \stepcounter{tableLineCount}%
         \PGL@Transaction{\the\c@AccLdgIDiterator}%
       \fi
       \expandafter\expandafter\expandafter\PGL@ACLoop@Table
@@ -1182,7 +1182,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@Loop}\par
 %    \begin{macrocode}
 \def\TB@Loop{%
-  \ifnum\c@MonthIterator<\c@ClosingMonthNumber
+  \ifnum\c@MonthIterator<\c@ClosingMonthCount
     \stepcounter{MonthIterator}%
     \BKtemp@countA\z@ \BKtemp@countB\z@
     \BKtemp@countC\z@ \BKtemp@countD\z@
@@ -1220,7 +1220,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@Loop@Table}\par
 %    \begin{macrocode}
 \def\TB@Loop@Table{%
-  \ifnum\c@AccountTypeiterator<\c@AccountTypeNumber\relax
+  \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
     \global\letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
     \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{0}%
@@ -1237,7 +1237,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@L@@p@Table}\par
 %    \begin{macrocode}
 \def\TB@L@@p@Table{%
-  \ifnum\c@AccountIDiterator<\csname c@AccountNumber\BK@AccType \endcsname
+  \ifnum\c@AccountIDiterator<\csname c@AccountCount\BK@AccType \endcsname
     \stepcounter{AccountIDiterator}%
 %   \typeout{4: AccountIDiterator=\the\c@AccountIDiterator}%
     \TB@L@@p@T@ble
