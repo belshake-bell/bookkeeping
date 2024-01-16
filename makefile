@@ -1,61 +1,76 @@
-TARGET = $(basename $(filter-out HEADER.tex,$(wildcard *.tex)))
-SRC = $(addsuffix .tex,$(TARGET))
-PDFTARGET = $(addsuffix .pdf,$(TARGET))
-DVITARGET = $(addsuffix .dvi,$(TARGET))
-MX2TARGET = $(addsuffix .mx2,$(TARGET))
-BIBTARGET = $(addsuffix .bbl,$(TARGET))
-MDXTARGET = $(addsuffix .ind,$(TARGET))
-DVIPDFMxOpt = #-f otf-up-yu-win10_mod otf-up-sourcehan #
-LOGSUFFIXES = .aux .log .toc .mx1 .mx2 .bcf .bbl .blg .idx .ind .ilg .out .run.xml
-LATEXENGINE := uplatex
-DVIWARE := dvipdfmx
+TEXMFLOCAL := $(shell kpsewhich --var-value=TEXMFlocal)
+DOCTARGET = bookkeeping
+TESTTARGET = test
+STRIPTARGET = $(addsuffix .sty,$(DOCTARGET))
+PDFTARGET = $(addsuffix .pdf,$(DOCTARGET))
+DVITARGET = $(addsuffix .dvi,$(DOCTARGET))
 
-define move
-	$(foreach tempsuffix,$(LOGSUFFIXES),$(call movebase,$1,$(tempsuffix)))
-	
-endef
-define movebase
-	if [ -e $(addsuffix $2,$1) ]; then mv $(addsuffix $2,$1) ./logs; fi
-	
-endef
+all: $(STRIPTARGET) $(PDFTARGET) movelog
+default: $(STRIPTARGET) $(DVITARGET)
+strip: $(STRIPTARGET)
 
-default: shiwake.pdf
-all: $(PDFTARGET)
-muflx: $(MX2TARGET)
-biblio: $(BIBTARGET)
-makeindex: $(MDXTARGET)
+bookkeeping.sty: bookkeeping.dtx
+	pdflatex bookkeeping.ins
 
-.SUFFIXES: .pdf .dvi .tex .mx2 .mx1 .bbl .bcf .ind .idx
+shiwake.pdf: shiwake.tex
 
-%.dvi: %.tex
-	uplatex $(notdir $<)
-	if [ -e $(basename $(notdir $<)).mx1 ]; then $(MAKE) -B $(basename $(notdir $<)).mx2; uplatex $(notdir $<) ;fi
-	if [ -e $(basename $(notdir $<)).bcf ]; then $(MAKE) -B $(basename $(notdir $<)).bbl; fi
-	if [ -e $(basename $(notdir $<)).idx ]; then $(MAKE) -B $(basename $(notdir $<)).ind; fi
-	uplatex $(notdir $<)
-	uplatex -synctex=1 $(notdir $<)
-	$(MAKE) movelog TARGET=$(basename $(notdir $<))
+.SUFFIXES: .dtx .dvi .pdf
+shiwake.dvi:shiwake.tex
+	uplatex $<
+	uplatex -synctex=1 $<
+.dtx.dvi:
+	uplatex $<
+	makeindex -s gind.ist $(basename $<)
+	makeindex -s gglo.ist -o $(addsuffix .gls,$(basename $<)) $(addsuffix .glo,$(basename $<))
+	uplatex -synctex=1 $<
+.dvi.pdf:
+	dvipdfmx $<
 
-%.pdf: %.dvi
-	dvipdfmx $(DVIPDFMxOpt) $(notdir $<)
-
-%.mx2: %.mx1
-	musixflx $(notdir $<)
-
-%.bbl: %.bcf
-	biber $(notdir $<)
-
-%.ind: %.idx
-	upmendex -s gcmc.ist -d dictU.dic -f $(notdir $<)
-
-movelog:
-	mkdir -p ./logs
-	$(foreach temp,$(TARGET),$(call move,$(temp)))
+.PHONY: clean cleanstrip cleanall cleandoc movelog install
+install: $(STRIPTARGET) $(PDFTARGET)
+	mkdir -p $(TEXMFLOCAL)/tex/platex/bellMacros
+	install $(STRIPTARGET) $(TEXMFLOCAL)/tex/platex/bellMacros
+	mkdir -p $(TEXMFLOCAL)/doc/platex/bellMacros
+	install $(PDFTARGET) $(TEXMFLOCAL)/doc/platex/bellMacros
 
 clean:
-	rm -f $(DVITARGET)
-	$(MAKE) movelog
+	rm -f $(DVITARGET) \
+	$(addsuffix .idx,$(DOCTARGET)) \
+	$(addsuffix .ind,$(DOCTARGET)) \
+	$(addsuffix .ilg,$(DOCTARGET)) \
+	$(addsuffix .glo,$(DOCTARGET)) \
+	$(addsuffix .gls,$(DOCTARGET)) \
+	$(addsuffix .aux,$(DOCTARGET)) \
+	$(addsuffix .toc,$(DOCTARGET)) \
+	$(addsuffix .log,$(DOCTARGET))
+
+cleanall:
+	rm -f $(PDFTARGET) \
+	$(STRIPTARGET) \
+	make clean
 
 makelog:
 	git log --oneline --decorate --graph --all 1> "log_all.txt"
 	git log --oneline --decorate --graph 1> "log.txt"
+movebuild:
+	if [ -e $(STRIPTARGET) ]; then mv $(STRIPTARGET) ./build; fi
+	if [ -e $(PDFTARGET) ]; then mv $(PDFTARGET) ./build; fi
+	if [ -e $(DOCTARGET).synctex.gz ]; then mv $(DOCTARGET).synctex.gz ./build; fi
+	if [ -e $(DVITARGET) ]; then mv $(DVITARGET) ./build; fi
+
+movelog:
+	if [ -e $(DOCTARGET).aux ]; then mv $(DOCTARGET).aux ./logs; fi
+	if [ -e $(DOCTARGET).log ]; then mv $(DOCTARGET).log ./logs; fi
+	if [ -e $(DOCTARGET).toc ]; then mv $(DOCTARGET).toc ./logs; fi
+	if [ -e $(DOCTARGET).mx1 ]; then mv $(DOCTARGET).mx1 ./logs; fi
+	if [ -e $(DOCTARGET).mx2 ]; then mv $(DOCTARGET).mx2 ./logs; fi
+	if [ -e $(DOCTARGET).bcf ]; then mv $(DOCTARGET).bcf ./logs; fi
+	if [ -e $(DOCTARGET).bbl ]; then mv $(DOCTARGET).bbl ./logs; fi
+	if [ -e $(DOCTARGET).blg ]; then mv $(DOCTARGET).blg ./logs; fi
+	if [ -e $(DOCTARGET).idx ]; then mv $(DOCTARGET).idx ./logs; fi
+	if [ -e $(DOCTARGET).ind ]; then mv $(DOCTARGET).ind ./logs; fi
+	if [ -e $(DOCTARGET).glo ]; then mv $(DOCTARGET).glo ./logs; fi
+	if [ -e $(DOCTARGET).gls ]; then mv $(DOCTARGET).gls ./logs; fi
+	if [ -e $(DOCTARGET).ilg ]; then mv $(DOCTARGET).ilg ./logs; fi
+	if [ -e $(DOCTARGET).out ]; then mv $(DOCTARGET).out ./logs; fi
+	if [ -e $(DOCTARGET).run.xml ]; then mv $(DOCTARGET).run.xml ./logs; fi

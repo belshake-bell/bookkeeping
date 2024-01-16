@@ -1,0 +1,1297 @@
+% ^^A -*- japanese-latex -*-
+%
+% \ifx\epTeXinputencoding\undefined\else
+%   \epTeXinputencoding utf8
+% \fi
+% \iffalse
+%<*driver>
+\ifx\epTeXinputencoding\undefined\else
+  \epTeXinputencoding utf8
+\fi
+%</driver>
+%
+%
+%<*driver>
+\documentclass[dvipdfmx,uplatex,a4paper,openany,jbase=12Q,nomag*,textwidth=40zw%draft
+               ]{bxjsarticle}
+\setpagelayout*{includefoot,%
+                vdivide={20mm,,20mm},%
+                hdivide={2in,,1in},%
+                footskip=10mm}
+%\documentclass[lualatex,a4paper,12Q]{jlreq}
+\usepackage{doc}
+\usepackage{ifptex}
+\ifptex
+  \xspcode"5C=1 %% \
+  \xspcode"22=1 %% "
+\fi
+%\addtolength{\textwidth}{-1in}
+%\addtolength{\evensidemargin}{1in}
+%\addtolength{\oddsidemargin}{1in}
+%\addtolength{\marginparwidth}{1in}
+\setlength\marginparpush{0pt}
+\usepackage{etoolbox}
+% \usepackage{listings}
+% \ifptex
+%   \usepackage{plistings}
+% \fi
+\usepackage{color}
+\usepackage{xspace}
+\usepackage{ifpdf}
+% \usepackage[colorlinks=true]{hyperref}
+% \ifptex
+%   \usepackage{pxjahyper}
+% \fi
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\definecolor{myblue}{rgb}{0,0,0.75}
+\definecolor{mygreen}{rgb}{0,0.45,0}
+\CodelineNumbered
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges % Gather update information
+\setcounter{StandardModuleDepth}{1}
+\setcounter{tocdepth}{3}
+
+\def\TikZ{Ti\textsl{k}Z}
+\newcommand*{\Lcount}[1]{\textsl{\small#1}}
+\newcommand*{\Lopt}[1]{\textsf{#1}}
+\newcounter{@clineno}
+\def\mlineplus#1{\setcounter{@clineno}{\arabic{CodelineNo}}%
+   \addtocounter{@clineno}{#1}\arabic{@clineno}}
+\makeatletter
+\DeclareRobustCommand{\cmd}[1]{\cs{\expandafter\cmd@to@cs\string#1}}
+\def\cmd@to@cs#1#2{\char\number`#2\relax}
+\makeatother
+\DeclareRobustCommand{\cs}[1]{\texttt{\char`\\#1}}
+\providecommand{\marg}[1]{%
+  {\ttfamily\char`\{}\meta{#1}{\ttfamily\char`\}}}
+\providecommand{\argchar}[1]{%
+  {\ttfamily\char`\{}\texttt{#1}{\ttfamily\char`\}}}
+\providecommand{\oarg}[1]{%
+  {\ttfamily[}\meta{#1}{\ttfamily]}}
+\newrobustcmd*{\env}[1]{\mbox{\ttfamily#1}}
+\let\cntname\env
+\newrobustcmd*{\file}[1]{\mbox{\ttfamily#1}}
+\newrobustcmd*{\prm}[1]{%
+  \ifblank{#1}%
+    {}%
+    {\mbox{%
+       \ensuremath\langle
+       \normalfont\textit{#1}%
+       \ensuremath\rangle}}}
+
+\usepackage{bookkeeping}
+\hypersetup{colorlinks,hyperfootnotes=false,linkcolor=myblue,urlcolor=mygreen}
+
+\GetFileInfo{bookkeeping.sty}
+\begin{document}
+  \DocInput{bookkeeping.dtx}
+\end{document}
+%</driver>
+%
+% \fi
+% \changes{v1.1.0}{2023/04/26}
+%   {make this .dtx file}
+% \changes{v1.0.0}{2023/02/05}
+%   {make .sty file}
+% \DoNotIndex{\@,\@@par,\@beginparpenalty,\@empty}
+% \DoNotIndex{\@flushglue,\@gobble,\@input}
+% \DoNotIndex{\@makefnmark,\@makeother,\@maketitle}
+% \DoNotIndex{\@namedef,\@ne,\@spaces,\@tempa}
+% \DoNotIndex{\@tempb,\@tempswafalse,\@tempswatrue}
+% \DoNotIndex{\@thanks,\@thefnmark,\@topnum}
+% \DoNotIndex{\@@,\@elt,\@forloop,\@fortmp,\@gtempa,\@totalleftmargin}
+% \DoNotIndex{\",\/,\@ifundefined,\@nil,\@verbatim,\@vobeyspaces}
+% \DoNotIndex{\|,\~,\ ,\active,\advance,\aftergroup,\begingroup,\bgroup}
+% \DoNotIndex{\mathcal,\csname,\def,\documentstyle,\dospecials,\edef}
+% \DoNotIndex{\egroup}
+% \DoNotIndex{\else,\endcsname,\endgroup,\endinput,\endtrivlist}
+% \DoNotIndex{\expandafter,\fi,\fnsymbol,\futurelet,\gdef,\global}
+% \DoNotIndex{\hbox,\hss,\if,\if@inlabel,\if@tempswa,\if@twocolumn}
+% \DoNotIndex{\ifcase,\iftrue,\iffalse}
+% \DoNotIndex{\ifcat,\iffalse,\ifx,\ignorespaces,\index,\input,\item}
+% \DoNotIndex{\jobname,\kern,\leavevmode,\leftskip,\let,\llap,\lower}
+% \DoNotIndex{\m@ne,\next,\newpage,\nobreak,\noexpand,\nonfrenchspacing}
+% \DoNotIndex{\obeylines,\or,\protect,\raggedleft,\rightskip,\rm,\sc}
+% \DoNotIndex{\setbox,\setcounter,\small,\space,\string,\strut}
+% \DoNotIndex{\strutbox}
+% \DoNotIndex{\thefootnote,\thispagestyle,\topmargin,\trivlist,\tt}
+% \DoNotIndex{\twocolumn,\typeout,\vss,\vtop,\xdef,\z@}
+% \DoNotIndex{\,,\@bsphack,\@esphack,\@noligs,\@vobeyspaces,\@xverbatim}
+% \DoNotIndex{\`,\catcode,\end,\escapechar,\frenchspacing,\glossary}
+% \DoNotIndex{\hangindent,\hfil,\hfill,\hskip,\hspace,\ht,\it,\langle}
+% \DoNotIndex{\leaders,\long,\makelabel,\marginpar,\markboth,\mathcode}
+% \DoNotIndex{\mathsurround,\mbox,\newcount,\newdimen,\newskip}
+% \DoNotIndex{\nopagebreak}
+% \DoNotIndex{\parfillskip,\parindent,\parskip,\penalty,\raise,\rangle}
+% \DoNotIndex{\section,\setlength,\TeX,\topsep,\underline,\unskip,\verb}
+% \DoNotIndex{\vskip,\vspace,\widetilde,\\,\%,\@date,\@defpar}
+% \DoNotIndex{\[,\{,\},\]}
+% \DoNotIndex{\count@,\ifnum,\loop,\today,\uppercase,\uccode}
+% \DoNotIndex{\baselineskip,\begin,\tw@}
+% \DoNotIndex{\a,\b,\c,\d,\e,\f,\g,\h,\i,\j,\k,\l,\m,\n,\o,\p,\q}
+% \DoNotIndex{\r,\s,\t,\u,\v,\w,\x,\y,\z,\A,\B,\C,\D,\E,\F,\G,\H}
+% \DoNotIndex{\I,\J,\K,\L,\M,\N,\O,\P,\Q,\R,\S,\T,\U,\V,\W,\X,\Y,\Z}
+% \DoNotIndex{\1,\2,\3,\4,\5,\6,\7,\8,\9,\0}
+% \DoNotIndex{\!,\#,\$,\&,\',\(,\),\+,\.,\:,\;,\<,\=,\>,\?,\_}
+% \DoNotIndex{\discretionary,\immediate,\makeatletter,\makeatother}
+% \DoNotIndex{\meaning,\newenvironment,\par,\relax,\renewenvironment}
+% \DoNotIndex{\repeat,\scriptsize,\selectfont,\the,\undefined}
+% \DoNotIndex{\arabic,\do,\makeindex,\null,\number,\show,\write,\@ehc}
+% \DoNotIndex{\@author,\@ehc,\@ifstar,\@sanitize,\@title,\everypar}
+% \DoNotIndex{\if@minipage,\if@restonecol,\ifeof,\ifmmode}
+% \DoNotIndex{\lccode,\newtoks,\onecolumn,\openin,\p@,\SelfDocumenting}
+% \DoNotIndex{\settowidth,\@resetonecoltrue,\@resetonecolfalse,\bf}
+% \DoNotIndex{\clearpage,\closein,\lowercase,\@inlabelfalse}
+% \DoNotIndex{\selectfont,\mathcode,\newmathalphabet,\rmdefault}
+% \DoNotIndex{\makebox}
+% \DoNotIndex{\bfdefault,\centering,\newcommand,\NeedsTeXFormat}
+% \DoNotIndex{\hline,\ref,\label,\newcounter,\refstepcounter,\stepcounter}
+% \DoNotIndex{\subsection}
+% \DoNotIndex{\RequirePackage,\ProvidePackage}
+% \DoNotIndex{\numexpr,\dimexpr}
+% \DoNotIndex{\zw}
+% \DoNotIndex{\multicolumn}
+% \iffalse etoolbox \fi
+% \DoNotIndex{\csuse,\csdef,\csedef,\csgdef,\csxdef,\letcs}
+% \iffalse hyperref \fi
+% \DoNotIndex{\hyperref}
+% \title{\filename}
+% \author{bell}
+% \date{\filedate}
+% \maketitle
+% \tableofcontents
+%
+% \MakeShortVerb{\|}
+%
+% \StopEventually{}
+% \section{概略・使い方}
+% \subsection{勘定科目の登録}
+% \cmd{\registerAccountID}\marg{AccType}\marg{AccLegbal}\marg{勘定科目名}で
+% 勘定科目を登録します．
+% \begin{itemize}
+% \item \marg{AccType}は勘定科目の種類で
+%   \begin{itemize}
+%     \item A: 資産 (Asset)
+%     \item L: 負債 (Liability)
+%     \item N: 総資産 (Net asset)
+%     \item R: 収益 (Revenue)
+%     \item E: 費用 (Expence)
+%     \item M: その他 (Misc.)
+%   \end{itemize}
+%   です
+% \item \marg{AccLegbal}は借方残高(D)か貸方残高(C)かです．
+% \end{itemize}
+% \subsection{仕訳の登録}
+% \cmd{\journalentry}\marg{月}\marg{日}\marg{借方勘定科目}\marg{金額}\marg{貸方勘定科目}\marg{摘要}で
+% 仕訳を登録します．
+% \cmd{\journalentry*}\marg{月}\marg{日}\marg{借方勘定科目}\marg{金額}\marg{貸方勘定科目}で
+% 摘要なしの仕訳を登録出来ます．
+% \begin{itemize}
+% \item 今のところ単一仕訳方式のみ対応です．
+% \item 開始仕訳はそれ用に勘定科目を設定して行ってください．
+% \end{itemize}
+% 月替わりには\cmd{\ledgermonthlyclosing}\marg{closing month}を入れます．
+% 
+% \subsection{調簿の出力}
+% 全部終わったら
+%   \cmd{\printjournal}で仕訳帳を，
+%   \cmd{\printgeneralledger}で総勘定元帳を，
+%   \cmd{\printmonthlytrialbalance}で月ごとの残高試算表を出力します，
+% \iffalse
+% \fi
+% \subsection{決算整理仕訳}
+% 決算整理仕訳についての一般論．
+% \begin{itemize}
+%   \item 現金・預金の残高を実際に確認し，帳簿との過不足がないか確認する
+%   \item 固定資産の減価償却を行い，減価償却費として費用計上する
+%   \item 決算時点の時価にもとづいて有価証券の評価を調整する
+%   \item 追加仕訳を仕訳帳に反映させ，総勘定元帳に転記する
+% \end{itemize}
+% \subsection{決算仕訳}
+% \begin{itemize}
+%   \item 費用と収益を損益勘定へ振替
+%   \item 損益勘定から当期純利益または純損失を算出
+%   \item 当期純利益または純損失を資本金勘定へ振替
+%   \item 資産，負債および総資産を閉鎖残高勘定へ振替
+% \end{itemize}
+% 
+% \section{実装}
+% \subsection{初期設定}
+%    \begin{macrocode}
+%<*style>
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesPackage{bookkeeping}%
+  [2023/02/05 v1.1.0 bookkeeping macros]
+\RequirePackage[colorlinks=true]{hyperref}
+\RequirePackage{pxjahyper}
+\RequirePackage{etoolbox}
+\RequirePackage{dcolumn}
+%    \end{macrocode}
+%    \begin{macrocode}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcounter{JENumber}
+\newcounter{JEIDiterator}
+\newcounter{AccountTypeNumber}
+\newcounter{AccountTypeiterator}
+\newcounter{AccountIDiterator}
+\newcounter{AccLdgIDiterator}
+\newcounter{LedgerEntryBalance}
+\newcounter{ClosingMonthNumber}
+\newcounter{MonthIterator}
+
+\newcounter{tableLineNumber}
+\def\maxtablelinenumber{30}
+\def\BK@closingmonth{13}
+\newcount\sum@debit
+\newcount\sum@credit
+\newcount\BKtemp@countA
+\newcount\BKtemp@countB
+\newcount\BKtemp@countC
+\newcount\BKtemp@countD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \subsection{勘定科目の種類および勘定科目}
+% 勘定科目の種類IDが\meta{AccTypeID}である勘定科目の種類について
+% \begin{itemize}
+% \item
+%   \cmd{\csuse}\argchar{BK@AccType\meta{AccTypeID}}で\meta{AccType}を得る．
+% \item
+%   \cntname{AccountNumber\meta{AccType}}カウンタで
+%   勘定科目の種類が\meta{AccType}の勘定科目の総登録数を得る．
+% \end{itemize}
+%
+% 勘定科目のIDを\meta{AccType}\meta{AccID}と表すこととすると，
+% 勘定科目の各要素には\cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@\meta{prop.}}で
+% アクセスできる．
+% \meta{prop.}の種類は次の通り．
+% \begin{description}
+% \item[\cntname{Name}]
+%   勘定科目名を得る．
+% \item[\cntname{LedgerNumber}]
+%   勘定科目に登録された取引登録数．
+%   この数字でイテレータの分岐をさせる．
+%   （2024-01-15：NumberよりもCountの方がいいかも）
+% \item[\cntname{LedgerBalanceType}]
+%   勘定科目が借方残高(D)か貸方残高(C)か．
+% \item[\cntname{Month}\meta{month}@\meta{month prop.}]
+%   \meta{month}で指定した月ごとの各要素にアクセスする．
+%   \meta{month prop.}の種類は次の通り．
+%   \begin{description}
+%   \item[\cntname{Balance}]
+%     月ごとの残高．
+%   \item[\cntname{Debit}]
+%     月ごとの借方合計．
+%   \item[\cntname{Credit}]
+%     月ごとの貸方合計．
+%   \end{description}
+% \end{description}
+% 
+% 勘定科目名\meta{AccName}から\meta{AccType}および\meta{AccID}を得るために
+% 次のマクロが用意されている．
+% \begin{description}
+% \item[\cmd{\Account@getAccID}\marg{AccName}]
+%   勘定科目名から\meta{AccID}を得る．
+% \item[\cmd{\Account@getAccType}\marg{AccName}]
+%   勘定科目名から\meta{AccType}を得る．
+% \item[\cmd{\Account@getAccTypeAccID}\marg{AccName}]
+%   勘定科目名から\meta{AccType}\meta{AccID}を得る．
+% \end{description}
+\iffalse
+0月は開始仕訳用，13月は閉鎖用．
+\fi
+% \begin{macro}{\registerAccType}\marg{Account type name}\par
+% 勘定科目の種類を登録する．
+% カウンタを確保するので無意味に何度も呼び出さないこと．
+%    \begin{macrocode}
+%% Account
+%% registerAccType: 勘定科目の種類の登録
+%% #1: Account type name
+\def\registerAccType#1{%
+  \stepcounter{AccountTypeNumber}%
+  \csdef{BK@AccType\the\c@AccountTypeNumber}{#1}%
+  \newcounter{AccountNumber#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+%    \begin{macrocode}
+\registerAccType{A}% 資産 (Asset)
+\registerAccType{L}% 負債 (Liability)
+\registerAccType{N}% 総資産 (Net asset)
+\registerAccType{R}% 収益 (Revenue)
+\registerAccType{E}% 費用 (Expence)
+\registerAccType{M}% その他 (Misc.)
+
+%    \end{macrocode}
+% \begin{macro}{\registerAccountID}\marg{Account Type}%
+%                                  \marg{Account Ledger Balance}%
+%                                  \marg{Account Name}\par
+% 勘定科目を登録する．
+%    \begin{macrocode}
+%% registerAccountID: 勘定科目の登録
+%% #1: Account type
+%% #2: Account Ledger Balance (Debit(D) or Credit(C))
+%% #3: Account Name
+\newcommand{\registerAccountID}[3]{%
+  \global\advance\csuse{c@AccountNumber#1}\@ne\relax%
+  \csgdef{revAccount#3@Type}{#1}% AccType <- Account Name
+  \csxdef{revAccount#3@ID}%
+    {\the\csname c@AccountNumber#1\endcsname}% ID <- Account Name
+  \csgdef{Account#1\the\csuse{c@AccountNumber#1}@Name}{#3}%
+  \csgdef{Account#1\the\csuse{c@AccountNumber#1}@LedgerNumber}{0}%
+  \csgdef{Account#1\the\csuse{c@AccountNumber#1}@LedgerBalanceType}{#2}%
+  \BKtemp@countA=-1\relax
+  \edef\reserved@a{#1\the\csuse{c@AccountNumber#1}}%
+  \register@Acc@Mon@Bal
+% \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccountNumber#1}}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\register@Acc@Mon@Bal}\par
+% 勘定科目の月ごとの残高・借方合計・貸方合計の登録．
+%    \begin{macrocode}
+% \register@Acc@Mon@Bal: 勘定科目の月ごとの残高・借方合計・貸方合計の登録
+\def\register@Acc@Mon@Bal{%
+  \ifnum\BKtemp@countA<\BK@closingmonth
+    \global\advance\BKtemp@countA\@ne\relax
+    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Balance}{0}%
+    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Debit}{0}%
+    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Credit}{0}%
+    \expandafter\register@Acc@Mon@Bal
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getAccID}\marg{勘定科目名}\par
+%  勘定科目名から勘定科目ID\meta{AccID}を得る．
+%    \begin{macrocode}
+\def\Account@getAccID#1{\csuse{revAccount#1@ID}}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getAccType}\marg{勘定科目名}\par
+%  勘定科目名から勘定科目の種類\meta{AccType}を得る．
+%    \begin{macrocode}
+\def\Account@getAccType#1{\csuse{revAccount#1@Type}}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getAccTypeAccID}\marg{勘定科目名}\par
+%  勘定科目名から\meta{AccType}\meta{AccID}を得る．
+%    \begin{macrocode}
+\def\Account@getAccTypeAccID#1{\Account@getAccType{#1}\Account@getAccID{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \end{macro}
+% \subsection{仕訳と仕訳帳}
+% \subsubsection{仕訳}
+% 取引の仕訳．
+% 取引仕訳の総登録数は\cntname{JENumber}カウンタで得られる．
+%
+% 取引IDを\meta{JEID}で表す．
+% 取引仕訳の各要素には\cntname{\cmd{\JE}\meta{JEID}@\meta{prop.}}で
+% アクセスできる．
+% \meta{prop.}の種類は次の通り．
+% \begin{description}
+% \item[\cntname{Month}]
+%   取引月を得る．
+% \item[\cntname{Day}]
+%   取引日を得る．
+% \item[\cntname{Debit}]
+%   借方の各要素を得る．
+%   \begin{description}
+%   \item[\cntname{Account}]
+%     勘定科目名．
+%   \item[\cntname{Value}]
+%     取引額．
+%   \item[\cntname{LEID}]
+%     総勘定元帳の登録ID（LEID）．
+%   \end{description}
+% \item[\cntname{Credit}]
+%   貸方の各要素を得る．
+%   \begin{description}
+%   \item[\cntname{Account}]
+%     勘定科目名．
+%   \item[\cntname{Value}]
+%     取引額．
+%   \item[\cntname{LEID}]
+%     総勘定元帳の登録ID（LEID）．
+%   \end{description}
+% \item[\cntname{AccountDesc}]
+%   摘要を得る．
+% \item[\cntname{Line}]
+%   仕訳帳での行数．
+% \end{description}
+%
+% また摘要の有無を判定するために
+% \begin{description}
+% \item[\cmd{\ifJE\meta{JEID}@AccountDesc}]
+% \item[\cmd{\JE@IfExistAccountDesc}]\marg{JEID}\marg{true}\marg{false}
+% \end{description}
+% が用意されている．
+%
+% 現時点では単一仕訳方式のみに対応しているが，
+% 頑張れば1:N複合仕訳方式には対応できそうである（N:Nは対応しないかも）．
+% ただし頑張るかは未定．
+\iffalse
+取引の仕訳．
+取引仕訳の総登録数はJENumberカウンタで得られる．
+
+取引IDを<JEID>と表すことにすると
+* JE<JEID>@Month: 取引月
+* JE<JEID>@Day: 取引日
+* JE<JEID>@Debit: 借方
+  * Account: 勘定科目名
+  * Value: 取引額
+  * LEID: LEID
+* JE<JEID>@Credit: 貸方
+  * Account
+  * Value
+  * LEID
+* JE<JEID>@AccountDesc: 摘要
+* ifJE<JEID>@AccountDesc: 摘要の有無
+* \JE@IfExistAccountDesc{<JEID>}{<true>}{<false>}: 摘要の有無 (true or false)で分岐するIf関数
+* JE<JEID>@Line: 仕訳帳での行数
+
+複合仕訳にするとなると科目の個数と各科目についてID割り振りが必要かなぁ……
+面倒なのでやらないと思う．
+\fi
+% \begin{macro}{\registerJE@Date}\par
+%    \begin{macrocode}
+%% journalentry (JE)
+\def\registerJE@Date#1#2{%
+  \csgdef{JE\the\c@JENumber @Month}{#1}%
+  \csgdef{JE\the\c@JENumber @Day}{#2}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\registerJE@Debit}\par
+%    \begin{macrocode}
+\def\registerJE@Debit#1#2{%
+  \csgdef{JE\the\c@JENumber @Debit@Accouunt}{#1}%
+  \csgdef{JE\the\c@JENumber @Debit@Value}{#2}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\registerJE@Credit}\par
+%    \begin{macrocode}
+\def\registerJE@Credit#1#2{%
+  \csgdef{JE\the\c@JENumber @Credit@Accouunt}{#1}%
+  \csgdef{JE\the\c@JENumber @Credit@Value}{#2}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\registerJE@AccountDesc}\par
+%    \begin{macrocode}
+\def\registerJE@AccountDesc#1#2{%
+  \csgdef{JE\the\c@JENumber @AccountDesc}{#1}%
+  \csgdef{ifJE\the\c@JENumber @AccountDesc}{#2}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\journ@lentry}\par
+%    \begin{macrocode}
+\newcommand{\journ@lentry}[6]{%
+  \stepcounter{JENumber}%
+  \registerJE@Date{#1}{#2}%
+  \registerJE@Debit{#3}{#4}%
+  \registerJE@Credit{#5}{#4}%
+  \registerJE@AccountDesc{#6}{\iftrue}%
+  \csgdef{JE\the\c@JENumber @Line}{3}%
+  \ledger@entry{#3}{#5}{D}{#4}%
+  \ledger@entry{#5}{#3}{C}{#4}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\sjourn@lentry}\par
+%    \begin{macrocode}
+\newcommand{\sjourn@lentry}[5]{%
+  \stepcounter{JENumber}%
+  \registerJE@Date{#1}{#2}%
+  \registerJE@Debit{#3}{#4}%
+  \registerJE@Credit{#5}{#4}%
+  \registerJE@AccountDesc{}{\iffalse}%
+  \csgdef{JE\the\c@JENumber @Line}{2}%
+  \ledger@entry{#3}{#5}{D}{#4}%
+  \ledger@entry{#5}{#3}{C}{#4}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\JE@IfExistAccountDesc}\par
+%    \begin{macrocode}
+\def\JE@IfExistAccountDesc#1#2#3{%
+  \csname ifJE#1@AccountDesc\endcsname
+  #2\else#3\fi
+}
+
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\journalentry}\marg{月}%
+%                             \marg{日}%
+%                             \marg{借方科目名}%
+%                             \marg{取引額}%
+%                             \marg{貸方科目名}%
+%                             \marg{摘要}%\par
+% \begin{macro}{\journalentry*}\marg{月}%
+%                             \marg{日}%
+%                             \marg{借方科目名}%
+%                             \marg{取引額}%
+%                             \marg{貸方科目名}\par
+% 星付きのときは摘要が不要なものを示す．
+%    \begin{macrocode}
+%% \journalentry
+%% #1: month
+%% #2: date
+%% #3: debit account name
+%% #4: debit/credit value
+%% #5: credit account name
+%%   and if not stared
+%% #6: description
+\newcommand{\journalentry}{%
+  \@ifstar{\sjourn@lentry}{\journ@lentry}%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \subsubsection{仕訳帳}
+% 仕訳帳の出力．
+% 各\meta{JEID}について書き出していくだけだが，
+% 次ページ・前ページ繰り越しのために\cmd{\sum@debit}および\cmd{\sum@credit}の加算も行っている．
+% \begin{macro}{\printJE@Date}\par
+%    \begin{macrocode}
+\def\printJE@Date#1{%
+  \csuse{JE#1@Month}/\csuse{JE#1@Day}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@x@printline}\par
+%    \begin{macrocode}
+\def\PJ@x@printline#1#2#3#4#5#6#7{%
+  #1&#2&#3&#4&#5&#6&#7\\%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@s@printline}\par
+%    \begin{macrocode}
+\def\PJ@s@printline#1#2#3#4#5#6{%
+  #1&#2&\multicolumn{2}{l|}{#3}&#4&#5&#6\\%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@printline}\par
+%    \begin{macrocode}
+\def\PJ@printline{%
+  \@ifstar{\PJ@s@printline}{\PJ@x@printline}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Transaction}\par
+%    \begin{macrocode}
+\def\PJ@Transaction#1{% #1: journal entry ID
+  \JE@IfExistAccountDesc{#1}{%
+    \gdef\@tmp@PJ{%
+      \PJ@printline*{}{}{\csuse{JE#1@AccountDesc}}{}{}{}\hline
+    }%
+  }{%
+    \global\let\@tmp@PJ\hline
+  }%
+  \edef\@tmp@PJ@deb{\csuse{JE#1@Debit@LEID}}%
+  \PJ@printline{#1\label{JEID:#1}}{\printJE@Date{#1}}
+               {（\csname JE#1@Debit@Accouunt\endcsname）}{}
+               {\hyperref[LEID:\csuse{JE#1@Debit@LEID}]%
+                         {\csuse{JE#1@Debit@LEID}}}
+               {\csname JE#1@Debit@Value\endcsname}{}%
+  \edef\@tmp@PJ@cre{\csuse{JE#1@Credit@LEID}}%
+  \PJ@printline{}{}
+               {}{（\csname JE#1@Credit@Accouunt\endcsname）}
+               {\hyperref[LEID:\csuse{JE#1@Credit@LEID}]%
+                         {\csuse{JE#1@Credit@LEID}}}
+               {}{\csname JE#1@Credit@Value\endcsname}%
+  \@tmp@PJ
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@CarryPrev}\par
+%    \begin{macrocode}
+\def\PJ@CarryPrev{\gdef\n@xtprev{}%
+  \PJ@printline{}{}{前頁繰越}{}{}
+               {\the\sum@debit}{\the\sum@credit}\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@CarryForward}\par
+%    \begin{macrocode}
+\def\PJ@CarryForward{%
+  \PJ@printline{}{}{}{次頁繰越}{}
+               {\the\sum@debit}{\the\sum@credit}\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Terminate}\par
+%    \begin{macrocode}
+\def\PJ@Terminate{%
+  \PJ@printline{}{}{}{総計}{}
+               {\the\sum@debit}{\the\sum@credit}\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Loop@Table}\par
+%    \begin{macrocode}
+\def\PJ@Loop@Table{%
+  \gdef\n@xt{}%
+  \ifnum\c@JEIDiterator>\numexpr\c@JENumber-1\relax
+    \PJ@Terminate
+  \else
+    \ifnum\c@tableLineNumber>\numexpr\maxtablelinenumber-1\relax
+      \gdef\n@xt{\PJ@Loop}%
+      \gdef\n@xtprev{\PJ@CarryPrev}%
+      \PJ@CarryForward
+    \else
+      \refstepcounter{JEIDiterator}%
+      \global\advance\c@tableLineNumber
+        \csuse{JE\the\c@JEIDiterator @Line}\relax
+      \global\advance\sum@debit
+        \csuse{JE\the\c@JEIDiterator @Debit@Value}\relax
+      \global\advance\sum@credit
+        \csuse{JE\the\c@JEIDiterator @Credit@Value}\relax
+      \PJ@Transaction{\the\c@JEIDiterator}%
+      \expandafter\expandafter\expandafter\PJ@Loop@Table\expandafter\expandafter
+%     \gdef\n@xt{\PJ@Loop@Table}%
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Loop}\par
+%    \begin{macrocode}
+\def\PJ@Loop{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r|r}
+    \makebox[2\zw]{ID}%
+    & \multicolumn{1}{c|}{date}%
+    & \makebox[10\zw][c]{摘}
+    & \makebox[10\zw][c]{要}%
+    & \makebox[2\zw][c]{LEID}%
+    & \makebox[5\zw][c]{借方}%
+    & \makebox[5\zw][c]{貸方} \\ \hline
+    \n@xtprev
+    \PJ@Loop@Table
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \global\c@tableLineNumber\z@\relax
+  \n@xt
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\printjournal}\par
+%    \begin{macrocode}
+\newcommand{\printjournal}{%
+  \setcounter{JEIDiterator}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+  \PJ@Loop
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \end{macro}
+% \subsection{総勘定元帳}
+% \subsubsection{総勘定元帳への転記登録}
+% 仕訳の登録と同時に総勘定元帳への登録も行う．
+% 
+% 勘定科目のIDを\meta{AccType}\meta{AccID}，
+% 各勘定科目ごとの取引登録IDを\meta{AccLdgID}で表すこととする．
+% 各勘定科目ごとの取引の各要素には
+% \cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Ledger\meta{AccLdgID}@\meta{prop.}}で
+% アクセスできる．
+% \meta{prop.}の種類は次の通り．
+% \begin{description}
+% \item[\cntname{FullLEID}]
+%   登録された取引の描画用の形式に直されたLEID
+%   （\cntname{\meta{AccType}\meta{AccID}-\meta{AccLdgID}}）を得る．
+% \item[\cntname{JEID}]
+%   登録された取引の取引IDを得る．
+% \item[\cntname{PartnerAccount}]
+%   登録された取引の相手勘定科目を得る．
+% \item[\cntname{JEDesc}]
+%   登録された取引のを得る．
+% \item[\cntname{IsAccountDebit}]
+%   登録された取引での借貸がどちらだったか（\cntname{D}または\cntname{C}）を得る．
+% \item[\cntname{AccountValue}]
+%   登録された取引での取引額を得る．
+% \end{description}
+%
+\iffalse
+総勘定元帳．
+勘定科目ID(AccID)および各勘定科目ごとの取引登録ID(AccLdgID)，
+それによって参照される要素を持つ．
+
+!externな内容
+* Account<AccType><AccID>@LedgerNumber: 勘定科目に登録された取引登録数．
+                                        この数字でイテレータの分岐をさせる．
+!externな内容ここまで
+
+* Account<AccType><AccID>@Ledger<AccLdgID>@FullLEID: 描画用のLEID<AccType><AccID>-<AccLdgID>を得る．
+* Account<AccType><AccID>@Ledger<AccLdgID>@JEID: 登録された取引の取引ID．
+* Account<AccType><AccID>@Ledger<AccLdgID>@PartnerAccount: 登録された取引の相手勘定科目．
+* Account<AccType><AccID>@Ledger<AccLdgID>@JEDesc: 登録された取引の摘要．
+* Account<AccType><AccID>@Ledger<AccLdgID>@IsAccountDebit: 登録された取引での借貸がどちらだったか．
+* Account<AccType><AccID>@Ledger<AccLdgID>@AccountValue: 登録された取引での取引額．
+
+JEIDで取引の月日が分かるのでデータとして持つ必要はない．
+一方で相手科目は持たせた方が楽っぽい？
+必ずしも持たせる必要はないと思うけど処理がめんどいと思う．
+\fi
+% \begin{macro}{\ledger@entry}\marg{勘定科目名}%
+%                             \marg{相手科目名}%
+%                             \marg{借（貸）方}%
+%                             \marg{取引額}\par
+% \cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Ledger\meta{AccLdgID}@\meta{prop.}}に
+% 各種値を代入していく．
+% そのほか\cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Month\meta{Month}@\meta{prop.}}に
+% 各種値を代入していく．
+% \meta{借（貸）方}はその取引で借方のときに\cntname{D}を，貸方の時に\cntname{C}をとる．
+% また\meta{取引額}は\cntname{0}のときに月次締切を表すことにしている\footnote{%
+%   \meta{借（貸）方}にフラグを持たせるほうがいいのかもしれない．
+% }．
+%    \begin{macrocode}
+%% general ledger (GL)
+%% #1: Account name
+%% #2: Partner account name
+%% #3: is account Debit? (boolean; D or C)
+%% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
+\def\ledger@entry#1#2#3#4{%
+  \edef\LE@tmpA{\Account@getAccTypeAccID{#1}}% \LE@tmpA <- <AccType><AccID>
+  \BKtemp@countB=\csuse{Account\LE@tmpA @LedgerNumber}\relax
+  % tempcountB <- Account<AccType><AccID>@LedgerNumber
+  \advance\BKtemp@countB\@ne
+  \csxdef{Account\LE@tmpA @LedgerNumber}{\the\BKtemp@countB}%
+  \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
+    {\LE@tmpA-\the\BKtemp@countB}%
+  \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEID}{%
+    \the\c@JENumber}% refference JEID
+  \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @PartnerAccount}{#2}%
+  \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEDesc}%
+    {\csuse{JE\the\c@JENumber @AccountDesc}}%
+  \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @IsAccountDebit}{#3}%
+  \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}{#4}%
+  % Account balance, Debit and Credit in the month
+  \BKtemp@countA=\csuse{JE\the\c@JENumber @Month}\relax% tempcountA <- JE@Month
+  \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}{%
+    \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}%
+    + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
+  }%
+  \if#3D%
+    \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Debit}{%
+      \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Debit}%
+      + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
+    }%
+    \csxdef{JE\csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEID}@Debit@LEID}{%
+      \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
+    }%
+  \fi
+  \if#3C%
+    \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Credit}{%
+      \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Credit}%
+      + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
+    }%
+    \csxdef{JE\csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEID}@Credit@LEID}{%
+      \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
+    }%
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ledgermonthlyclosing}\marg{締切月}\par
+% 月次締切用コマンド．
+% 各\meta{AccType}および各\meta{AccID}についてイテレータ
+% \cmd{\BKtemp@countD}および\cmd{\BKtemp@countC}を用いてループを回す．
+%    \begin{macrocode}
+\newcommand{\ledgermonthlyclosing}[1]{% #1: closing month
+  \BKtemp@countC\z@\relax
+  \BKtemp@countD\z@\relax
+  \stepcounter{ClosingMonthNumber}%
+  \gdef\reserved@b{#1}%
+  \ledgermonthlyclosing@loop
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ledgermonthlyclosing@loop}\par
+%    \begin{macrocode}
+\def\ledgermonthlyclosing@loop{% loop for each AccType
+  \ifnum\the\BKtemp@countD<\c@AccountTypeNumber\relax
+    \global\advance\BKtemp@countD\@ne
+    \global\BKtemp@countC\z@\relax
+    \xdef\reserved@c{\csname BK@AccType\the\BKtemp@countD \endcsname}%
+    % \reserved@c <- AccType
+    \expandafter\ledgermonthlyclosing@l@@p
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ledgermonthlyclosing@l@@p}\par
+%    \begin{macrocode}
+\def\ledgermonthlyclosing@l@@p{% loop for each AccID
+  \ifnum\the\BKtemp@countC<\the\csname c@AccountNumber\reserved@c \endcsname
+    \global\advance\BKtemp@countC\@ne
+    \xdef\reserved@a{\csuse{Account\reserved@c\the\BKtemp@countC @Name}}%
+    \expandafter\ledger@entry\expandafter{\reserved@a}{\reserved@b}{\relax}{0}%
+    \expandafter\ledgermonthlyclosing@l@@p
+  \else
+    \expandafter\ledgermonthlyclosing@loop
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ledgerclosing}\marg{損益勘定科目名}\marg{利益剰余金勘定科目名}\par
+% 年度締切用コマンド（まだ未実装）．
+% \begin{enumerate}
+% \item 収益と費用の各勘定科目について損益振替をする
+% \item 総資産の勘定科目（一般には利益剰余金勘定）に損益の振替をする
+% \item 資産，負債および総資産の勘定科目について閉鎖残高に振替をする
+% \end{enumerate}
+% が目標。
+%    \begin{macrocode}
+\newcommand{\ledgerclosing}{%
+}
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{総勘定元帳の出力}
+% 一貫して\cmd{\PGL@}を接頭辞として用いるようにする．
+% \begin{macro}{\PGL@printline}%
+%   \marg{AccLdgID}%
+%   \marg{月/日}%
+%   \marg{相手勘定科目名}%
+%   \marg{摘要}%
+%   \marg{JEID}%
+%   \marg{借方}%
+%   \marg{貸方}%
+%   \marg{残高賃借}%
+%   \marg{残高}\par
+% 総勘定元帳での各取引の出力用．
+%    \begin{macrocode}
+% #1: LEID
+% #2: Month/Day
+% #3: Account title
+% #4: Desc.
+% #5: JEID
+% #6: Debit
+% #7: Credit
+% #8: Balance type
+% #9: Balance
+\def\PGL@printline#1#2#3#4#5#6#7#8#9{%
+  #1&#2&#3&#4&#5&#6&#7&#8&#9\\%
+}
+
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@Transaction}\marg{AccLdgID}\par
+% \meta{AccLdgID}の取引を出力する．
+%    \begin{macrocode}
+\def\PGL@Transaction#1{% #1: ladger entry ID
+  \xdef\PGL@tmp@AccTypeAccID{\BK@AccType\the\c@AccountIDiterator}%
+  \global\BKtemp@countB=%
+    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@JEID}\relax%
+    % tempcountB <- Account[AccType][AccID].Ledger[AccLdgID].JEID
+  \xdef\Acc@Ledg@IsAccDeb{%
+    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@IsAccountDebit}%
+  }%
+  \xdef\Acc@LedgBal{%
+    \csuse{Account\PGL@tmp@AccTypeAccID @LedgerBalanceType}%
+  }%
+  \PGL@printline{% LEID
+    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@FullLEID}%
+    \label{LEID:\PGL@tmp@AccTypeAccID-#1}%
+  }{% Month/Day
+    \printJE@Date{\the\BKtemp@countB}%
+  }{% Account title
+    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@PartnerAccount}%
+  }{% Desc.
+    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@JEDesc}%
+  }{% JEID
+    \hyperref[JEID:\the\BKtemp@countB]{\the\BKtemp@countB}%
+  }{% Debit
+    \if\Acc@Ledg@IsAccDeb D\relax%
+      \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@AccountValue}%
+      \global\advance\sum@debit
+                     \csuse{Account\PGL@tmp@AccTypeAccID
+                             @Ledger#1@AccountValue}\relax
+    \fi
+  }{% Credit
+    \if\Acc@Ledg@IsAccDeb C\relax%
+      \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@AccountValue}%
+      \global\advance\sum@credit
+                     \csuse{Account\PGL@tmp@AccTypeAccID
+                             @Ledger#1@AccountValue}\relax
+    \fi
+  }{% Balance type
+    \if\Acc@LedgBal D%
+      借\else 貸%
+    \fi
+  }{% Balance
+    \if\Acc@Ledg@IsAccDeb\Acc@LedgBal
+      \global\advance\c@LedgerEntryBalance
+                     \csuse{Account\PGL@tmp@AccTypeAccID
+                             @Ledger#1@AccountValue}\relax
+    \else
+      \global\advance\c@LedgerEntryBalance
+                    -\csuse{Account\PGL@tmp@AccTypeAccID
+                             @Ledger#1@AccountValue}\relax
+    \fi \the\c@LedgerEntryBalance}%
+}
+%    \end{macrocode}
+% \end{macro}
+\iffalse
+  \printgeneralledger
+  v
+  \PGL@Loop -> exit loop
+  v
+  v
+  \PGL@L@@p -> \PGL@Loop
+  v
+  \PGL@ACLoop
+  v
+  \PGL@ACLoop@Table -> \PGL@CarryForward -> \PGL@ACLoop
+  v ^
+  v ^               \> \PGL@Terminate    -> \PGL@L@@p
+  v ^
+  \PGL@Transaction
+\fi
+% \begin{macro}{\printgeneralledger}\par
+%    \begin{macrocode}
+\newcommand{\printgeneralledger}{%
+  \setcounter{AccountTypeiterator}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+  \PGL@Loop
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@Loop}\par
+% \cntname{AccountTypeiterator}でイテレーション，
+% \cmd{\BK@AccType}に現在の\meta{AccType}を代入して
+% \cntname{AccountIDiterator}を回す．
+%    \begin{macrocode}
+\def\PGL@Loop{%
+  \ifnum\c@AccountTypeiterator<\c@AccountTypeNumber\relax
+    \stepcounter{AccountTypeiterator}%
+    \letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
+    \setcounter{AccountIDiterator}{0}%
+    \expandafter\PGL@L@@p
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@L@@p}\par
+% \cntname{AccountIDiterator}でイテレーション，
+% \cntname{AccLdgIDiterator}を回す．
+%    \begin{macrocode}
+\def\PGL@L@@p{%
+  \ifnum\c@AccountIDiterator<\csname c@AccountNumber\BK@AccType \endcsname
+    \stepcounter{AccountIDiterator}%
+    \expandafter\subsection\expandafter%
+      {\csuse{Account\BK@AccType\the\c@AccountIDiterator @Name}}%
+    \setcounter{AccLdgIDiterator}{0}%
+    \setcounter{LedgerEntryBalance}{0}%
+    \global\sum@debit\z@\relax\global\sum@credit\z@\relax
+    \expandafter\PGL@ACLoop
+  \else
+    \expandafter\PGL@Loop
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@ACLoop}\par
+%    \begin{macrocode}
+\def\PGL@ACLoop{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
+  \PGL@printline{\makebox[4\zw]{LEID}}%
+                {\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
+                {\makebox[7\zw]{相手勘定科目}}%
+                {\multicolumn{1}{c|}{\makebox[10\zw]{摘}\makebox[10\zw]{要}}}%
+                {\makebox[2\zw]{JEID}}%
+                {\makebox[4\zw]{借方}}%
+                {\makebox[4\zw]{貸方}}%
+                {\makebox[2\zw]{借/貸}}%
+                {\makebox[4\zw]{残高}}\hline
+    \n@xtprev
+    \PGL@ACLoop@Table
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \global\c@tableLineNumber\z@\relax
+  \n@xt
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@ACLoop@Table}\par
+%    \begin{macrocode}
+\def\PGL@ACLoop@Table{%
+  \ifnum\c@AccLdgIDiterator>\numexpr
+      \csuse{Account\BK@AccType\the\c@AccountIDiterator @LedgerNumber}-1\relax
+    \hline
+    \PGL@Terminate
+  \else
+    \ifnum\c@tableLineNumber>\numexpr\maxtablelinenumber-1\relax
+      \hline
+      \gdef\n@xt{\PGL@ACLoop}%
+      \gdef\n@xtprev{\PGL@CarryPrev}%
+      \PGL@CarryForward
+    \else
+      \gdef\n@xt{\PGL@L@@p}%
+      \stepcounter{AccLdgIDiterator}%
+      \ifnum\csname Account\BK@AccType\the\c@AccountIDiterator
+                    @Ledger\the\c@AccLdgIDiterator
+                    @AccountValue\endcsname=0\relax
+        \stepcounter{tableLineNumber}%
+        \PGL@MonthlyClosing%
+      \else
+        \stepcounter{tableLineNumber}%
+        \PGL@Transaction{\the\c@AccLdgIDiterator}%
+      \fi
+      \expandafter\expandafter\expandafter\PGL@ACLoop@Table
+      \expandafter\expandafter
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@CarryPrev}\par
+%    \begin{macrocode}
+\def\PGL@CarryPrev{%
+  \gdef\n@xtprev{}%
+  \PGL@printline
+    {}{}{前頁繰越}{}{}%
+    {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+  \hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@MonthlyClosing}\par
+%    \begin{macrocode}
+\def\PGL@MonthlyClosing{%
+  \xdef\PGL@tmp@AccTypeAccID{\BK@AccType\the\c@AccountIDiterator}%
+  \xdef\Acc@LedgBal{%
+    \csuse{Account\PGL@tmp@AccTypeAccID
+           @LedgerBalanceType}}%
+  \xdef\tmp@PGL@ClosingMonth{%
+    \csuse{Account\PGL@tmp@AccTypeAccID
+           @Ledger\the\c@AccLdgIDiterator
+           @PartnerAccount}}% \tmp@PGL@ClosingMonth <- Closing month
+  \global\sum@debit\z@\relax \global\sum@credit\z@\relax
+  \csxdef{Account\PGL@tmp@AccTypeAccID
+          @Month\tmp@PGL@ClosingMonth @Balance}{\the\c@LedgerEntryBalance}%
+  \PGL@printline{}{}{\tmp@PGL@ClosingMonth 月決算}{}{}%
+     {\csuse{Account\PGL@tmp@AccTypeAccID
+             @Month\tmp@PGL@ClosingMonth @Debit}}%
+     {\csuse{Account\PGL@tmp@AccTypeAccID
+             @Month\tmp@PGL@ClosingMonth @Credit}}%
+     {}{}\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@CarryForward}\par
+%    \begin{macrocode}
+\def\PGL@CarryForward{%
+  \PGL@printline{}{}{\multicolumn{1}{r|}{次頁繰越}}{}{}%
+                {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+  \hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@Terminate}\par
+%    \begin{macrocode}
+\def\PGL@Terminate{%
+  \PGL@printline{}{}{}{}{}{\the\sum@debit}{\the\sum@credit}{}{}\hline\hline
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \end{macro}
+% \subsection{合計残高試算表}
+% \begin{macro}{\TB@printTable}\par
+%    \begin{macrocode}
+% Trial balance (TB)
+\def\TB@printTable#1#2#3#4#5{%
+  #1&#2&#3&#4&#5\\%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@L@@p@T@ble}\par
+%    \begin{macrocode}
+\def\TB@L@@p@T@ble{%
+  \xdef\reserved@a{\BK@AccType\the\c@AccountIDiterator}%
+  \xdef\Acc@LedgBal{%
+    \csname Account\reserved@a @LedgerBalanceType\endcsname}%
+  \TB@printTable{%
+    \if\Acc@LedgBal D%
+      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
+      \global\advance\BKtemp@countA
+                     \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{%
+        \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}%
+        + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      }%
+    \fi
+  }{%
+    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}%
+    \global\advance\BKtemp@countB
+                   \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Debit}{%
+      \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @Debit}%
+      + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
+    }%
+  }{%
+    \csuse{Account\reserved@a @Name}%
+  }{%
+    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}%
+    \global\advance\BKtemp@countC
+                   \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Credit}{%
+      \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @Credit}%
+      + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
+    }%
+  }{%
+    \if\Acc@LedgBal C%
+      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
+      \global\advance\BKtemp@countD
+                     \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}{%
+        \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}%
+        + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+      }%
+    \fi
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\printmonthlytrialbalance}\par
+%    \begin{macrocode}
+\newcommand{\printmonthlytrialbalance}{%
+  \setcounter{MonthIterator}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+% \typeout{1}%
+  \TB@Loop
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@Loop}\par
+%    \begin{macrocode}
+\def\TB@Loop{%
+  \ifnum\c@MonthIterator<\c@ClosingMonthNumber
+    \stepcounter{MonthIterator}%
+    \BKtemp@countA\z@ \BKtemp@countB\z@
+    \BKtemp@countC\z@ \BKtemp@countD\z@
+    \expandafter\subsection\expandafter{\the\c@MonthIterator 月}%
+    \setcounter{AccountTypeiterator}{0}%
+%   \typeout{2: MonthIterator=\the\c@MonthIterator}%
+    \expandafter\TB@L@@p
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@L@@p}\par
+%    \begin{macrocode}
+\def\TB@L@@p{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{rrcrr}
+    \multicolumn{2}{c}{借方}&&\multicolumn{2}{c}{貸方}\\%
+    \TB@printTable{\makebox[5\zw]{残高}}{\makebox[5\zw]{合計}}%
+                  {\makebox[10\zw]{勘定科目}}{\makebox[5\zw]{合計}}%
+                  {\makebox[5\zw]{残高}}\hline%
+    \TB@Loop@Table
+    \hline
+    \TB@printTable@sumAccType
+    \hline
+    \TB@printTable{\the\BKtemp@countA}{\the\BKtemp@countB}%
+                  {合計}%
+                  {\the\BKtemp@countC}{\the\BKtemp@countD}\hline%
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \TB@Loop
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@Loop@Table}\par
+%    \begin{macrocode}
+\def\TB@Loop@Table{%
+  \ifnum\c@AccountTypeiterator<\c@AccountTypeNumber\relax
+    \stepcounter{AccountTypeiterator}%
+    \global\letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{0}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Debit}{0}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}{0}%
+    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Credit}{0}%
+    \setcounter{AccountIDiterator}{0}%
+%   \typeout{3: AccountTypeiterator=\BK@AccType}%
+    \expandafter\TB@L@@p@Table
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@L@@p@Table}\par
+%    \begin{macrocode}
+\def\TB@L@@p@Table{%
+  \ifnum\c@AccountIDiterator<\csname c@AccountNumber\BK@AccType \endcsname
+    \stepcounter{AccountIDiterator}%
+%   \typeout{4: AccountIDiterator=\the\c@AccountIDiterator}%
+    \TB@L@@p@T@ble
+    \expandafter\TB@L@@p@Table
+  \else
+    \TB@Loop@Table
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@printTable@sumAccType}\par
+%    \begin{macrocode}
+\def\TB@printTable@sumAccType{%
+  \TB@printTable{\csuse{AccountA@Month\the\c@MonthIterator @sumDebit}}%
+                {\csuse{AccountA@Month\the\c@MonthIterator @Debit}}%
+                {資産}%
+                {\csuse{AccountA@Month\the\c@MonthIterator @Credit}}%
+                {}%
+  \TB@printTable{}%
+                {\csuse{AccountL@Month\the\c@MonthIterator @Debit}}%
+                {負債}%
+                {\csuse{AccountL@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountL@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printTable{}%
+                {\csuse{AccountN@Month\the\c@MonthIterator @Debit}}%
+                {総資産}%
+                {\csuse{AccountN@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountN@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printTable{}%
+                {\csuse{AccountR@Month\the\c@MonthIterator @Debit}}%
+                {収益}%
+                {\csuse{AccountR@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountR@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printTable{\csuse{AccountE@Month\the\c@MonthIterator @sumDebit}}%
+                {\csuse{AccountE@Month\the\c@MonthIterator @Debit}}%
+                {費用}%
+                {\csuse{AccountE@Month\the\c@MonthIterator @Credit}}%
+                {}%
+  \TB@printTable{\csuse{AccountM@Month\the\c@MonthIterator @sumDebit}}%
+                {\csuse{AccountM@Month\the\c@MonthIterator @Debit}}%
+                {その他}%
+                {\csuse{AccountM@Month\the\c@MonthIterator @Credit}}%
+                {\csuse{AccountM@Month\the\c@MonthIterator @sumCredit}}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% 以上で終わりです.
+%
+%    \begin{macrocode}
+%</style>
+\endinput
+%    \end{macrocode}
+%
+%
+% \Finale
+% \PrintIndex \PrintChanges
