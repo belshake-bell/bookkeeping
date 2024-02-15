@@ -273,7 +273,6 @@
 % \item[\cntname{LedgerCount}]
 %   勘定科目に登録された取引登録数．
 %   この数字でイテレータの分岐をさせる．
-%   （2024-01-15：NumberよりもCountの方がいいかも）
 % \item[\cntname{LedgerBalanceType}]
 %   勘定科目が借方残高(D)か貸方残高(C)か．
 % \item[\cntname{Month}\meta{month}@\meta{month prop.}]
@@ -303,7 +302,7 @@
 0月は開始仕訳用，13月は閉鎖用．
 \fi
 % \begin{macro}{\registerAccType}\marg{Account type name}\par
-% 勘定科目の種類を登録する．
+% 勘定科目の種類\meta{AccType}を登録する．
 % カウンタを確保するので無意味に何度も呼び出さないこと．
 %    \begin{macrocode}
 %% Account
