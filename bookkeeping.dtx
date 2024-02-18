@@ -961,6 +961,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \PGL@Transaction
 \fi
 % \begin{macro}{\printgeneralledger}\par
+% 実際に総勘定元帳を出力するコマンド．
+% いくつかのパラメタを初期化して\cmd{\PLG@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printgeneralledger}{%
   \setcounter{AccountTypeiterator}{0}%
@@ -971,9 +973,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@Loop}\par
-% \cntname{AccountTypeiterator}でイテレーション，
-% \cmd{\BK@AccType}に現在の\meta{AccType}を代入して
-% \cntname{AccountIDiterator}を回す．
+% 各勘定科目の種類について\cmd{PLG@L@@p}を呼び出す．
 %    \begin{macrocode}
 \def\PGL@Loop{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
@@ -986,8 +986,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@L@@p}\par
-% \cntname{AccountIDiterator}でイテレーション，
-% \cntname{AccLdgIDiterator}を回す．
+% ある勘定科目の種類に属する各勘定科目について\cmd{PLG@ACLoop}を呼び出す．
+% 全ての勘定科目について呼び出したら\cmd{PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p{%
   \ifnum\c@AccountIDiterator<\csname c@AccountCount\BK@AccType \endcsname
@@ -1005,6 +1005,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@ACLoop}\par
+% 勘定元帳の表を作り，（改ページが
+% 1ページ当たりの行数を超えたことに因るときには前頁繰越をして）
+% \cmd{PLG@ACLoop@Table}を呼び出す．
+% その処理が終わった後改ページをして\cmd{PLG@ACLoop@Table}内で設定した
+% \cmd{n@xt}を呼び出す：これは改ページが
+% 1ページ当たりの行数を超えたことに因るときには\cmd{PGL@ACLoop}，
+% 勘定科目の仕訳を全て出力したことに因るときには\cmd{PGL@L@@p}である．
+% 
 %    \begin{macrocode}
 \def\PGL@ACLoop{%
   \begin{table}[ht]\centering
@@ -1029,6 +1037,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@ACLoop@Table}\par
+% ある勘定科目の各仕訳について\cmd{PGL@Transaction}を呼び出す．
+% 全ての仕訳を出力したら\cmd{PGL@Terminate}を呼び出す．
+% その他改ページ処理など．
 %    \begin{macrocode}
 \def\PGL@ACLoop@Table{%
   \ifnum\c@AccLdgIDiterator>\numexpr
