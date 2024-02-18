@@ -301,14 +301,16 @@
 \iffalse
 0月は開始仕訳用，13月は閉鎖用．
 \fi
-% \begin{macro}{\registerAccType}\marg{Account type name}\par
+% \changes{v1.1.0}{2023/04/26}
+%   {the name of \cmd{\registerAccType} is changed to \cmd{\BK@registerAccType}.}
+% \begin{macro}{\BK@registerAccType}\marg{Account type name}\par
 % 勘定科目の種類\meta{AccType}を登録する．
 % カウンタを確保するので無意味に何度も呼び出さないこと．
 %    \begin{macrocode}
 %% Account
 %% registerAccType: 勘定科目の種類の登録
 %% #1: Account type name
-\def\registerAccType#1{%
+\def\BK@registerAccType#1{%
   \stepcounter{AccountTypeCount}%
   \csdef{BK@AccType\the\c@AccountTypeCount}{#1}%
   \newcounter{AccountCount#1}%
@@ -316,12 +318,12 @@
 %    \end{macrocode}
 % \end{macro}
 %    \begin{macrocode}
-\registerAccType{A}% 資産 (Asset)
-\registerAccType{L}% 負債 (Liability)
-\registerAccType{N}% 総資産 (Net asset)
-\registerAccType{R}% 収益 (Revenue)
-\registerAccType{E}% 費用 (Expence)
-\registerAccType{M}% その他 (Misc.)
+\BK@registerAccType{A}% 資産 (Asset)
+\BK@registerAccType{L}% 負債 (Liability)
+\BK@registerAccType{N}% 総資産 (Net asset)
+\BK@registerAccType{R}% 収益 (Revenue)
+\BK@registerAccType{E}% 費用 (Expence)
+\BK@registerAccType{M}% その他 (Misc.)
 
 %    \end{macrocode}
 % \begin{macro}{\registerAccountID}\marg{Account Type}%
