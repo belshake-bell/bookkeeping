@@ -254,15 +254,75 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    \end{macrocode}
 % \subsection{勘定科目の種類および勘定科目}
-% 勘定科目の種類IDが\meta{AccTypeID}である勘定科目の種類について
-% \begin{itemize}
-% \item
-%   \cmd{\csuse}\argchar{BK@AccType\meta{AccTypeID}}で\meta{AccType}を得る．
-% \item
-%   \cntname{AccountCount\meta{AccType}}カウンタで
-%   勘定科目の種類が\meta{AccType}の勘定科目の総登録数を得る．
-% \end{itemize}
+% \subsubsection{勘定科目の種類}
+% \changes{v1.1.0}{2024/02/21}
+%   {勘定科目の種類についてリファクタ}
+% 勘定科目の種類が\meta{AccType}である勘定科目の種類について、
+% 勘定科目の各要素には\cntname{\cmd{\AccType}\meta{AccType}@\meta{prop.}}で
+% アクセスできる．
+% \meta{prop.}の種類は次の通り．
+% \begin{description}
+% \item[\cntname{Name}]
+%   勘定科目の種類の名前．
+% \item[\cntname{ID}]
+%   勘定科目の種類の識別番号(ID)．
+% \item[\cntname{AccountCount}]
+%   勘定科目の種類に登録された勘定科目数のカウンタ．
+% \end{description}
+% % \begin{itemize}
+% % \item
+% %   \cmd{\csuse}\argchar{BK@AccType\meta{AccTypeID}}で\meta{AccType}を得る．
+% % \item
+% %   \cntname{AccountCount\meta{AccType}}カウンタで
+% %   勘定科目の種類が\meta{AccType}の勘定科目の総登録数を得る．
+% % \end{itemize}
 %
+% 勘定科目の種類の総数はカウンタ\cntname{AccountTypeCount}に保持する．
+%
+% 勘定科目の種類の識別番号\meta{AccTypeID}から\meta{AccType}を得るために
+% \cmd{\AccType@getAccType}\marg{AccTypeID}を用意する．
+%
+% \begin{macro}{\BK@registerAccType}\marg{AccType}\marg{AccTypeName}\par
+% \changes{v1.1.0}{2023/04/26}
+%   {the name of registerAccType is changed to BK@registerAccType.}
+% \changes{v1.1.0}{2024/02/21}
+%   {勘定科目の種類についてリファクタ．}
+% 勘定科目の種類\meta{AccType}を登録する．
+% カウンタを確保するので無意味に何度も呼び出さないこと．
+%    \begin{macrocode}
+%% Account
+%% registerAccType: 勘定科目の種類の登録
+%% #1: AccType
+%% #2: AccTypeName
+\def\BK@registerAccType#1#2{%
+  \stepcounter{AccountTypeCount}%
+  \csgdef{AccType#1@Name}{#2}%
+  \csxdef{revAccType\the\c@AccountTypeCount @AccType}{#1}%
+  \csxdef{AccType#1@ID}{\theAccountTypeCount}%
+%%\csdef{BK@AccType\the\c@AccountTypeCount}{#1}%
+  \newcounter{AccType#1@AccountCount}%
+}
+%    \end{macrocode}
+% \end{macro}
+%    \begin{macrocode}
+\BK@registerAccType{A}{資産}% 資産 (Asset)
+\BK@registerAccType{L}{負債}% 負債 (Liability)
+\BK@registerAccType{N}{総資産}% 総資産 (Net asset)
+\BK@registerAccType{R}{収益}% 収益 (Revenue)
+\BK@registerAccType{E}{費用}% 費用 (Expence)
+\BK@registerAccType{M}{その他}% その他 (Misc.)
+
+%    \end{macrocode}
+% \begin{macro}{\AccType@getAccType}\marg{勘定科目の種類ID}\par
+% \changes{v1.1.0}{2024/02/21}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを設置．}
+%  勘定科目の種類IDから勘定科目の種類\meta{AccType}を得る．
+%    \begin{macrocode}
+\def\AccType@getAccType#1{\csuse{revAccType#1@AccType}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{勘定科目}
 % 勘定科目のIDを\meta{AccType}\meta{AccID}と表すこととすると，
 % 勘定科目の各要素には\cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@\meta{prop.}}で
 % アクセスできる．
@@ -301,31 +361,6 @@
 \iffalse
 0月は開始仕訳用，13月は閉鎖用．
 \fi
-% \changes{v1.1.0}{2023/04/26}
-%   {the name of registerAccType is changed to BK@registerAccType.}
-% \begin{macro}{\BK@registerAccType}\marg{Account type name}\par
-% 勘定科目の種類\meta{AccType}を登録する．
-% カウンタを確保するので無意味に何度も呼び出さないこと．
-%    \begin{macrocode}
-%% Account
-%% registerAccType: 勘定科目の種類の登録
-%% #1: Account type name
-\def\BK@registerAccType#1{%
-  \stepcounter{AccountTypeCount}%
-  \csdef{BK@AccType\the\c@AccountTypeCount}{#1}%
-  \newcounter{AccountCount#1}%
-}
-%    \end{macrocode}
-% \end{macro}
-%    \begin{macrocode}
-\BK@registerAccType{A}% 資産 (Asset)
-\BK@registerAccType{L}% 負債 (Liability)
-\BK@registerAccType{N}% 総資産 (Net asset)
-\BK@registerAccType{R}% 収益 (Revenue)
-\BK@registerAccType{E}% 費用 (Expence)
-\BK@registerAccType{M}% その他 (Misc.)
-
-%    \end{macrocode}
 % \begin{macro}{\registerAccountID}\marg{Account Type}%
 %                                  \marg{Account Ledger Balance}%
 %                                  \marg{Account Name}\par
@@ -820,12 +855,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\ledgermonthlyclosing@loop}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
 %    \begin{macrocode}
 \def\ledgermonthlyclosing@loop{% loop for each AccType
   \ifnum\the\BKtemp@countD<\c@AccountTypeCount\relax
     \global\advance\BKtemp@countD\@ne
     \global\BKtemp@countC\z@\relax
-    \xdef\reserved@c{\csname BK@AccType\the\BKtemp@countD \endcsname}%
+    \xdef\reserved@c{\csname \AccType@getAccType{\the\BKtemp@countD}\endcsname}%
     % \reserved@c <- AccType
     \expandafter\ledgermonthlyclosing@l@@p
   \fi
@@ -1017,12 +1054,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@Loop}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
 % 各勘定科目の種類について\cmd{PLG@L@@p}を呼び出す．
 %    \begin{macrocode}
 \def\PGL@Loop{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
-    \letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
+    \letcs\BK@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
     \setcounter{AccountIDiterator}{0}%
     \expandafter\PGL@L@@p
   \fi
@@ -1278,7 +1317,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \def\TB@Loop@Table{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
-    \global\letcs\BK@AccType{BK@AccType\the\c@AccountTypeiterator}%
+    \global\letcs\BK@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
     \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{0}%
     \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Debit}{0}%
     \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}{0}%
