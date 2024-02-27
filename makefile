@@ -12,10 +12,10 @@ strip: $(STRIPTARGET)
 bookkeeping.sty: bookkeeping.dtx
 	pdflatex bookkeeping.ins
 
-shiwake.pdf: shiwake.tex
+test.pdf: test.tex
 
 .SUFFIXES: .dtx .dvi .pdf
-shiwake.dvi:shiwake.tex
+%.dvi:%.tex
 	uplatex $<
 	uplatex -synctex=1 $<
 .dtx.dvi:
@@ -26,7 +26,7 @@ shiwake.dvi:shiwake.tex
 .dvi.pdf:
 	dvipdfmx $<
 
-.PHONY: clean cleanstrip cleanall cleandoc movelog install
+.PHONY: clean cleanstrip cleanall cleandoc movelog install test
 install: $(STRIPTARGET) $(PDFTARGET)
 	mkdir -p $(TEXMFLOCAL)/tex/platex/bellMacros
 	install $(STRIPTARGET) $(TEXMFLOCAL)/tex/platex/bellMacros
