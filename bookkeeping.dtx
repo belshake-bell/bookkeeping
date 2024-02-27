@@ -970,10 +970,12 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@Transaction}\marg{AccLdgID}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \meta{AccLdgID}の取引を出力する．
 %    \begin{macrocode}
 \def\PGL@Transaction#1{% #1: ladger entry ID
-  \xdef\PGL@tmp@AccTypeAccID{\BK@AccType\the\c@AccountIDiterator}%
+  \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@AccountIDiterator}%
   \global\BKtemp@countB=%
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@JEID}\relax%
     % tempcountB <- Account[AccType][AccID].Ledger[AccLdgID].JEID
@@ -1056,12 +1058,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\PGL@Loop}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % 各勘定科目の種類について\cmd{PLG@L@@p}を呼び出す．
 %    \begin{macrocode}
 \def\PGL@Loop{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
-    \letcs\BK@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
+    \letcs\PGL@tmp@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
     \setcounter{AccountIDiterator}{0}%
     \expandafter\PGL@L@@p
   \fi
@@ -1069,14 +1073,16 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@L@@p}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % ある勘定科目の種類に属する各勘定科目について\cmd{PLG@ACLoop}を呼び出す．
 % 全ての勘定科目について呼び出したら\cmd{PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p{%
-  \ifnum\c@AccountIDiterator<\csname c@AccountCount\BK@AccType \endcsname
+  \ifnum\c@AccountIDiterator<\csname c@AccountCount\PGL@tmp@AccType \endcsname
     \stepcounter{AccountIDiterator}%
     \expandafter\subsection\expandafter%
-      {\csuse{Account\BK@AccType\the\c@AccountIDiterator @Name}}%
+      {\csuse{Account\PGL@tmp@AccType\the\c@AccountIDiterator @Name}}%
     \setcounter{AccLdgIDiterator}{0}%
     \setcounter{LedgerEntryBalance}{0}%
     \global\sum@debit\z@\relax\global\sum@credit\z@\relax
@@ -1120,13 +1126,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@ACLoop@Table}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % ある勘定科目の各仕訳について\cmd{PGL@Transaction}を呼び出す．
 % 全ての仕訳を出力したら\cmd{PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
 %    \begin{macrocode}
 \def\PGL@ACLoop@Table{%
   \ifnum\c@AccLdgIDiterator>\numexpr
-      \csuse{Account\BK@AccType\the\c@AccountIDiterator @LedgerCount}-1\relax
+      \csuse{Account\PGL@tmp@AccType\the\c@AccountIDiterator @LedgerCount}-1\relax
     \hline
     \PGL@Terminate
   \else
@@ -1138,7 +1146,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \else
       \gdef\n@xt{\PGL@L@@p}%
       \stepcounter{AccLdgIDiterator}%
-      \ifnum\csname Account\BK@AccType\the\c@AccountIDiterator
+      \ifnum\csname Account\PGL@tmp@AccType\the\c@AccountIDiterator
                     @Ledger\the\c@AccLdgIDiterator
                     @AccountValue\endcsname=0\relax
         \stepcounter{tableLineCount}%
@@ -1166,9 +1174,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@MonthlyClosing}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing{%
-  \xdef\PGL@tmp@AccTypeAccID{\BK@AccType\the\c@AccountIDiterator}%
+  \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@AccountIDiterator}%
   \xdef\Acc@LedgBal{%
     \csuse{Account\PGL@tmp@AccTypeAccID
            @LedgerBalanceType}}%
@@ -1216,9 +1226,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@L@@p@T@ble}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 %    \begin{macrocode}
 \def\TB@L@@p@T@ble{%
-  \xdef\reserved@a{\BK@AccType\the\c@AccountIDiterator}%
+  \xdef\reserved@a{\TB@tmp@AccType\the\c@AccountIDiterator}%
   \xdef\Acc@LedgBal{%
     \csname Account\reserved@a @LedgerBalanceType\endcsname}%
   \TB@printTable{%
@@ -1226,8 +1238,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
       \global\advance\BKtemp@countA
                      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
-      \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{%
-        \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}%
+      \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumDebit}{%
+        \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumDebit}%
         + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
       }%
     \fi
@@ -1235,8 +1247,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}%
     \global\advance\BKtemp@countB
                    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
-    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Debit}{%
-      \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @Debit}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Debit}{%
+      \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Debit}%
       + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
     }%
   }{%
@@ -1245,8 +1257,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}%
     \global\advance\BKtemp@countC
                    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
-    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Credit}{%
-      \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @Credit}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Credit}{%
+      \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Credit}%
       + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
     }%
   }{%
@@ -1254,8 +1266,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
       \global\advance\BKtemp@countD
                      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
-      \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}{%
-        \the\numexpr\csuse{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}%
+      \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumCredit}{%
+        \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumCredit}%
         + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
       }%
     \fi
@@ -1313,26 +1325,30 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@Loop@Table}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 %    \begin{macrocode}
 \def\TB@Loop@Table{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
-    \global\letcs\BK@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
-    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumDebit}{0}%
-    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Debit}{0}%
-    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @sumCredit}{0}%
-    \csxdef{Account\BK@AccType @Month\the\c@MonthIterator @Credit}{0}%
+    \global\letcs\TB@tmp@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumDebit}{0}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Debit}{0}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumCredit}{0}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Credit}{0}%
     \setcounter{AccountIDiterator}{0}%
-%   \typeout{3: AccountTypeiterator=\BK@AccType}%
+%   \typeout{3: AccountTypeiterator=\TB@tmp@AccType}%
     \expandafter\TB@L@@p@Table
   \fi
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@L@@p@Table}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 %    \begin{macrocode}
 \def\TB@L@@p@Table{%
-  \ifnum\c@AccountIDiterator<\csname c@AccountCount\BK@AccType \endcsname
+  \ifnum\c@AccountIDiterator<\csname c@AccountCount\TB@tmp@AccType \endcsname
     \stepcounter{AccountIDiterator}%
 %   \typeout{4: AccountIDiterator=\the\c@AccountIDiterator}%
     \TB@L@@p@T@ble
