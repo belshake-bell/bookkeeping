@@ -364,6 +364,8 @@
 % \begin{macro}{\registerAccountID}\marg{Account Type}%
 %                                  \marg{Account Ledger Balance}%
 %                                  \marg{Account Name}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
 % 勘定科目を登録する．
 %    \begin{macrocode}
 %% registerAccountID: 勘定科目の登録
@@ -371,17 +373,17 @@
 %% #2: Account Ledger Balance (Debit(D) or Credit(C))
 %% #3: Account Name
 \newcommand{\registerAccountID}[3]{%
-  \global\advance\csuse{c@AccountCount#1}\@ne\relax%
+  \global\advance\csuse{c@AccType#1@AccountCount}\@ne\relax%
   \csgdef{revAccount#3@Type}{#1}% AccType <- Account Name
   \csxdef{revAccount#3@ID}%
-    {\the\csname c@AccountCount#1\endcsname}% ID <- Account Name
-  \csgdef{Account#1\the\csuse{c@AccountCount#1}@Name}{#3}%
-  \csgdef{Account#1\the\csuse{c@AccountCount#1}@LedgerCount}{0}%
-  \csgdef{Account#1\the\csuse{c@AccountCount#1}@LedgerBalanceType}{#2}%
+    {\the\csname c@AccType#1@AccountCount\endcsname}% ID <- Account Name
+  \csgdef{Account#1\the\csuse{c@AccType#1@AccountCount}@Name}{#3}%
+  \csgdef{Account#1\the\csuse{c@AccType#1@AccountCount}@LedgerCount}{0}%
+  \csgdef{Account#1\the\csuse{c@AccType#1@AccountCount}@LedgerBalanceType}{#2}%
   \BKtemp@countA=-1\relax
-  \edef\reserved@a{#1\the\csuse{c@AccountCount#1}}%
+  \edef\reserved@a{#1\the\csuse{c@AccType#1@AccountCount}}%
   \register@Acc@Mon@Bal
-% \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccountCount#1}}%
+% \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccType#1@AccountCount}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -849,7 +851,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \BKtemp@countC\z@\relax
   \BKtemp@countD\z@\relax
   \stepcounter{ClosingMonthCount}%
-  \gdef\reserved@b{#1}%
+  \gdef\LMC@month{#1}%
   \ledgermonthlyclosing@loop
 }
 %    \end{macrocode}
@@ -862,20 +864,22 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \ifnum\the\BKtemp@countD<\c@AccountTypeCount\relax
     \global\advance\BKtemp@countD\@ne
     \global\BKtemp@countC\z@\relax
-    \xdef\reserved@c{\csname \AccType@getAccType{\the\BKtemp@countD}\endcsname}%
-    % \reserved@c <- AccType
+    \xdef\LMC@AccType{\AccType@getAccType{\the\BKtemp@countD}}%
+    % \LMC@AccType <- AccType
     \expandafter\ledgermonthlyclosing@l@@p
   \fi
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\ledgermonthlyclosing@l@@p}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
 %    \begin{macrocode}
 \def\ledgermonthlyclosing@l@@p{% loop for each AccID
-  \ifnum\the\BKtemp@countC<\the\csname c@AccountCount\reserved@c \endcsname
+  \ifnum\BKtemp@countC<\csname c@AccType\LMC@AccType @AccountCount\endcsname
     \global\advance\BKtemp@countC\@ne
-    \xdef\reserved@a{\csuse{Account\reserved@c\the\BKtemp@countC @Name}}%
-    \expandafter\ledger@entry\expandafter{\reserved@a}{\reserved@b}{\relax}{0}%
+    \xdef\reserved@a{\csuse{Account\LMC@AccType\the\BKtemp@countC @Name}}%
+    \expandafter\ledger@entry\expandafter{\reserved@a}{\LMC@month}{\relax}{0}%
     \expandafter\ledgermonthlyclosing@l@@p
   \else
     \expandafter\ledgermonthlyclosing@loop
@@ -917,7 +921,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
 %    \begin{macrocode}
 \newcommand{\journalentry@PLtransfar@LoopAccType}[1]{%
-  \ifnum\c@AccountIDiterator<\csuse{c@AccountCount#1}%
+  \ifnum\c@AccountIDiterator<\csuse{c@AccType#1@AccountCount}%
     \stepcounter{AccountIDiterator}%
     \xdef\JE@PLT@Account{\csuse{Account#1\the\c@AccountIDiterator@Name}}%
     \journalentry@PLtransfar@register
@@ -1065,7 +1069,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \def\PGL@Loop{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
-    \letcs\PGL@tmp@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
+    \xdef\PGL@tmp@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
     \setcounter{AccountIDiterator}{0}%
     \expandafter\PGL@L@@p
   \fi
@@ -1075,11 +1079,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\PGL@L@@p}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
 % ある勘定科目の種類に属する各勘定科目について\cmd{PLG@ACLoop}を呼び出す．
 % 全ての勘定科目について呼び出したら\cmd{PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p{%
-  \ifnum\c@AccountIDiterator<\csname c@AccountCount\PGL@tmp@AccType \endcsname
+  \ifnum\c@AccountIDiterator<\csname c@AccType\PGL@tmp@AccType @AccountCount\endcsname
     \stepcounter{AccountIDiterator}%
     \expandafter\subsection\expandafter%
       {\csuse{Account\PGL@tmp@AccType\the\c@AccountIDiterator @Name}}%
@@ -1331,7 +1337,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \def\TB@Loop@Table{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
-    \global\letcs\TB@tmp@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
+    \xdef\TB@tmp@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
     \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumDebit}{0}%
     \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Debit}{0}%
     \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumCredit}{0}%
@@ -1346,9 +1352,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@L@@p@Table}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
 %    \begin{macrocode}
 \def\TB@L@@p@Table{%
-  \ifnum\c@AccountIDiterator<\csname c@AccountCount\TB@tmp@AccType \endcsname
+  \ifnum\c@AccountIDiterator<\csname c@AccType\TB@tmp@AccType @AccountCount\endcsname
     \stepcounter{AccountIDiterator}%
 %   \typeout{4: AccountIDiterator=\the\c@AccountIDiterator}%
     \TB@L@@p@T@ble
