@@ -497,7 +497,8 @@
 複合仕訳にするとなると科目の個数と各科目についてID割り振りが必要かなぁ……
 面倒なのでやらないと思う．
 \fi
-% \begin{macro}{\registerJE@Date}\par
+% \begin{macro}{\registerJE@Date}\marg{仕訳月}\marg{仕訳日}\par
+% 仕訳の月日を登録する．
 %    \begin{macrocode}
 %% journalentry (JE)
 \def\registerJE@Date#1#2{%
@@ -506,7 +507,8 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@Debit}\par
+% \begin{macro}{\registerJE@Debit}\marg{借方勘定科目}\marg{金額}\par
+% 仕訳の借方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\registerJE@Debit#1#2{%
   \csgdef{JE\the\c@JECount @Debit@Accouunt}{#1}%
@@ -514,7 +516,8 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@Credit}\par
+% \begin{macro}{\registerJE@Credit}\marg{貸方勘定科目}\marg{金額}\par
+% 仕訳の貸方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\registerJE@Credit#1#2{%
   \csgdef{JE\the\c@JECount @Credit@Accouunt}{#1}%
@@ -522,7 +525,8 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@AccountDesc}\par
+% \begin{macro}{\registerJE@AccountDesc}\marg{摘要}\marg{摘要の有無(true or false)}\par
+% 仕訳の摘要を登録する．
 %    \begin{macrocode}
 \def\registerJE@AccountDesc#1#2{%
   \csgdef{JE\the\c@JECount @AccountDesc}{#1}%
@@ -530,7 +534,13 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journ@lentry}\par
+% \begin{macro}{\journ@lentry}\marg{月}%
+%                             \marg{日}%
+%                             \marg{借方科目名}%
+%                             \marg{取引額}%
+%                             \marg{貸方科目名}%
+%                             \marg{摘要}%\par
+% 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
   \stepcounter{JECount}%
@@ -544,7 +554,12 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\sjourn@lentry}\par
+% \begin{macro}{\sjourn@lentry}\marg{月}%
+%                             \marg{日}%
+%                             \marg{借方科目名}%
+%                             \marg{取引額}%
+%                             \marg{貸方科目名}\par
+% 摘要の省略された仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\sjourn@lentry}[5]{%
   \stepcounter{JECount}%
@@ -558,7 +573,8 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\JE@IfExistAccountDesc}\par
+% \begin{macro}{\JE@IfExistAccountDesc}\marg{JEID}\marg{true}\marg{false}\par
+% 取引IDが\meta{JEID}の取引について，摘要が存在するかどうかを条件として分岐する．
 %    \begin{macrocode}
 \def\JE@IfExistAccountDesc#1#2#3{%
   \csname ifJE#1@AccountDesc\endcsname
@@ -599,35 +615,54 @@
 % 仕訳帳の出力．
 % 各\meta{JEID}について書き出していくだけだが，
 % 次ページ・前ページ繰り越しのために\cmd{\sum@debit}および\cmd{\sum@credit}の加算も行っている．
-% \begin{macro}{\printJE@Date}\par
+% \begin{macro}{\printJE@Date}\marg{仕訳月}\marg{仕訳日}\par
+% 仕訳帳の月日表示を出力する．
 %    \begin{macrocode}
 \def\printJE@Date#1{%
   \csuse{JE#1@Month}/\csuse{JE#1@Day}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@x@printline}\par
+% \begin{macro}{\PJ@x@printline}\marg{JEID}%
+%                               \marg{月日}%
+%                               \marg{摘要欄（左）}%
+%                               \marg{摘要欄（右）}%
+%                               \marg{LEID}%
+%                               \marg{借方}%
+%                               \marg{貸方}\par
+% 仕訳帳の表の1行を出力する．
 %    \begin{macrocode}
 \def\PJ@x@printline#1#2#3#4#5#6#7{%
   #1&#2&#3&#4&#5&#6&#7\\%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@s@printline}\par
+% \begin{macro}{\PJ@s@printline}\marg{JEID}%
+%                               \marg{月日}%
+%                               \marg{摘要欄}%
+%                               \marg{LEID}%
+%                               \marg{借方}%
+%                               \marg{貸方}\par
+% 摘要を記述するために用いる．
+% 摘要欄は左詰め．
 %    \begin{macrocode}
 \def\PJ@s@printline#1#2#3#4#5#6{%
   #1&#2&\multicolumn{2}{l|}{#3}&#4&#5&#6\\%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@printline}\par
+% \begin{macro}{\PJ@printline}%
+% 星付きは摘要を記述するときに，星なしはそれ以外の時に用いる．
 %    \begin{macrocode}
 \def\PJ@printline{%
   \@ifstar{\PJ@s@printline}{\PJ@x@printline}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@Transaction}\par
+% \begin{macro}{\PJ@Transaction}\marg{JEID}\par
+% 取引IDが\meta{JEID}の取引を出力する．
+%
+% まず摘要の有無を判定して摘要の行の処理を\cmd{\@tmp@PJ}に設定する
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
   \JE@IfExistAccountDesc{#1}{%
@@ -637,23 +672,34 @@
   }{%
     \global\let\@tmp@PJ\hline
   }%
+%    \end{macrocode}
+% 借方の行．
+%    \begin{macrocode}
   \edef\@tmp@PJ@deb{\csuse{JE#1@Debit@LEID}}%
   \PJ@printline{#1\label{JEID:#1}}{\printJE@Date{#1}}
                {（\csname JE#1@Debit@Accouunt\endcsname）}{}
                {\hyperref[LEID:\csuse{JE#1@Debit@LEID}]%
                          {\csuse{JE#1@Debit@LEID}}}
                {\csname JE#1@Debit@Value\endcsname}{}%
+%    \end{macrocode}
+% 貸方の行．
+%    \begin{macrocode}
   \edef\@tmp@PJ@cre{\csuse{JE#1@Credit@LEID}}%
   \PJ@printline{}{}
                {}{（\csname JE#1@Credit@Accouunt\endcsname）}
                {\hyperref[LEID:\csuse{JE#1@Credit@LEID}]%
                          {\csuse{JE#1@Credit@LEID}}}
                {}{\csname JE#1@Credit@Value\endcsname}%
+%    \end{macrocode}
+% 摘要の行．
+%    \begin{macrocode}
   \@tmp@PJ
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@CarryPrev}\par
+% \begin{macro}{\PJ@CarryPrev}%
+% 前頁繰越の出力．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@CarryPrev{\gdef\n@xtprev{}%
   \PJ@printline{}{}{前頁繰越}{}{}
@@ -661,7 +707,9 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@CarryForward}\par
+% \begin{macro}{\PJ@CarryForward}%
+% 次頁繰越の出力．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@CarryForward{%
   \PJ@printline{}{}{}{次頁繰越}{}
@@ -669,7 +717,9 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@Terminate}\par
+% \begin{macro}{\PJ@Terminate}%
+% 仕訳帳を締め切った際の総計の出力．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@Terminate{%
   \PJ@printline{}{}{}{総計}{}
@@ -677,17 +727,34 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@Loop@Table}\par
+% \begin{macro}{\PJ@Loop@Table}%
+% 仕訳帳の表の内容を出力する．
 %    \begin{macrocode}
 \def\PJ@Loop@Table{%
   \gdef\n@xt{}%
+%    \end{macrocode}
+% 取引をすべて出力したなら仕訳帳を締め切る処理をする．
+%    \begin{macrocode}
   \ifnum\c@JEIDiterator>\numexpr\c@JECount-1\relax
     \PJ@Terminate
+%    \end{macrocode}
+% 現在の仕訳帳の行数が1ページ当たりの最大行数\cmd{\maxtablelinenumber}以上であるならば，
+% 次頁繰越の処理をする．
+%    \begin{macrocode}
   \else
     \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
       \gdef\n@xt{\PJ@Loop}%
       \gdef\n@xtprev{\PJ@CarryPrev}%
       \PJ@CarryForward
+%    \end{macrocode}
+% \cntname{JEIDiterator}を進めて，それを取引IDとする取引について処理をする：
+% \begin{enumerate}
+%   \item 行数をカウントし，
+%   \item \cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタに借方および貸方金額を加算し
+%   \item 取引を出力し，
+%   \item 再帰する．
+% \end{enumerate}
+%    \begin{macrocode}
     \else
       \refstepcounter{JEIDiterator}%
       \global\advance\c@tableLineCount
@@ -704,7 +771,9 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PJ@Loop}\par
+% \begin{macro}{\PJ@Loop}%
+% 仕訳帳の表の外形を作る（内容は\cmd{\PJ@Loop@Table}で出力する）．
+%
 %    \begin{macrocode}
 \def\PJ@Loop{%
   \begin{table}[ht]\centering
@@ -716,17 +785,29 @@
     & \makebox[2\zw][c]{LEID}%
     & \makebox[5\zw][c]{借方}%
     & \makebox[5\zw][c]{貸方} \\ \hline
+%    \end{macrocode}
+% 次頁繰越をしたときには\cmd{\n@xtprev}は前頁繰越の処理が定義されている；それ以外の時には空．
+%    \begin{macrocode}
     \n@xtprev
     \PJ@Loop@Table
   \end{tabular}
   \end{table}
+%    \end{macrocode}
+% 1ページの出力が終わったなら改ページをして仕訳表の行数をゼロに戻す．
+%    \begin{macrocode}
   \clearpage
   \global\c@tableLineCount\z@\relax
+%    \end{macrocode}
+% 次頁繰越をしたときには\cmd{\n@xt}はこのマクロへの再帰処理が定義されている；それ以外の時，つまり仕訳帳を締め切ったときには空．
+%    \begin{macrocode}
   \n@xt
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\printjournal}\par
+% \begin{macro}{\printjournal}%
+% 仕訳帳を出力する．
+%
+% 取引IDのイテレータ\cntname{JEIDiterator}カウンタをゼロクリアし，再帰用マクロを空にして\cmd{\PJ@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printjournal}{%
   \setcounter{JEIDiterator}{0}%
