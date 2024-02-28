@@ -281,7 +281,7 @@
 %
 % 勘定科目の種類の総数はカウンタ\cntname{AccountTypeCount}に保持する．
 %
-% 勘定科目の種類の識別番号\meta{AccTypeID}から\meta{AccType}を得るために
+% 勘定科目の種類の識別番号\meta{AccTypeID}から勘定科目の種類\meta{AccType}を得るために
 % \cmd{\AccType@getAccType}\marg{AccTypeID}を用意する．
 %
 % \begin{macro}{\BK@registerAccType}\marg{AccType}\marg{AccTypeName}\par
@@ -884,11 +884,21 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %% #3: is account Debit? (boolean; D or C)
 %% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
 \def\ledger@entry#1#2#3#4{%
+%    \end{macrocode}
+% 事前準備．
+% 見通しを良くするために\meta{AccType}\meta{AccID}を\cmd{\LE@tmpA}に定義しておく．
+%    \begin{macrocode}
   \edef\LE@tmpA{\Account@getAccTypeAccID{#1}}% \LE@tmpA <- <AccType><AccID>
+%    \end{macrocode}
+% 勘定科目に登録された取引登録数を更新する．
+%    \begin{macrocode}
   \BKtemp@countB=\csuse{Account\LE@tmpA @LedgerCount}\relax
   % tempcountB <- Account<AccType><AccID>@LedgerCount
   \advance\BKtemp@countB\@ne
   \csxdef{Account\LE@tmpA @LedgerCount}{\the\BKtemp@countB}%
+%    \end{macrocode}
+% この取引についての要素の登録．
+%    \begin{macrocode}
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
     {\LE@tmpA-\the\BKtemp@countB}%
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEID}{%
@@ -898,12 +908,19 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     {\csuse{JE\the\c@JECount @AccountDesc}}%
   \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @IsAccountDebit}{#3}%
   \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}{#4}%
+%    \end{macrocode}
+% 勘定科目の月ごとの要素を更新する．
+% まず残高．
+%    \begin{macrocode}
   % Account balance, Debit and Credit in the month
   \BKtemp@countA=\csuse{JE\the\c@JECount @Month}\relax% tempcountA <- JE@Month
   \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}{%
     \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}%
     + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
   }%
+%    \end{macrocode}
+% 取引で借方に来ているときには借方残高に取引額を加算し，仕訳の借方科目の要素に\meta{LEID}を登録する．
+%    \begin{macrocode}
   \if#3D%
     \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Debit}{%
       \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Debit}%
@@ -913,6 +930,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
     }%
   \fi
+%    \end{macrocode}
+% 取引で貸方に来ているときには貸方残高に取引額を加算すし，仕訳の貸方科目の要素に\meta{LEID}を登録する．
+%    \begin{macrocode}
   \if#3C%
     \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Credit}{%
       \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Credit}%
