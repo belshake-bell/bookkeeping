@@ -962,6 +962,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\ledgermonthlyclosing@loop}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
+% \meta{AccType}を\cmd{\BKtemp@countD}でイテレーション，\cmd{\BKtemp@countC}を
+% クリアして\cmd{\ledgermonthlyclosing@l@@p}を呼び出す．
 %    \begin{macrocode}
 \def\ledgermonthlyclosing@loop{% loop for each AccType
   \ifnum\the\BKtemp@countD<\c@AccountTypeCount\relax
@@ -977,6 +979,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\ledgermonthlyclosing@l@@p}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% \meta{Account}を\cmd{\BKtemp@countC}でイテレーション．
 %    \begin{macrocode}
 \def\ledgermonthlyclosing@l@@p{% loop for each AccID
   \ifnum\BKtemp@countC<\csname c@AccType\LMC@AccType @AccountCount\endcsname
@@ -1167,7 +1170,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% 各勘定科目の種類について\cmd{PLG@L@@p}を呼び出す．
+% 各勘定科目の種類について\cmd{\PLG@L@@p}を呼び出す．
 %    \begin{macrocode}
 \def\PGL@Loop{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
@@ -1184,8 +1187,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
-% ある勘定科目の種類に属する各勘定科目について\cmd{PLG@ACLoop}を呼び出す．
-% 全ての勘定科目について呼び出したら\cmd{PLG@Loop}に処理を戻す．
+% ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
+% 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p{%
   \ifnum\c@AccountIDiterator<\csname c@AccType\PGL@tmp@AccType @AccountCount\endcsname
@@ -1205,11 +1208,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\PGL@ACLoop}\par
 % 勘定元帳の表を作り，（改ページが
 % 1ページ当たりの行数を超えたことに因るときには前頁繰越をして）
-% \cmd{PLG@ACLoop@Table}を呼び出す．
-% その処理が終わった後改ページをして\cmd{PLG@ACLoop@Table}内で設定した
-% \cmd{n@xt}を呼び出す：これは改ページが
-% 1ページ当たりの行数を超えたことに因るときには\cmd{PGL@ACLoop}，
-% 勘定科目の仕訳を全て出力したことに因るときには\cmd{PGL@L@@p}である．
+% \cmd{\PLG@ACLoop@Table}を呼び出す．
+% その処理が終わった後改ページをして\cmd{\PLG@ACLoop@Table}内で設定した
+% \cmd{\n@xt}を呼び出す：これは改ページが
+% 1ページ当たりの行数を超えたことに因るときには\cmd{\PGL@ACLoop}，
+% 勘定科目の仕訳を全て出力したことに因るときには\cmd{\PGL@L@@p}である．
 % 
 %    \begin{macrocode}
 \def\PGL@ACLoop{%
@@ -1237,8 +1240,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\PGL@ACLoop@Table}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% ある勘定科目の各仕訳について\cmd{PGL@Transaction}を呼び出す．
-% 全ての仕訳を出力したら\cmd{PGL@Terminate}を呼び出す．
+% ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
+% 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
 %    \begin{macrocode}
 \def\PGL@ACLoop@Table{%
@@ -1271,7 +1274,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@CarryPrev}\par
+% \begin{macro}{\PGL@CarryPrev}%
+% 前頁繰越処理．
 %    \begin{macrocode}
 \def\PGL@CarryPrev{%
   \gdef\n@xtprev{}%
@@ -1282,9 +1286,10 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@MonthlyClosing}\par
+% \begin{macro}{\PGL@MonthlyClosing}%
 % \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
+% 月次締切処理．
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing{%
   \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@AccountIDiterator}%
@@ -1307,7 +1312,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@CarryForward}\par
+% \begin{macro}{\PGL@CarryForward}%
+% 次頁繰越処理．
 %    \begin{macrocode}
 \def\PGL@CarryForward{%
   \PGL@printline{}{}{\multicolumn{1}{r|}{次頁繰越}}{}{}%
@@ -1316,7 +1322,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@Terminate}\par
+% \begin{macro}{\PGL@Terminate}%
+% 締切処理．
 %    \begin{macrocode}
 \def\PGL@Terminate{%
   \PGL@printline{}{}{}{}{}{\the\sum@debit}{\the\sum@credit}{}{}\hline\hline
@@ -1326,7 +1333,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \subsection{合計残高試算表}
-% \begin{macro}{\TB@printTable}\par
+% \begin{macro}{\TB@printTable}%
+%   \marg{借方残高}%
+%   \marg{借方}%
+%   \marg{勘定科目名}%
+%   \marg{貸方}%
+%   \marg{貸方残高}\par
+% 合計残高試算表の1行出力の中身．
 %    \begin{macrocode}
 % Trial balance (TB)
 \def\TB@printTable#1#2#3#4#5{%
@@ -1334,9 +1347,10 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@L@@p@T@ble}\par
+% \begin{macro}{\TB@L@@p@T@ble}%
 % \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
+% 合計残高試算表の1行出力．
 %    \begin{macrocode}
 \def\TB@L@@p@T@ble{%
   \xdef\reserved@a{\TB@tmp@AccType\the\c@AccountIDiterator}%
