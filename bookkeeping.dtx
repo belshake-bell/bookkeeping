@@ -1372,7 +1372,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \subsection{合計残高試算表}
-% \begin{macro}{\TB@printTable}%
+% \begin{macro}{\TB@printline}%
 %   \marg{借方残高}%
 %   \marg{借方}%
 %   \marg{勘定科目名}%
@@ -1381,12 +1381,12 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 合計残高試算表の1行出力の中身．
 %    \begin{macrocode}
 % Trial balance (TB)
-\def\TB@printTable#1#2#3#4#5{%
+\def\TB@printline#1#2#3#4#5{%
   #1&#2&#3&#4&#5\\%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@L@@p@T@ble}%
+% \begin{macro}{\TB@Table@Acc@OneLine}%
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
 % \changes{v1.1.0}{2025/02/05}
@@ -1394,15 +1394,17 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \changes{v1.1.0}{2025/02/05}
 %   {勘定科目の種類に残高を自動判定するA(Auto)を追加したのに合わせて
 %    残高表示を別マクロ化．}%
+% \changes{v1.1.0}{2025/02/05}
+%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
 % 合計残高試算表の1行出力．
 %    \begin{macrocode}
-\def\TB@L@@p@T@ble{%
+\def\TB@Table@Acc@OneLine{%
   \xdef\reserved@a{\TB@tmp@AccType\the\c@AccountIDiterator}%
   \xdef\TB@tmp@AccTT@ThisMonth{Account\reserved@a @Month\the\c@MonthIterator}%
   \xdef\TB@tmp@AccT@ThisMonth{Account\TB@tmp@AccType @Month\the\c@MonthIterator}%
   \xdef\Acc@LedgBalType{%
     \csname Account\reserved@a @LedgerBalanceType\endcsname}%
-  \TB@printTable{% Debt balance
+  \TB@printline{% Debt balance
     \if\Acc@LedgBalType D%
       \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
       \global\advance\BKtemp@countA
@@ -1468,28 +1470,30 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \expandafter\subsection\expandafter{\the\c@MonthIterator 月}%
     \setcounter{AccountTypeiterator}{0}%
 %   \typeout{2: MonthIterator=\the\c@MonthIterator}%
-    \expandafter\TB@L@@p
+    \expandafter\TB@printTable
   \fi
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@L@@p}\par
+% \begin{macro}{\TB@printTable}\par
+% \changes{v1.1.0}{2025/02/05}
+%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
 % 残高試算表の表を組み，\cmd{\TB@Loop}を再帰的に呼び出す．
 %    \begin{macrocode}
-\def\TB@L@@p{%
+\def\TB@printTable{%
   \begin{table}[ht]\centering
   \begin{tabular}{rrcrr}
     \multicolumn{2}{c}{借方}&&\multicolumn{2}{c}{貸方}\\%
-    \TB@printTable{\makebox[5\zw]{残高}}{\makebox[5\zw]{合計}}%
-                  {\makebox[10\zw]{勘定科目}}{\makebox[5\zw]{合計}}%
-                  {\makebox[5\zw]{残高}}\hline%
-    \TB@Loop@Table
+    \TB@printline{\makebox[5\zw]{残高}}{\makebox[5\zw]{合計}}%
+                 {\makebox[10\zw]{勘定科目}}{\makebox[5\zw]{合計}}%
+                 {\makebox[5\zw]{残高}}\hline%
+    \TB@Table@Loop
     \hline
     \TB@printTable@sumAccType
     \hline
-    \TB@printTable{\the\BKtemp@countA}{\the\BKtemp@countB}%
-                  {合計}%
-                  {\the\BKtemp@countC}{\the\BKtemp@countD}\hline%
+    \TB@printline{\the\BKtemp@countA}{\the\BKtemp@countB}%
+                 {合計}%
+                 {\the\BKtemp@countC}{\the\BKtemp@countD}\hline%
   \end{tabular}
   \end{table}
   \clearpage
@@ -1497,12 +1501,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@Loop@Table}\par
+% \begin{macro}{\TB@Table@Loop}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% 各勘定科目の種類についてイテレータを回して\cmd{\TB@L@@p@Table}を呼び出す．
+% \changes{v1.1.0}{2025/02/05}
+%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
+% 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@L@@p}を呼び出す．
 %    \begin{macrocode}
-\def\TB@Loop@Table{%
+\def\TB@Table@Loop{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
     \stepcounter{AccountTypeiterator}%
     \xdef\TB@tmp@AccType{\AccType@getAccType{\the\c@AccountTypeiterator}}%
@@ -1512,29 +1518,31 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Credit}{0}%
     \setcounter{AccountIDiterator}{0}%
 %   \typeout{3: AccountTypeiterator=\TB@tmp@AccType}%
-    \expandafter\TB@L@@p@Table
+    \expandafter\TB@Table@L@@p
   \fi
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@L@@p@Table}\par
+% \begin{macro}{\TB@Table@L@@p}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
-% 各勘定科目についてイテレータを回し，\cmd{\TB@L@@p@T@ble}を呼び出し
-% \cmd{\TB@L@@p@Table}を再帰的に呼び出す処理をする．
+% \changes{v1.1.0}{2025/02/05}
+%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
+% 各勘定科目についてイテレータを回し，\cmd{\TB@Table@Acc@OneLine}を呼び出し
+% \cmd{\TB@Table@L@@p}を再帰的に呼び出す処理をする．
 % その勘定科目の種類に属する勘定科目についてイテレータを回し終えたら
-% \cmd{\TB@Loop@Table}を呼び出す．
+% \cmd{\TB@Table@Loop}を呼び出す．
 %    \begin{macrocode}
-\def\TB@L@@p@Table{%
+\def\TB@Table@L@@p{%
   \ifnum\c@AccountIDiterator<\csname c@AccType\TB@tmp@AccType @AccountCount\endcsname
     \stepcounter{AccountIDiterator}%
 %   \typeout{4: AccountIDiterator=\the\c@AccountIDiterator}%
-    \TB@L@@p@T@ble
-    \expandafter\TB@L@@p@Table
+    \TB@Table@Acc@OneLine
+    \expandafter\TB@Table@L@@p
   \else
-    \TB@Loop@Table
+    \TB@Table@Loop
   \fi
 }
 %    \end{macrocode}
@@ -1543,36 +1551,36 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printTable@sumAccType{%
-  \TB@printTable{\csuse{AccountA@Month\the\c@MonthIterator @sumDebit}}%
-                {\csuse{AccountA@Month\the\c@MonthIterator @Debit}}%
-                {資産}%
-                {\csuse{AccountA@Month\the\c@MonthIterator @Credit}}%
-                {}%
-  \TB@printTable{}%
-                {\csuse{AccountL@Month\the\c@MonthIterator @Debit}}%
-                {負債}%
-                {\csuse{AccountL@Month\the\c@MonthIterator @Credit}}%
-                {\csuse{AccountL@Month\the\c@MonthIterator @sumCredit}}%
-  \TB@printTable{}%
-                {\csuse{AccountN@Month\the\c@MonthIterator @Debit}}%
-                {総資産}%
-                {\csuse{AccountN@Month\the\c@MonthIterator @Credit}}%
-                {\csuse{AccountN@Month\the\c@MonthIterator @sumCredit}}%
-  \TB@printTable{}%
-                {\csuse{AccountR@Month\the\c@MonthIterator @Debit}}%
-                {収益}%
-                {\csuse{AccountR@Month\the\c@MonthIterator @Credit}}%
-                {\csuse{AccountR@Month\the\c@MonthIterator @sumCredit}}%
-  \TB@printTable{\csuse{AccountE@Month\the\c@MonthIterator @sumDebit}}%
-                {\csuse{AccountE@Month\the\c@MonthIterator @Debit}}%
-                {費用}%
-                {\csuse{AccountE@Month\the\c@MonthIterator @Credit}}%
-                {}%
-  \TB@printTable{\csuse{AccountM@Month\the\c@MonthIterator @sumDebit}}%
-                {\csuse{AccountM@Month\the\c@MonthIterator @Debit}}%
-                {その他}%
-                {\csuse{AccountM@Month\the\c@MonthIterator @Credit}}%
-                {\csuse{AccountM@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printline{\csuse{AccountA@Month\the\c@MonthIterator @sumDebit}}%
+               {\csuse{AccountA@Month\the\c@MonthIterator @Debit}}%
+               {資産}%
+               {\csuse{AccountA@Month\the\c@MonthIterator @Credit}}%
+               {}%
+  \TB@printline{}%
+               {\csuse{AccountL@Month\the\c@MonthIterator @Debit}}%
+               {負債}%
+               {\csuse{AccountL@Month\the\c@MonthIterator @Credit}}%
+               {\csuse{AccountL@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printline{}%
+               {\csuse{AccountN@Month\the\c@MonthIterator @Debit}}%
+               {総資産}%
+               {\csuse{AccountN@Month\the\c@MonthIterator @Credit}}%
+               {\csuse{AccountN@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printline{}%
+               {\csuse{AccountR@Month\the\c@MonthIterator @Debit}}%
+               {収益}%
+               {\csuse{AccountR@Month\the\c@MonthIterator @Credit}}%
+               {\csuse{AccountR@Month\the\c@MonthIterator @sumCredit}}%
+  \TB@printline{\csuse{AccountE@Month\the\c@MonthIterator @sumDebit}}%
+               {\csuse{AccountE@Month\the\c@MonthIterator @Debit}}%
+               {費用}%
+               {\csuse{AccountE@Month\the\c@MonthIterator @Credit}}%
+               {}%
+  \TB@printline{\csuse{AccountM@Month\the\c@MonthIterator @sumDebit}}%
+               {\csuse{AccountM@Month\the\c@MonthIterator @Debit}}%
+               {その他}%
+               {\csuse{AccountM@Month\the\c@MonthIterator @Credit}}%
+               {\csuse{AccountM@Month\the\c@MonthIterator @sumCredit}}%
 }
 %    \end{macrocode}
 % \end{macro}
