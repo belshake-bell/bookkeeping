@@ -1398,44 +1398,46 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \begin{macrocode}
 \def\TB@L@@p@T@ble{%
   \xdef\reserved@a{\TB@tmp@AccType\the\c@AccountIDiterator}%
+  \xdef\TB@tmp@AccTT@ThisMonth{Account\reserved@a @Month\the\c@MonthIterator}%
+  \xdef\TB@tmp@AccT@ThisMonth{Account\TB@tmp@AccType @Month\the\c@MonthIterator}%
   \xdef\Acc@LedgBalType{%
     \csname Account\reserved@a @LedgerBalanceType\endcsname}%
   \TB@printTable{% Debt balance
     \if\Acc@LedgBalType D%
-      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
+      \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
       \global\advance\BKtemp@countA
-                     \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
-      \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumDebit}{%
-        \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumDebit}%
-        + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+                     \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      \csxdef{\TB@tmp@AccT@ThisMonth @sumDebit}{%
+        \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumDebit}%
+        + \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
       }%
     \fi
   }{%
-    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}%
+    \csuse{\TB@tmp@AccTT@ThisMonth @Debit}%
     \global\advance\BKtemp@countB
-                   \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Debit}{%
-      \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Debit}%
-      + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Debit}\relax
+                   \csuse{\TB@tmp@AccTT@ThisMonth @Debit}\relax
+    \csxdef{\TB@tmp@AccT@ThisMonth @Debit}{%
+      \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @Debit}%
+      + \csuse{\TB@tmp@AccTT@ThisMonth @Debit}\relax
     }%
   }{%
     \csuse{Account\reserved@a @Name}%
   }{%
-    \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}%
+    \csuse{\TB@tmp@AccTT@ThisMonth @Credit}%
     \global\advance\BKtemp@countC
-                   \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Credit}{%
-      \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @Credit}%
-      + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
+                   \csuse{\TB@tmp@AccTT@ThisMonth @Credit}\relax
+    \csxdef{\TB@tmp@AccT@ThisMonth @Credit}{%
+      \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @Credit}%
+      + \csuse{\TB@tmp@AccTT@ThisMonth @Credit}\relax
     }%
   }{%
     \if\Acc@LedgBalType C%
-      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
+      \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
       \global\advance\BKtemp@countD
-                     \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
-      \csxdef{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumCredit}{%
-        \the\numexpr\csuse{Account\TB@tmp@AccType @Month\the\c@MonthIterator @sumCredit}%
-        + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
+                     \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      \csxdef{\TB@tmp@AccT@ThisMonth @sumCredit}{%
+        \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumCredit}%
+        + \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
       }%
     \fi
   }%
