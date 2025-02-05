@@ -336,7 +336,10 @@
 %   勘定科目に登録された取引登録数．
 %   この数字でイテレータの分岐をさせる．
 % \item[\cntname{LedgerBalanceType}]
+% \changes{v1.1.0}{2025/02/05}
+%   {勘定科目の種類に残高を自動判定するA(Auto)を追加．}
 %   勘定科目が借方残高(D)か貸方残高(C)か．
+%   v1.1.0から自動判定する(A)モードを追加．
 % \item[\cntname{Month}\meta{month}@\meta{month prop.}]
 %   \meta{month}で指定した月ごとの各要素にアクセスする．
 %   \meta{month prop.}の種類は次の通り．
@@ -372,7 +375,7 @@
 %    \begin{macrocode}
 %% registerAccountID: 勘定科目の登録
 %% #1: Account type
-%% #2: Account Ledger Balance (Debit(D) or Credit(C))
+%% #2: Account Ledger Balance (Debit(D) or Credit(C) or Auto(A))
 %% #3: Account Name
 \newcommand{\registerAccountID}[3]{%
   \global\advance\csuse{c@AccType#1@AccountCount}\@ne\relax%
@@ -1081,7 +1084,12 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \end{macro}
 % \begin{macro}{\PGL@Transaction}\marg{AccLdgID}\par
 % \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
+% \changes{v1.1.0}{2025/02/05}
+%   {Account Typeを一時的に保持するマクロの名前を再変更．}%
+% \changes{v1.1.0}{2025/02/05}
+%   {勘定科目の種類に残高を自動判定するA(Auto)を追加したのに合わせて
+%    残高表示を別マクロ化．}%
 % \meta{AccLdgID}の取引を出力する．
 %    \begin{macrocode}
 \def\PGL@Transaction#1{% #1: ladger entry ID
@@ -1092,9 +1100,46 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \xdef\Acc@Ledg@IsAccDeb{%
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@IsAccountDebit}%
   }%
-  \xdef\Acc@LedgBal{%
+  \xdef\Acc@LedgBalType{%
     \csuse{Account\PGL@tmp@AccTypeAccID @LedgerBalanceType}%
   }%
+  \if\Acc@LedgBalType A%
+    \ifnum\c@LedgerEntryBalance<0%
+      \xdef\Acc@LedgBalType{D}%残高<0なら Debt
+    \else
+      \xdef\Acc@LedgBalType{C}%% 残高>=0なら Credit
+    \fi
+  \fi
+  \if\Acc@Ledg@IsAccDeb\Acc@LedgBalType
+    \global\advance\c@LedgerEntryBalance
+                   \csuse{Account\PGL@tmp@AccTypeAccID
+                           @Ledger#1@AccountValue}\relax
+    \xdef\Acc@LedgText{\the\c@LedgerEntryBalance}%
+  \else
+    \global\advance\c@LedgerEntryBalance
+                  -\csuse{Account\PGL@tmp@AccTypeAccID
+                           @Ledger#1@AccountValue}\relax
+    \ifnum\c@LedgerEntryBalance<0\relax
+      \ifcsstring
+        {Account\PGL@tmp@AccTypeAccID @LedgerBalanceType}{A}
+        {% true: Balance type is A
+          \if\Acc@LedgBalType D%
+            \xdef\Acc@LedgBalType{C}%
+          \else
+            \xdef\Acc@LedgBalType{D}%
+          \fi
+          \begingroup
+            \c@LedgerEntryBalance=-\c@LedgerEntryBalance
+            \xdef\Acc@LedgText{\the\c@LedgerEntryBalance}%
+          \endgroup
+        }{% false: Balance type is NOT A
+          \begingroup
+            \c@LedgerEntryBalance=-\c@LedgerEntryBalance
+            \xdef\Acc@LedgText{▲\the\c@LedgerEntryBalance}%
+          \endgroup
+        }%
+    \fi
+  \fi 
   \PGL@printline{% LEID
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@FullLEID}%
     \label{LEID:\PGL@tmp@AccTypeAccID-#1}%
@@ -1121,19 +1166,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
                              @Ledger#1@AccountValue}\relax
     \fi
   }{% Balance type
-    \if\Acc@LedgBal D%
-      借\else 貸%
+    \if\Acc@LedgBalType D%
+      借% Debt
+    \else
+      貸% Credit
     \fi
   }{% Balance
-    \if\Acc@Ledg@IsAccDeb\Acc@LedgBal
-      \global\advance\c@LedgerEntryBalance
-                     \csuse{Account\PGL@tmp@AccTypeAccID
-                             @Ledger#1@AccountValue}\relax
-    \else
-      \global\advance\c@LedgerEntryBalance
-                    -\csuse{Account\PGL@tmp@AccTypeAccID
-                             @Ledger#1@AccountValue}\relax
-    \fi \the\c@LedgerEntryBalance}%
+    \Acc@LedgText}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1293,7 +1332,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing{%
   \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@AccountIDiterator}%
-  \xdef\Acc@LedgBal{%
+  \xdef\Acc@LedgBalType{%
     \csuse{Account\PGL@tmp@AccTypeAccID
            @LedgerBalanceType}}%
   \xdef\tmp@PGL@ClosingMonth{%
@@ -1350,14 +1389,19 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@L@@p@T@ble}%
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
+% \changes{v1.1.0}{2025/02/05}
+%   {Account Typeを一時的に保持するマクロの名前を再変更．}%
+% \changes{v1.1.0}{2025/02/05}
+%   {勘定科目の種類に残高を自動判定するA(Auto)を追加したのに合わせて
+%    残高表示を別マクロ化．}%
 % 合計残高試算表の1行出力．
 %    \begin{macrocode}
 \def\TB@L@@p@T@ble{%
   \xdef\reserved@a{\TB@tmp@AccType\the\c@AccountIDiterator}%
-  \xdef\Acc@LedgBal{%
+  \xdef\Acc@LedgBalType{%
     \csname Account\reserved@a @LedgerBalanceType\endcsname}%
-  \TB@printTable{%
-    \if\Acc@LedgBal D%
+  \TB@printTable{% Debt balance
+    \if\Acc@LedgBalType D%
       \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
       \global\advance\BKtemp@countA
                      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
@@ -1385,7 +1429,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       + \csuse{Account\reserved@a @Month\the\c@MonthIterator @Credit}\relax
     }%
   }{%
-    \if\Acc@LedgBal C%
+    \if\Acc@LedgBalType C%
       \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}%
       \global\advance\BKtemp@countD
                      \csuse{Account\reserved@a @Month\the\c@MonthIterator @Balance}\relax
@@ -1399,6 +1443,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\printmonthlytrialbalance}\par
+% 1月から月ごとの残高試算表を出力する．
+% 実装としては初期化をして\cmd{\TB@Loop}呼び出す形．
 %    \begin{macrocode}
 \newcommand{\printmonthlytrialbalance}{%
   \setcounter{MonthIterator}{0}%
@@ -1410,6 +1456,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@Loop}\par
+% 月についてイテレータを回して，各月ごとの残高試算表の出力処理を行う．
 %    \begin{macrocode}
 \def\TB@Loop{%
   \ifnum\c@MonthIterator<\c@ClosingMonthCount
@@ -1425,6 +1472,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@L@@p}\par
+% 残高試算表の表を組み，\cmd{\TB@Loop}を再帰的に呼び出す．
 %    \begin{macrocode}
 \def\TB@L@@p{%
   \begin{table}[ht]\centering
@@ -1450,6 +1498,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@Loop@Table}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% 各勘定科目の種類についてイテレータを回して\cmd{\TB@L@@p@Table}を呼び出す．
 %    \begin{macrocode}
 \def\TB@Loop@Table{%
   \ifnum\c@AccountTypeiterator<\c@AccountTypeCount\relax
@@ -1471,6 +1520,10 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% 各勘定科目についてイテレータを回し，\cmd{\TB@L@@p@T@ble}を呼び出し
+% \cmd{\TB@L@@p@Table}を再帰的に呼び出す処理をする．
+% その勘定科目の種類に属する勘定科目についてイテレータを回し終えたら
+% \cmd{\TB@Loop@Table}を呼び出す．
 %    \begin{macrocode}
 \def\TB@L@@p@Table{%
   \ifnum\c@AccountIDiterator<\csname c@AccType\TB@tmp@AccType @AccountCount\endcsname
@@ -1485,6 +1538,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@printTable@sumAccType}\par
+% 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printTable@sumAccType{%
   \TB@printTable{\csuse{AccountA@Month\the\c@MonthIterator @sumDebit}}%
