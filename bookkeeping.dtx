@@ -1460,10 +1460,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@Loop}\par
-% 月についてイテレータを回して，各月ごとの残高試算表の出力処理を行う．
+% \changes{v1.1.0}{2025/04/07}
+%   {カウンタ条件式周りの調整（\cmd{\c@MonthIterator}を回して
+%    $=14$となるときを排除する）．}%
+% 月についてイテレータ\cmd{\c@MonthIterator}を回して，
+% 各月ごとの残高試算表の出力処理を行う．
 %    \begin{macrocode}
 \def\TB@Loop{%
-  \ifnum\c@MonthIterator<\c@ClosingMonthCount
+  \ifnum\c@MonthIterator<\numexpr\c@ClosingMonthCount-1\relax
     \stepcounter{MonthIterator}%
     \BKtemp@countA\z@ \BKtemp@countB\z@
     \BKtemp@countC\z@ \BKtemp@countD\z@
