@@ -84,6 +84,7 @@
        \ensuremath\langle
        \normalfont\textit{#1}%
        \ensuremath\rangle}}}
+\newcommand{\TODO}[1]{\par {\small [ToDo] #1}}
 
 \usepackage{bookkeeping}
 \hypersetup{colorlinks,hyperfootnotes=false,linkcolor=myblue,urlcolor=mygreen}
@@ -376,6 +377,7 @@
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
 % 勘定科目を登録する．
+% \TODO{\cmd{\registerAccount}で良くない？}
 %    \begin{macrocode}
 %% registerAccountID: 勘定科目の登録
 %% #1: Account type
@@ -884,6 +886,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % また\jmeta{取引額}は\cntname{0}のときに月次締切を表すことにしている\footnote{%
 %   \jmeta{借（貸）方}にフラグを持たせるほうがいいのかもしれない．
 % }．
+% \TODO{ちょっと長いし分割した方がいいかもしれない．}
 %    \begin{macrocode}
 %% general ledger (GL)
 %% #1: Account name
@@ -1019,6 +1022,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 収益と費用の各勘定科目について損益振替をする．
 % \cmd{\PLtransfar@AccTypeAccID}に損益勘定科目の\meta{AccType}\meta{AccID}を
 % 控えておく．
+% \TODO{名前．}
 %    \begin{macrocode}
 \newcommand{\journalentry@PLtransfar}[1]{%
   \edef\PLtransfar@AccTypeAccID{\Account@getAccTypeAccID{#1}}%
@@ -1032,6 +1036,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
+% \TODO{名前．}
 %    \begin{macrocode}
 \newcommand{\journalentry@PLtransfar@LoopAccType}[1]{%
   \ifnum\c@AccountIDiterator<\csuse{c@AccType#1@AccountCount}%
@@ -1051,6 +1056,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
 % ……んですが，残高をどこから得ればいいかの設計で迷い中．
 % 貸借の分岐は勘定科目の要素\meta{LedgerBakanceType}で行うのがスマートだろうか．
+% \TODO{名前と実装．}
 %    \begin{macrocode}
 \newcommand{\journalentry@PLtransfar@register}{%
 %%\journalentry*{13}{01}{\JE@PLT@Account}
@@ -1095,6 +1101,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {勘定科目の種類に残高を自動判定するA(Auto)を追加したのに合わせて
 %    残高表示を別マクロ化．}%
 % \meta{AccLdgID}の取引を出力する．
+% \TODO{長いし分割した方がいい．}
 %    \begin{macrocode}
 \def\PGL@Transaction#1{% #1: ladger entry ID
   \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@AccountIDiterator}%
