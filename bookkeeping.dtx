@@ -86,6 +86,35 @@
        \ensuremath\rangle}}}
 \newcommand{\TODO}[1]{\par {\small [ToDo] #1}}
 
+\NewDocElement[
+  macrolike = true ,
+  toplevel = false,
+  idxtype = counter ,
+  idxgroup =  TeX counters\actualchar \protect\TeX{} counters ,
+  printtype = \textit{counter}
+]{TeXCounter}{tcounter}
+
+\NewDocElement[
+  macrolike = false ,
+  toplevel = false,
+  idxtype = counter ,
+  idxgroup = LaTeX counters\actualchar \LaTeX{} counters ,
+  printtype = \textit{counter}
+]{LaTeXCounter}{lcounter}
+\NewDocElement[
+  macrolike = true ,
+  toplevel = false,
+  idxtype = skip ,
+  idxgroup = LaTeX length\actualchar \LaTeX{} length (skip) ,
+  printtype = \textit{skip}
+]{LaTeXSkip}{lskip}
+\NewDocElement[
+  macrolike = true ,
+  toplevel = false,
+  idxtype = dimen ,
+  idxgroup = LaTeX length\actualchar \LaTeX{} length (dimen) ,
+  printtype = \textit{dimen}
+]{LaTeXDimen}{ldimen}
 \usepackage{bookkeeping}
 \hypersetup{colorlinks,hyperfootnotes=false,linkcolor=myblue,urlcolor=mygreen}
 
@@ -233,31 +262,121 @@
 \RequirePackage{pxjahyper}
 \RequirePackage{etoolbox}
 \RequirePackage{dcolumn}
-%    \end{macrocode}
-%    \begin{macrocode}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \begin{lcounter}{JECount}
+% 取引仕訳の総登録数．
+%    \begin{macrocode}
 \newcounter{JECount}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{JEIDiterator}
+% 仕訳帳の表の内容を出力するためのイテレータ．
+%    \begin{macrocode}
 \newcounter{JEIDiterator}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{AccountTypeCount}
+% 勘定科目の種類の総数．
+%    \begin{macrocode}
 \newcounter{AccountTypeCount}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{AccountTypeiterator}
+% 各勘定科目の種類について回すためのイテレータ．
+%    \begin{macrocode}
 \newcounter{AccountTypeiterator}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{AccountIDiterator}
+% 各勘定科目について回すためのイテレータ．
+%    \begin{macrocode}
 \newcounter{AccountIDiterator}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{AccLdgIDiterator}
+% 各勘定科目の仕訳について回すためのイテレータ．
+%    \begin{macrocode}
 \newcounter{AccLdgIDiterator}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{LedgerEntryBalance}
+% 残高．
+%    \begin{macrocode}
 \newcounter{LedgerEntryBalance}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{ClosingMonthCount}
+% 締め切った月の数．
+%    \begin{macrocode}
 \newcounter{ClosingMonthCount}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{MonthIterator}
+% 月について回すためのイテレータ．
+%    \begin{macrocode}
 \newcounter{MonthIterator}
-
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{lcounter}{tableLineCount}
+% 今のページで出力した行の数．
+%    \begin{macrocode}
 \newcounter{tableLineCount}
+%    \end{macrocode}
+% \end{lcounter}
+% \begin{macro}{\maxtablelinenumber}
+% 今のページで出力できる行の数．
+% 既定は\texttt{30}．
+%    \begin{macrocode}
 \def\maxtablelinenumber{30}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\BK@closingmonth}
+% 年度締切の月を設定する．
+% 既定は\texttt{13}．
+% 1年が12か月であるなら変更されることはないと考えられる．
+%    \begin{macrocode}
 \def\BK@closingmonth{13}
+%    \end{macrocode}
+% \end{macro}
+% \begin{tcounter}{\sum@debit}
+% 借方の総和．
+%    \begin{macrocode}
 \newcount\sum@debit
+%    \end{macrocode}
+% \end{tcounter}
+% \begin{tcounter}{\sum@credit}
+% 貸方の総和．
+%    \begin{macrocode}
 \newcount\sum@credit
+%    \end{macrocode}
+% \end{tcounter}
+% \begin{tcounter}{\BKtemp@countA}
+% 一時的なカウンタ．
+%    \begin{macrocode}
 \newcount\BKtemp@countA
+%    \end{macrocode}
+% \end{tcounter}
+% \begin{tcounter}{\BKtemp@countB}
+% 一時的なカウンタ．
+%    \begin{macrocode}
 \newcount\BKtemp@countB
+%    \end{macrocode}
+% \end{tcounter}
+% \begin{tcounter}{\BKtemp@countC}
+% 一時的なカウンタ．
+%    \begin{macrocode}
 \newcount\BKtemp@countC
+%    \end{macrocode}
+% \end{tcounter}
+% \begin{tcounter}{\BKtemp@countD}
+% 一時的なカウンタ．
+%    \begin{macrocode}
 \newcount\BKtemp@countD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    \end{macrocode}
+% \end{tcounter}
 % \subsection{勘定科目の種類および勘定科目}
 % \subsubsection{勘定科目の種類}
 % \changes{v1.1.0}{2024/02/21}
