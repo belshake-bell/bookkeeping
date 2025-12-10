@@ -1,76 +1,75 @@
-TEXMFLOCAL := $(shell kpsewhich --var-value=TEXMFlocal)
-DOCTARGET = bookkeeping
-TESTTARGET = test
-STRIPTARGET = $(addsuffix .sty,$(DOCTARGET))
-PDFTARGET = $(addsuffix .pdf,$(DOCTARGET))
-DVITARGET = $(addsuffix .dvi,$(DOCTARGET))
+TEXMFLOCAL   = $(shell kpsewhich --var-value TEXMFLOCAL)
+STRIPTARGET  = bookkeeping.sty
+DOCTARGET    = bookkeeping
+PDFTARGET    = $(addsuffix .pdf,$(DOCTARGET))
+TESTTARGET   = test.pdf
+DVITARGET    = $(addsuffix .dvi,$(DOCTARGET))
+LATEXENGINE := uplatex #lualatex
+LATEXOpt    := -interaction batchmode
+LOGSUFFIXES  = .aux .log .toc .mx1 .mx2 .bcf .bbl .blg .idx .ind .ilg .out .run.xml .glo .gls .hd
 
-all: $(STRIPTARGET) $(PDFTARGET) movelog
-default: $(STRIPTARGET) $(DVITARGET)
+define move
+	$(foreach tempsuffix,$(LOGSUFFIXES),$(call movebase,$1,$(tempsuffix)))
+	
+endef
+define movebase
+	@if [ -e $(addsuffix $2,$1) ]; then mv $(addsuffix $2,$1) ./logs; fi
+	
+endef
+
+define remove
+	$(foreach tempsuffix,$(LOGSUFFIXES),$(call movebase,$1,$(tempsuffix)))
+	
+endef
+define removebase
+	@if [ -e $(addsuffix $2,$1) ]; then rm -f $(addsuffix $2,$1) ; fi
+	
+endef
+.PHONY: all strip doc test install clean cleanall cleandoc movelog makelog
+
+all: $(STRIPTARGET) $(PDFTARGET)
 strip: $(STRIPTARGET)
+doc: $(PDFTARGET)
+test: $(TESTTARGET)
 
-bookkeeping.sty: bookkeeping.dtx
-	pdflatex bookkeeping.ins
+ifeq ($(LATEXENGINE),lualatex)
+%.pdf: %.dtx
+	lualatex $(LATEXOpt) $<
+	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
+	if [ -e $(basename $<).glo ];\
+		then makeindex -q -s gglo.ist -o $(addsuffix .gls,$(basename $<)) $(addsuffix .glo,$(basename $<)); fi
+	lualatex $(LATEXOpt) -synctex=1 $<
+	$(MAKE) movelog DOCTARGET=$(basename $(notdir $<))
+else
+%.dvi: %.dtx
+	$(LATEXENGINE) $(LATEXOpt) $<
+	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
+	if [ -e $(basename $<).glo ];\
+		then makeindex -q -s gglo.ist -o $(addsuffix .gls,$(basename $<)) $(addsuffix .glo,$(basename $<)); fi
+	$(LATEXENGINE) $(LATEXOpt) -synctex=1 $<
+	$(MAKE) movelog DOCTARGET=$(basename $(notdir $<))
 
-test.pdf: test.tex
-
-.SUFFIXES: .dtx .dvi .pdf
-%.dvi:%.tex
-	uplatex $<
-	uplatex -synctex=1 $<
-.dtx.dvi:
-	uplatex $<
-	makeindex -s gind.ist $(basename $<)
-	makeindex -s gglo.ist -o $(addsuffix .gls,$(basename $<)) $(addsuffix .glo,$(basename $<))
-	uplatex -synctex=1 $<
-.dvi.pdf:
+%.pdf: %.dvi
 	dvipdfmx $<
+endif
 
-.PHONY: clean cleanstrip cleanall cleandoc movelog install test
 install: $(STRIPTARGET) $(PDFTARGET)
-	mkdir -p $(TEXMFLOCAL)/tex/platex/bellMacros
+	@mkdir -p $(TEXMFLOCAL)/tex/platex/bellMacros
 	install $(STRIPTARGET) $(TEXMFLOCAL)/tex/platex/bellMacros
-	mkdir -p $(TEXMFLOCAL)/doc/platex/bellMacros
+	@mkdir -p $(TEXMFLOCAL)/doc/platex/bellMacros
 	install $(PDFTARGET) $(TEXMFLOCAL)/doc/platex/bellMacros
 
+movelog:
+	@mkdir -p ./logs
+	$(foreach temp,$(DOCTARGET),$(call move,$(temp)))
+
 clean:
-	rm -f $(DVITARGET) \
-	$(addsuffix .idx,$(DOCTARGET)) \
-	$(addsuffix .ind,$(DOCTARGET)) \
-	$(addsuffix .ilg,$(DOCTARGET)) \
-	$(addsuffix .glo,$(DOCTARGET)) \
-	$(addsuffix .gls,$(DOCTARGET)) \
-	$(addsuffix .aux,$(DOCTARGET)) \
-	$(addsuffix .toc,$(DOCTARGET)) \
-	$(addsuffix .log,$(DOCTARGET))
+	$(foreach temp,$(DOCTARGET),$(call remove,$(temp)))
 
 cleanall:
-	rm -f $(PDFTARGET) \
-	$(STRIPTARGET) \
+	@rm -f $(PDFTARGET) $(DVITARGET) $(STRIPTARGET)
 	make clean
 
 makelog:
-	git log --oneline --decorate --graph --all 1> "log_all.txt"
-	git log --oneline --decorate --graph 1> "log.txt"
-movebuild:
-	if [ -e $(STRIPTARGET) ]; then mv $(STRIPTARGET) ./build; fi
-	if [ -e $(PDFTARGET) ]; then mv $(PDFTARGET) ./build; fi
-	if [ -e $(DOCTARGET).synctex.gz ]; then mv $(DOCTARGET).synctex.gz ./build; fi
-	if [ -e $(DVITARGET) ]; then mv $(DVITARGET) ./build; fi
-
-movelog:
-	if [ -e $(DOCTARGET).aux ]; then mv $(DOCTARGET).aux ./logs; fi
-	if [ -e $(DOCTARGET).log ]; then mv $(DOCTARGET).log ./logs; fi
-	if [ -e $(DOCTARGET).toc ]; then mv $(DOCTARGET).toc ./logs; fi
-	if [ -e $(DOCTARGET).mx1 ]; then mv $(DOCTARGET).mx1 ./logs; fi
-	if [ -e $(DOCTARGET).mx2 ]; then mv $(DOCTARGET).mx2 ./logs; fi
-	if [ -e $(DOCTARGET).bcf ]; then mv $(DOCTARGET).bcf ./logs; fi
-	if [ -e $(DOCTARGET).bbl ]; then mv $(DOCTARGET).bbl ./logs; fi
-	if [ -e $(DOCTARGET).blg ]; then mv $(DOCTARGET).blg ./logs; fi
-	if [ -e $(DOCTARGET).idx ]; then mv $(DOCTARGET).idx ./logs; fi
-	if [ -e $(DOCTARGET).ind ]; then mv $(DOCTARGET).ind ./logs; fi
-	if [ -e $(DOCTARGET).glo ]; then mv $(DOCTARGET).glo ./logs; fi
-	if [ -e $(DOCTARGET).gls ]; then mv $(DOCTARGET).gls ./logs; fi
-	if [ -e $(DOCTARGET).ilg ]; then mv $(DOCTARGET).ilg ./logs; fi
-	if [ -e $(DOCTARGET).out ]; then mv $(DOCTARGET).out ./logs; fi
-	if [ -e $(DOCTARGET).run.xml ]; then mv $(DOCTARGET).run.xml ./logs; fi
+	@git log --graph --date=short --all --pretty="format:(%C(yellow)%h) %C(cyan)%ad \"%C(green)%an\"%C(reset)%x09%C(red)%d%C(reset) %s" 1> "log_all.gitlog"
+	@git log --graph --date=short       --pretty="format:(%C(yellow)%h) %C(cyan)%ad \"%C(green)%an\"%C(reset)%x09%C(red)%d%C(reset) %s" 1> "log.gitlog"
