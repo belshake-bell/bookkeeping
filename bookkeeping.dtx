@@ -57,16 +57,23 @@
 \def\mlineplus#1{\setcounter{@clineno}{\arabic{CodelineNo}}%
    \addtocounter{@clineno}{#1}\arabic{@clineno}}
 \makeatletter
+\DeclareRobustCommand{\jmeta}[1]{%
+  〈\nobreak{\jmeta@font@select\hbox{#1}}〉%
+}
+\def\jmeta@font@select{}
 \DeclareRobustCommand{\cmd}[1]{\cs{\expandafter\cmd@to@cs\string#1}}
 \def\cmd@to@cs#1#2{\char\number`#2\relax}
 \makeatother
-\DeclareRobustCommand{\cs}[1]{\texttt{\char`\\#1}}
 \providecommand{\marg}[1]{%
   {\ttfamily\char`\{}\meta{#1}{\ttfamily\char`\}}}
 \providecommand{\argchar}[1]{%
   {\ttfamily\char`\{}\texttt{#1}{\ttfamily\char`\}}}
 \providecommand{\oarg}[1]{%
   {\ttfamily[}\meta{#1}{\ttfamily]}}
+\providecommand{\jmarg}[1]{%
+  {\ttfamily\char`\{}\nobreak\<\jmeta{#1}\<\nobreak{\ttfamily\char`\}}}
+\providecommand{\joarg}[1]{%
+  {\ttfamily[}\nobreak\<\jmeta{#1}\<\nobreak{\ttfamily]}}
 \newrobustcmd*{\env}[1]{\mbox{\ttfamily#1}}
 \let\cntname\env
 \newrobustcmd*{\file}[1]{\mbox{\ttfamily#1}}
@@ -165,7 +172,7 @@
 % \StopEventually{}
 % \section{概略・使い方}
 % \subsection{勘定科目の登録}
-% \cmd{\registerAccountID}\marg{AccType}\marg{AccLegbal}\marg{勘定科目名}で
+% \cmd{\registerAccountID}\marg{AccType}\marg{AccLegbal}\jmarg{勘定科目名}で
 % 勘定科目を登録します．
 % \begin{itemize}
 % \item \marg{AccType}は勘定科目の種類で
@@ -181,9 +188,9 @@
 % \item \marg{AccLegbal}は借方残高(D)か貸方残高(C)かです．
 % \end{itemize}
 % \subsection{仕訳の登録}
-% \cmd{\journalentry}\marg{月}\marg{日}\marg{借方勘定科目}\marg{金額}\marg{貸方勘定科目}\marg{摘要}で
+% \cmd{\journalentry}\jmarg{月}\jmarg{日}\jmarg{借方勘定科目}\jmarg{金額}\jmarg{貸方勘定科目}\jmarg{摘要}で
 % 仕訳を登録します．
-% \cmd{\journalentry*}\marg{月}\marg{日}\marg{借方勘定科目}\marg{金額}\marg{貸方勘定科目}で
+% \cmd{\journalentry*}\jmarg{月}\jmarg{日}\jmarg{借方勘定科目}\jmarg{金額}\jmarg{貸方勘定科目}で
 % 摘要なしの仕訳を登録出来ます．
 % \begin{itemize}
 % \item 今のところ単一仕訳方式のみ対応です．
@@ -312,7 +319,7 @@
 \BK@registerAccType{M}{その他}% その他 (Misc.)
 
 %    \end{macrocode}
-% \begin{macro}{\AccType@getAccType}\marg{勘定科目の種類ID}\par
+% \begin{macro}{\AccType@getAccType}\jmarg{勘定科目の種類ID}\par
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを設置．}
 %  勘定科目の種類IDから勘定科目の種類\meta{AccType}を得る．
@@ -404,19 +411,19 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\Account@getAccID}\marg{勘定科目名}\par
+% \begin{macro}{\Account@getAccID}\jmarg{勘定科目名}\par
 %  勘定科目名から勘定科目ID\meta{AccID}を得る．
 %    \begin{macrocode}
 \def\Account@getAccID#1{\csuse{revAccount#1@ID}}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\Account@getAccType}\marg{勘定科目名}\par
+% \begin{macro}{\Account@getAccType}\jmarg{勘定科目名}\par
 %  勘定科目名から勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
 \def\Account@getAccType#1{\csuse{revAccount#1@Type}}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\Account@getAccTypeAccID}\marg{勘定科目名}\par
+% \begin{macro}{\Account@getAccTypeAccID}\jmarg{勘定科目名}\par
 %  勘定科目名から\meta{AccType}\meta{AccID}を得る．
 %    \begin{macrocode}
 \def\Account@getAccTypeAccID#1{\Account@getAccType{#1}\Account@getAccID{#1}}
@@ -497,7 +504,7 @@
 複合仕訳にするとなると科目の個数と各科目についてID割り振りが必要かなぁ……
 面倒なのでやらないと思う．
 \fi
-% \begin{macro}{\registerJE@Date}\marg{仕訳月}\marg{仕訳日}\par
+% \begin{macro}{\registerJE@Date}\jmarg{仕訳月}\jmarg{仕訳日}\par
 % 仕訳の月日を登録する．
 %    \begin{macrocode}
 %% journalentry (JE)
@@ -507,7 +514,7 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@Debit}\marg{借方勘定科目}\marg{金額}\par
+% \begin{macro}{\registerJE@Debit}\jmarg{借方勘定科目}\jmarg{金額}\par
 % 仕訳の借方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\registerJE@Debit#1#2{%
@@ -516,7 +523,7 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@Credit}\marg{貸方勘定科目}\marg{金額}\par
+% \begin{macro}{\registerJE@Credit}\jmarg{貸方勘定科目}\jmarg{金額}\par
 % 仕訳の貸方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\registerJE@Credit#1#2{%
@@ -525,7 +532,7 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@AccountDesc}\marg{摘要}\marg{摘要の有無(true or false)}\par
+% \begin{macro}{\registerJE@AccountDesc}\jmarg{摘要}\jmarg{摘要の有無(true or false)}\par
 % 仕訳の摘要を登録する．
 %    \begin{macrocode}
 \def\registerJE@AccountDesc#1#2{%
@@ -534,12 +541,12 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journ@lentry}\marg{月}%
-%                             \marg{日}%
-%                             \marg{借方科目名}%
-%                             \marg{取引額}%
-%                             \marg{貸方科目名}%
-%                             \marg{摘要}%\par
+% \begin{macro}{\journ@lentry}\jmarg{月}%
+%                             \jmarg{日}%
+%                             \jmarg{借方科目名}%
+%                             \jmarg{取引額}%
+%                             \jmarg{貸方科目名}%
+%                             \jmarg{摘要}%\par
 % 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
@@ -554,11 +561,11 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\sjourn@lentry}\marg{月}%
-%                             \marg{日}%
-%                             \marg{借方科目名}%
-%                             \marg{取引額}%
-%                             \marg{貸方科目名}\par
+% \begin{macro}{\sjourn@lentry}\jmarg{月}%
+%                             \jmarg{日}%
+%                             \jmarg{借方科目名}%
+%                             \jmarg{取引額}%
+%                             \jmarg{貸方科目名}\par
 % 摘要の省略された仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\sjourn@lentry}[5]{%
@@ -583,17 +590,17 @@
 
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry}\marg{月}%
-%                             \marg{日}%
-%                             \marg{借方科目名}%
-%                             \marg{取引額}%
-%                             \marg{貸方科目名}%
-%                             \marg{摘要}%\par
-% \begin{macro}{\journalentry*}\marg{月}%
-%                             \marg{日}%
-%                             \marg{借方科目名}%
-%                             \marg{取引額}%
-%                             \marg{貸方科目名}\par
+% \begin{macro}{\journalentry}\jmarg{月}%
+%                             \jmarg{日}%
+%                             \jmarg{借方科目名}%
+%                             \jmarg{取引額}%
+%                             \jmarg{貸方科目名}%
+%                             \jmarg{摘要}%\par
+% \begin{macro}{\journalentry*}\jmarg{月}%
+%                             \jmarg{日}%
+%                             \jmarg{借方科目名}%
+%                             \jmarg{取引額}%
+%                             \jmarg{貸方科目名}\par
 % 星付きのときは摘要が不要なものを示す．
 %    \begin{macrocode}
 %% \journalentry
@@ -615,7 +622,7 @@
 % 仕訳帳の出力．
 % 各\meta{JEID}について書き出していくだけだが，
 % 次ページ・前ページ繰り越しのために\cmd{\sum@debit}および\cmd{\sum@credit}の加算も行っている．
-% \begin{macro}{\printJE@Date}\marg{仕訳月}\marg{仕訳日}\par
+% \begin{macro}{\printJE@Date}\jmarg{仕訳月}\jmarg{仕訳日}\par
 % 仕訳帳の月日表示を出力する．
 %    \begin{macrocode}
 \def\printJE@Date#1{%
@@ -624,12 +631,12 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@x@printline}\marg{JEID}%
-%                               \marg{月日}%
-%                               \marg{摘要欄（左）}%
-%                               \marg{摘要欄（右）}%
+%                               \jmarg{月日}%
+%                               \jmarg{摘要欄（左）}%
+%                               \jmarg{摘要欄（右）}%
 %                               \marg{LEID}%
-%                               \marg{借方}%
-%                               \marg{貸方}\par
+%                               \jmarg{借方}%
+%                               \jmarg{貸方}\par
 % 仕訳帳の表の1行を出力する．
 %    \begin{macrocode}
 \def\PJ@x@printline#1#2#3#4#5#6#7{%
@@ -638,11 +645,11 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@s@printline}\marg{JEID}%
-%                               \marg{月日}%
-%                               \marg{摘要欄}%
+%                               \jmarg{月日}%
+%                               \jmarg{摘要欄}%
 %                               \marg{LEID}%
-%                               \marg{借方}%
-%                               \marg{貸方}\par
+%                               \jmarg{借方}%
+%                               \jmarg{貸方}\par
 % 摘要を記述するために用いる．
 % 摘要欄は左詰め．
 %    \begin{macrocode}
@@ -865,17 +872,17 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 一方で相手科目は持たせた方が楽っぽい？
 必ずしも持たせる必要はないと思うけど処理がめんどいと思う．
 \fi
-% \begin{macro}{\ledger@entry}\marg{勘定科目名}%
-%                             \marg{相手科目名}%
-%                             \marg{借（貸）方}%
-%                             \marg{取引額}\par
+% \begin{macro}{\ledger@entry}\jmarg{勘定科目名}%
+%                             \jmarg{相手科目名}%
+%                             \jmarg{借（貸）方}%
+%                             \jmarg{取引額}\par
 % \cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Ledger\meta{AccLdgID}@\meta{prop.}}に
 % 各種値を代入していく．
 % そのほか\cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Month\meta{Month}@\meta{prop.}}に
 % 各種値を代入していく．
-% \meta{借（貸）方}はその取引で借方のときに\cntname{D}を，貸方の時に\cntname{C}をとる．
-% また\meta{取引額}は\cntname{0}のときに月次締切を表すことにしている\footnote{%
-%   \meta{借（貸）方}にフラグを持たせるほうがいいのかもしれない．
+% \jmeta{借（貸）方}はその取引で借方のときに\cntname{D}を，貸方の時に\cntname{C}をとる．
+% また\jmeta{取引額}は\cntname{0}のときに月次締切を表すことにしている\footnote{%
+%   \jmeta{借（貸）方}にフラグを持たせるほうがいいのかもしれない．
 % }．
 %    \begin{macrocode}
 %% general ledger (GL)
@@ -945,7 +952,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ledgermonthlyclosing}\marg{締切月}\par
+% \begin{macro}{\ledgermonthlyclosing}\jmarg{締切月}\par
 % 月次締切用コマンド．
 % 各\meta{AccType}および各\meta{AccID}についてイテレータ
 % \cmd{\BKtemp@countD}および\cmd{\BKtemp@countC}を用いてループを回す．
@@ -993,7 +1000,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ledgerclosing}\marg{損益勘定科目名}\marg{利益剰余金勘定科目名}\par
+% \begin{macro}{\ledgerclosing}\jmarg{損益勘定科目名}\jmarg{利益剰余金勘定科目名}\par
 % 年度締切用コマンド（まだ未実装）．
 % \begin{enumerate}
 % \item 収益と費用の各勘定科目について損益振替をする
@@ -1006,7 +1013,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar}\marg{損益勘定科目名}\par
+% \begin{macro}{\journalentry@PLtransfar}\jmarg{損益勘定科目名}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
 % 収益と費用の各勘定科目について損益振替をする．
@@ -1021,7 +1028,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar@LoopAccType}\marg{勘定科目の種類}\par
+% \begin{macro}{\journalentry@PLtransfar@LoopAccType}\jmarg{勘定科目の種類}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
@@ -1054,14 +1061,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 一貫して\cmd{\PGL@}を接頭辞として用いるようにする．
 % \begin{macro}{\PGL@printline}%
 %   \marg{AccLdgID}%
-%   \marg{月/日}%
-%   \marg{相手勘定科目名}%
-%   \marg{摘要}%
+%   \jmarg{月/日}%
+%   \jmarg{相手勘定科目名}%
+%   \jmarg{摘要}%
 %   \marg{JEID}%
-%   \marg{借方}%
-%   \marg{貸方}%
-%   \marg{残高賃借}%
-%   \marg{残高}\par
+%   \jmarg{借方}%
+%   \jmarg{貸方}%
+%   \jmarg{残高賃借}%
+%   \jmarg{残高}\par
 % 総勘定元帳での各取引の出力用．
 %    \begin{macrocode}
 % #1: LEID
@@ -1370,11 +1377,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \end{macro}
 % \subsection{合計残高試算表}
 % \begin{macro}{\TB@printline}%
-%   \marg{借方残高}%
-%   \marg{借方}%
-%   \marg{勘定科目名}%
-%   \marg{貸方}%
-%   \marg{貸方残高}\par
+%   \jmarg{借方残高}%
+%   \jmarg{借方}%
+%   \jmarg{勘定科目名}%
+%   \jmarg{貸方}%
+%   \jmarg{貸方残高}\par
 % 合計残高試算表の1行出力の中身．
 %    \begin{macrocode}
 % Trial balance (TB)
