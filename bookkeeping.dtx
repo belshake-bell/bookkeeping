@@ -934,7 +934,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     }%
   \fi
 %    \end{macrocode}
-% 取引で貸方に来ているときには貸方残高に取引額を加算すし，仕訳の貸方科目の要素に\meta{LEID}を登録する．
+% 取引で貸方に来ているときには貸方残高に取引額を加算し，仕訳の貸方科目の要素に\meta{LEID}を登録する．
 %    \begin{macrocode}
   \if#3C%
     \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Credit}{%
@@ -1386,6 +1386,64 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\TB@Table@Acc@OneLine@BalanceDebt}%
+% \changes{v1.1.0}{2025/02/05}
+%   {残高額を表示するかどうかも含めて別マクロに切り離す．}%
+% 合計残高試算表にて借方残高を表示するマクロ．
+%    \begin{macrocode}
+\def\TB@Table@Acc@OneLine@BalanceDebt{%
+  \if\Acc@LedgBalType D%
+    \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
+    \global\advance\BKtemp@countA
+                   \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+    \csxdef{\TB@tmp@AccT@ThisMonth @sumDebit}{%
+      \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumDebit}%
+      + \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+    }%
+  \fi
+  \if\Acc@LedgBalType A%
+    \ifnum\csuse{\TB@tmp@AccTT@ThisMonth @Balance}<0\relax
+      \the\numexpr-\csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      \global\advance\BKtemp@countA
+                    -\csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      \csxdef{\TB@tmp@AccT@ThisMonth @sumDebit}{%
+        \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumDebit}%
+        - \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      }%
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@Table@Acc@OneLine@BalanceCredit}%
+% \changes{v1.1.0}{2025/02/05}
+%   {残高額を表示するかどうかも含めて別マクロに切り離す．}%
+% 合計残高試算表にて貸方残高を表示するマクロ．
+%    \begin{macrocode}
+\def\TB@Table@Acc@OneLine@BalanceCredit{%
+  \if\Acc@LedgBalType C%
+    \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
+    \global\advance\BKtemp@countD
+                   \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+    \csxdef{\TB@tmp@AccT@ThisMonth @sumCredit}{%
+      \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumCredit}%
+      + \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+    }%
+  \fi
+  \if\Acc@LedgBalType A%
+    \ifnum\csuse{\TB@tmp@AccTT@ThisMonth @Balance}<0\relax\else
+      \the\numexpr\csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      \global\advance\BKtemp@countA
+                     \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      \csxdef{\TB@tmp@AccT@ThisMonth @sumDebit}{%
+        \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumDebit}%
+          \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
+      }%
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\TB@Table@Acc@OneLine}%
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
@@ -1405,15 +1463,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \xdef\Acc@LedgBalType{%
     \csname Account\reserved@a @LedgerBalanceType\endcsname}%
   \TB@printline{% Debt balance
-    \if\Acc@LedgBalType D%
-      \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
-      \global\advance\BKtemp@countA
-                     \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
-      \csxdef{\TB@tmp@AccT@ThisMonth @sumDebit}{%
-        \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumDebit}%
-        + \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
-      }%
-    \fi
+    \TB@Table@Acc@OneLine@BalanceDebt
   }{%
     \csuse{\TB@tmp@AccTT@ThisMonth @Debit}%
     \global\advance\BKtemp@countB
@@ -1433,15 +1483,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       + \csuse{\TB@tmp@AccTT@ThisMonth @Credit}\relax
     }%
   }{%
-    \if\Acc@LedgBalType C%
-      \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
-      \global\advance\BKtemp@countD
-                     \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
-      \csxdef{\TB@tmp@AccT@ThisMonth @sumCredit}{%
-        \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @sumCredit}%
-        + \csuse{\TB@tmp@AccTT@ThisMonth @Balance}\relax
-      }%
-    \fi
+    \TB@Table@Acc@OneLine@BalanceCredit
   }%
 }
 %    \end{macrocode}
@@ -1462,7 +1504,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@Loop}\par
 % \changes{v1.1.0}{2025/04/07}
 %   {カウンタ条件式周りの調整（\cmd{\c@MonthIterator}を回して
-%    $=14$となるときを排除する）．}%
+%    =14となるときを排除する）．}%
 % 月についてイテレータ\cmd{\c@MonthIterator}を回して，
 % 各月ごとの残高試算表の出力処理を行う．
 %    \begin{macrocode}
@@ -1597,5 +1639,5 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 %
 %
-% \Finale
+% \Finale\clearpage
 % \PrintIndex \PrintChanges
