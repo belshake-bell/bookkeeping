@@ -32,6 +32,9 @@ strip: $(STRIPTARGET)
 doc: $(PDFTARGET)
 test: $(TESTTARGET)
 
+bookkeeping.sty: bookkeeping.ins bookkeeping.dtx
+	pdflatex $<
+
 ifeq ($(LATEXENGINE),lualatex)
 %.pdf: %.dtx
 	lualatex $(LATEXOpt) $<
