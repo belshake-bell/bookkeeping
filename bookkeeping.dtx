@@ -1147,49 +1147,48 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar}\jmarg{損益勘定科目名}\par
+% \begin{macro}{\JE@PLtransfar}\jmarg{損益勘定科目名}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
+% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
 % 収益と費用の各勘定科目について損益振替をする．
 % \cmd{\PLtransfar@AccTypeAccID}に損益勘定科目の\meta{AccType}\meta{AccID}を
 % 控えておく．
-% \TODO{名前．}
 %    \begin{macrocode}
-\newcommand{\journalentry@PLtransfar}[1]{%
+\newcommand{\JE@PLtransfar}[1]{%
   \edef\PLtransfar@AccTypeAccID{\Account@getAccTypeAccID{#1}}%
   \setcounter{AccountIDiterator}{0}%
-  \journalentry@PLtransfar@LoopAccType{R}% 収益 Revenue
-  \journalentry@PLtransfar@LoopAccType{E}% 費用 Expence
+  \JE@PLtransfar@LoopAccType{R}% 収益 Revenue
+  \JE@PLtransfar@LoopAccType{E}% 費用 Expence
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar@LoopAccType}\jmarg{勘定科目の種類}\par
+% \begin{macro}{\JE@PLtransfar@LoopAccType}\jmarg{勘定科目の種類}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
-% \TODO{名前．}
 %    \begin{macrocode}
-\newcommand{\journalentry@PLtransfar@LoopAccType}[1]{%
+\newcommand{\JE@PLtransfar@LoopAccType}[1]{%
   \ifnum\c@AccountIDiterator<\csuse{c@AccType#1@AccountCount}%
     \stepcounter{AccountIDiterator}%
     \xdef\JE@PLT@Account{\csuse{Account#1\the\c@AccountIDiterator@Name}}%
-    \journalentry@PLtransfar@register
+    \JE@PLtransfar@register
     \expandafter\@firstonone
   \else
     \expandafter\@gobble
-  \fi{\journalentry@PLtransfar@LoopAccType{#1}}%
+  \fi{\JE@PLtransfar@LoopAccType{#1}}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar@register}\par
+% \begin{macro}{\JE@PLtransfar@register}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
 % ……んですが，残高をどこから得ればいいかの設計で迷い中．
 % 貸借の分岐は勘定科目の要素\meta{LedgerBakanceType}で行うのがスマートだろうか．
-% \TODO{名前と実装．}
+% \TODO{実装．}
 %    \begin{macrocode}
-\newcommand{\journalentry@PLtransfar@register}{%
+\newcommand{\JE@PLtransfar@register}{%
 %%\journalentry*{13}{01}{\JE@PLT@Account}
 }
 %    \end{macrocode}
