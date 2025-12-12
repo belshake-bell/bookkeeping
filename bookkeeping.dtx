@@ -604,7 +604,7 @@
 %   \item[\cntname{LEID}]
 %     総勘定元帳の登録ID（LEID）．
 %   \end{description}
-% \item[\cntname{AccountDesc}]
+% \item[\cntname{Description}]
 %   摘要を得る．
 % \item[\cntname{Line}]
 %   仕訳帳での行数．
@@ -612,8 +612,8 @@
 %
 % また摘要の有無を判定するために
 % \begin{description}
-% \item[\cmd{\ifJE\meta{JEID}@AccountDesc}]
-% \item[\cmd{\JE@IfExistAccountDesc}]\marg{JEID}\marg{true}\marg{false}
+% \item[\cmd{\ifJE\meta{JEID}@Description}]
+% \item[\cmd{\JE@IfExistDescription}]\marg{JEID}\marg{true}\marg{false}
 % \end{description}
 % が用意されている．
 %
@@ -635,48 +635,52 @@
   * Account
   * Value
   * LEID
-* JE<JEID>@AccountDesc: 摘要
-* ifJE<JEID>@AccountDesc: 摘要の有無
-* \JE@IfExistAccountDesc{<JEID>}{<true>}{<false>}: 摘要の有無 (true or false)で分岐するIf関数
+* JE<JEID>@Description: 摘要
+* ifJE<JEID>@Description: 摘要の有無
+* \JE@IfExistDescription{<JEID>}{<true>}{<false>}: 摘要の有無 (true or false)で分岐するIf関数
 * JE<JEID>@Line: 仕訳帳での行数
 
 複合仕訳にするとなると科目の個数と各科目についてID割り振りが必要かなぁ……
 面倒なのでやらないと思う．
 \fi
-% \begin{macro}{\registerJE@Date}\jmarg{仕訳月}\jmarg{仕訳日}\par
+% \begin{macro}{\JE@setDate}\jmarg{仕訳月}\jmarg{仕訳日}\par
+% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
 % 仕訳の月日を登録する．
 %    \begin{macrocode}
 %% journalentry (JE)
-\def\registerJE@Date#1#2{%
+\def\JE@setDate#1#2{%
   \csgdef{JE\the\c@JECount @Month}{#1}%
   \csgdef{JE\the\c@JECount @Day}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@Debit}\jmarg{借方勘定科目}\jmarg{金額}\par
+% \begin{macro}{\JE@setDebit}\jmarg{借方勘定科目}\jmarg{金額}\par
+% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
 % 仕訳の借方勘定科目および金額を登録する．
 %    \begin{macrocode}
-\def\registerJE@Debit#1#2{%
+\def\JE@setDebit#1#2{%
   \csgdef{JE\the\c@JECount @Debit@Accouunt}{#1}%
   \csgdef{JE\the\c@JECount @Debit@Value}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@Credit}\jmarg{貸方勘定科目}\jmarg{金額}\par
+% \begin{macro}{\JE@setCredit}\jmarg{貸方勘定科目}\jmarg{金額}\par
+% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
 % 仕訳の貸方勘定科目および金額を登録する．
 %    \begin{macrocode}
-\def\registerJE@Credit#1#2{%
+\def\JE@setCredit#1#2{%
   \csgdef{JE\the\c@JECount @Credit@Accouunt}{#1}%
   \csgdef{JE\the\c@JECount @Credit@Value}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\registerJE@AccountDesc}\jmarg{摘要}\jmarg{摘要の有無(true or false)}\par
+% \begin{macro}{\JE@setDescription}\jmarg{摘要}\jmarg{摘要の有無(true or false)}\par
+% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
 % 仕訳の摘要を登録する．
 %    \begin{macrocode}
-\def\registerJE@AccountDesc#1#2{%
-  \csgdef{JE\the\c@JECount @AccountDesc}{#1}%
-  \csgdef{ifJE\the\c@JECount @AccountDesc}{#2}%
+\def\JE@setDescription#1#2{%
+  \csgdef{JE\the\c@JECount @Description}{#1}%
+  \csgdef{ifJE\the\c@JECount @Description}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -686,14 +690,15 @@
 %                             \jmarg{取引額}%
 %                             \jmarg{貸方科目名}%
 %                             \jmarg{摘要}%\par
+% \changes{v1.2.0-alpha.1}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 % 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
   \stepcounter{JECount}%
-  \registerJE@Date{#1}{#2}%
-  \registerJE@Debit{#3}{#4}%
-  \registerJE@Credit{#5}{#4}%
-  \registerJE@AccountDesc{#6}{\iftrue}%
+  \JE@setDate{#1}{#2}%
+  \JE@setDebit{#3}{#4}%
+  \JE@setCredit{#5}{#4}%
+  \JE@setDescription{#6}{\iftrue}%
   \csgdef{JE\the\c@JECount @Line}{3}%
   \ledger@entry{#3}{#5}{D}{#4}%
   \ledger@entry{#5}{#3}{C}{#4}%
@@ -709,21 +714,22 @@
 %    \begin{macrocode}
 \newcommand{\sjourn@lentry}[5]{%
   \stepcounter{JECount}%
-  \registerJE@Date{#1}{#2}%
-  \registerJE@Debit{#3}{#4}%
-  \registerJE@Credit{#5}{#4}%
-  \registerJE@AccountDesc{}{\iffalse}%
+  \JE@setDate{#1}{#2}%
+  \JE@setDebit{#3}{#4}%
+  \JE@setCredit{#5}{#4}%
+  \JE@setDescription{}{\iffalse}%
   \csgdef{JE\the\c@JECount @Line}{2}%
   \ledger@entry{#3}{#5}{D}{#4}%
   \ledger@entry{#5}{#3}{C}{#4}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\JE@IfExistAccountDesc}\marg{JEID}\marg{true}\marg{false}\par
+% \begin{macro}{\JE@IfExistDescription}\marg{JEID}\marg{true}\marg{false}\par
+% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
 % 取引IDが\meta{JEID}の取引について，摘要が存在するかどうかを条件として分岐する．
 %    \begin{macrocode}
-\def\JE@IfExistAccountDesc#1#2#3{%
-  \csname ifJE#1@AccountDesc\endcsname
+\def\JE@IfExistDescription#1#2#3{%
+  \csname ifJE#1@Description\endcsname
   #2\else#3\fi
 }
 
@@ -806,14 +812,15 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@Transaction}\marg{JEID}\par
+% \changes{v1.2.0-alpha.1}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 % 取引IDが\meta{JEID}の取引を出力する．
 %
 % まず摘要の有無を判定して摘要の行の処理を\cmd{\@tmp@PJ}に設定する
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
-  \JE@IfExistAccountDesc{#1}{%
+  \JE@IfExistDescription{#1}{%
     \gdef\@tmp@PJ{%
-      \PJ@printline*{}{}{\csuse{JE#1@AccountDesc}}{}{}{}\hline
+      \PJ@printline*{}{}{\csuse{JE#1@Description}}{}{}{}\hline
     }%
   }{%
     \global\let\@tmp@PJ\hline
@@ -1031,6 +1038,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \csxdef{Account\LE@tmpA @LedgerCount}{\the\BKtemp@countB}%
 %    \end{macrocode}
 % この取引についての要素の登録．
+% \changes{v1.2.0-alpha.1}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 %    \begin{macrocode}
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
     {\LE@tmpA-\the\BKtemp@countB}%
@@ -1038,7 +1046,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \the\c@JECount}% refference JEID
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @PartnerAccount}{#2}%
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @JEDesc}%
-    {\csuse{JE\the\c@JECount @AccountDesc}}%
+    {\csuse{JE\the\c@JECount @Description}}%
   \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @IsAccountDebit}{#3}%
   \csgdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}{#4}%
 %    \end{macrocode}
@@ -1088,40 +1096,40 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \BKtemp@countD\z@\relax
   \stepcounter{ClosingMonthCount}%
   \gdef\LMC@month{#1}%
-  \ledgermonthlyclosing@loop
+  \LMC@loop
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ledgermonthlyclosing@loop}\par
+% \begin{macro}{\LMC@loop}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
 % \meta{AccType}を\cmd{\BKtemp@countD}でイテレーション，\cmd{\BKtemp@countC}を
-% クリアして\cmd{\ledgermonthlyclosing@l@@p}を呼び出す．
+% クリアして\cmd{\LMC@l@@p}を呼び出す．
 %    \begin{macrocode}
-\def\ledgermonthlyclosing@loop{% loop for each AccType
+\def\LMC@loop{% loop for each AccType
   \ifnum\the\BKtemp@countD<\c@AccountTypeCount\relax
     \global\advance\BKtemp@countD\@ne
     \global\BKtemp@countC\z@\relax
     \xdef\LMC@AccType{\AccType@getAccType{\the\BKtemp@countD}}%
     % \LMC@AccType <- AccType
-    \expandafter\ledgermonthlyclosing@l@@p
+    \expandafter\LMC@l@@p
   \fi
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ledgermonthlyclosing@l@@p}\par
+% \begin{macro}{\LMC@l@@p}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
 % \meta{Account}を\cmd{\BKtemp@countC}でイテレーション．
 %    \begin{macrocode}
-\def\ledgermonthlyclosing@l@@p{% loop for each AccID
+\def\LMC@l@@p{% loop for each AccID
   \ifnum\BKtemp@countC<\csname c@AccType\LMC@AccType @AccountCount\endcsname
     \global\advance\BKtemp@countC\@ne
     \xdef\reserved@a{\csuse{Account\LMC@AccType\the\BKtemp@countC @Name}}%
     \expandafter\ledger@entry\expandafter{\reserved@a}{\LMC@month}{\relax}{0}%
-    \expandafter\ledgermonthlyclosing@l@@p
+    \expandafter\LMC@l@@p
   \else
-    \expandafter\ledgermonthlyclosing@loop
+    \expandafter\LMC@loop
   \fi
 }
 %    \end{macrocode}
@@ -1139,49 +1147,48 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar}\jmarg{損益勘定科目名}\par
+% \begin{macro}{\JE@PLtransfar}\jmarg{損益勘定科目名}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
+% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
 % 収益と費用の各勘定科目について損益振替をする．
 % \cmd{\PLtransfar@AccTypeAccID}に損益勘定科目の\meta{AccType}\meta{AccID}を
 % 控えておく．
-% \TODO{名前．}
 %    \begin{macrocode}
-\newcommand{\journalentry@PLtransfar}[1]{%
+\newcommand{\JE@PLtransfar}[1]{%
   \edef\PLtransfar@AccTypeAccID{\Account@getAccTypeAccID{#1}}%
   \setcounter{AccountIDiterator}{0}%
-  \journalentry@PLtransfar@LoopAccType{R}% 収益 Revenue
-  \journalentry@PLtransfar@LoopAccType{E}% 費用 Expence
+  \JE@PLtransfar@LoopAccType{R}% 収益 Revenue
+  \JE@PLtransfar@LoopAccType{E}% 費用 Expence
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar@LoopAccType}\jmarg{勘定科目の種類}\par
+% \begin{macro}{\JE@PLtransfar@LoopAccType}\jmarg{勘定科目の種類}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
-% \TODO{名前．}
 %    \begin{macrocode}
-\newcommand{\journalentry@PLtransfar@LoopAccType}[1]{%
+\newcommand{\JE@PLtransfar@LoopAccType}[1]{%
   \ifnum\c@AccountIDiterator<\csuse{c@AccType#1@AccountCount}%
     \stepcounter{AccountIDiterator}%
     \xdef\JE@PLT@Account{\csuse{Account#1\the\c@AccountIDiterator@Name}}%
-    \journalentry@PLtransfar@register
+    \JE@PLtransfar@register
     \expandafter\@firstonone
   \else
     \expandafter\@gobble
-  \fi{\journalentry@PLtransfar@LoopAccType{#1}}%
+  \fi{\JE@PLtransfar@LoopAccType{#1}}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\journalentry@PLtransfar@register}\par
+% \begin{macro}{\JE@PLtransfar@register}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
 % ……んですが，残高をどこから得ればいいかの設計で迷い中．
 % 貸借の分岐は勘定科目の要素\meta{LedgerBakanceType}で行うのがスマートだろうか．
-% \TODO{名前と実装．}
+% \TODO{実装．}
 %    \begin{macrocode}
-\newcommand{\journalentry@PLtransfar@register}{%
+\newcommand{\JE@PLtransfar@register}{%
 %%\journalentry*{13}{01}{\JE@PLT@Account}
 }
 %    \end{macrocode}
