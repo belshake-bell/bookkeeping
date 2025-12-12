@@ -1096,40 +1096,40 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \BKtemp@countD\z@\relax
   \stepcounter{ClosingMonthCount}%
   \gdef\LMC@month{#1}%
-  \ledgermonthlyclosing@loop
+  \LMC@loop
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ledgermonthlyclosing@loop}\par
+% \begin{macro}{\LMC@loop}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
 % \meta{AccType}を\cmd{\BKtemp@countD}でイテレーション，\cmd{\BKtemp@countC}を
-% クリアして\cmd{\ledgermonthlyclosing@l@@p}を呼び出す．
+% クリアして\cmd{\LMC@l@@p}を呼び出す．
 %    \begin{macrocode}
-\def\ledgermonthlyclosing@loop{% loop for each AccType
+\def\LMC@loop{% loop for each AccType
   \ifnum\the\BKtemp@countD<\c@AccountTypeCount\relax
     \global\advance\BKtemp@countD\@ne
     \global\BKtemp@countC\z@\relax
     \xdef\LMC@AccType{\AccType@getAccType{\the\BKtemp@countD}}%
     % \LMC@AccType <- AccType
-    \expandafter\ledgermonthlyclosing@l@@p
+    \expandafter\LMC@l@@p
   \fi
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ledgermonthlyclosing@l@@p}\par
+% \begin{macro}{\LMC@l@@p}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
 % \meta{Account}を\cmd{\BKtemp@countC}でイテレーション．
 %    \begin{macrocode}
-\def\ledgermonthlyclosing@l@@p{% loop for each AccID
+\def\LMC@l@@p{% loop for each AccID
   \ifnum\BKtemp@countC<\csname c@AccType\LMC@AccType @AccountCount\endcsname
     \global\advance\BKtemp@countC\@ne
     \xdef\reserved@a{\csuse{Account\LMC@AccType\the\BKtemp@countC @Name}}%
     \expandafter\ledger@entry\expandafter{\reserved@a}{\LMC@month}{\relax}{0}%
-    \expandafter\ledgermonthlyclosing@l@@p
+    \expandafter\LMC@l@@p
   \else
-    \expandafter\ledgermonthlyclosing@loop
+    \expandafter\LMC@loop
   \fi
 }
 %    \end{macrocode}
