@@ -442,9 +442,22 @@
 % \begin{macro}{\AccType@getAccType}\jmarg{勘定科目の種類ID}\par
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを設置．}
+% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
 %  勘定科目の種類IDから勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
-\def\AccType@getAccType#1{\csuse{revAccType#1@AccType}}
+\def\AccType@getAccType#1{%
+  \@ifundefined{revAccType#1@AccType}{%
+    \PackageError{bookkeeping}{%
+      The Account Type "#1" is not defined.\MessageBreak
+      You MUST define account\MessageBreak
+      by using \protect\registerAccountID .
+    }{%
+      Check the account type registration.
+    }%
+  }{%
+    \csuse{revAccType#1@AccType}%
+  }%
+}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -551,21 +564,64 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\Account@getAccID}\jmarg{勘定科目名}\par
+% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
 %  勘定科目名から勘定科目ID\meta{AccID}を得る．
 %    \begin{macrocode}
-\def\Account@getAccID#1{\csuse{revAccount#1@ID}}
+\def\Account@getAccID#1{%
+  \@ifundefined{revAccount#1@ID}{%
+    \PackageError{bookkeeping}{%
+      The Account "#1" is not defined.\MessageBreak
+      You MUST define account\MessageBreak
+      by using \protect\registerAccountID .
+    }{%
+      Check the account registration.
+    }%
+  }{%
+    \csuse{revAccount#1@ID}%
+  }%
+}
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\Account@getAccType}\jmarg{勘定科目名}\par
+% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
 %  勘定科目名から勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
-\def\Account@getAccType#1{\csuse{revAccount#1@Type}}
+\def\Account@getAccType#1{%
+  \@ifundefined{revAccount#1@Type}{%
+    \PackageError{bookkeeping}{%
+      The Account "#1" is not defined.\MessageBreak
+      You MUST define account\MessageBreak
+      by using \protect\registerAccountID .
+    }{%
+      Check the account registration.
+    }%
+  }{%
+    \csuse{revAccount#1@Type}%
+  }%
+}
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\Account@getAccTypeAccID}\jmarg{勘定科目名}\par
 %  勘定科目名から\meta{AccType}\meta{AccID}を得る．
 %    \begin{macrocode}
 \def\Account@getAccTypeAccID#1{\Account@getAccType{#1}\Account@getAccID{#1}}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getproperty}\jmarg{勘定科目名}\marg{prop.}\par
+% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
+%  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
+%    \begin{macrocode}
+\def\Account@getproperty#1#2{%
+  \@ifundefined{Account\Account@getAccTypeAccID{#1}@#2}{%
+    \PackageError{bookkeeping}{%
+      The property "#2" is not defined.\MessageBreak
+    }{%
+      please tell package author.\MessageBreak
+    }%
+  }{%
+    \csuse{Account\Account@getAccTypeAccID{#1}@#2}%
+  }%
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    \end{macrocode}
