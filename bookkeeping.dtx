@@ -607,19 +607,66 @@
 \def\Account@getAccTypeAccID#1{\Account@getAccType{#1}\Account@getAccID{#1}}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\Account@getproperty}\jmarg{勘定科目名}\marg{prop.}\par
-% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
+% \begin{macro}{\Account@getpropertybase}\jmarg{勘定科目名}^^A
+%                     \oarg{parent~prop.}\marg{prop.}\par
+% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}^^A
+% \changes{v1.1.2-alpha.2}{2025/12/13}
+%   {Grand parent management.}^^A
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
+%
+%  オプションで\meta{parent~prop.}に\meta{prop.}の親を指定できる．
 %    \begin{macrocode}
-\def\Account@getproperty#1#2{%
-  \@ifundefined{Account\Account@getAccTypeAccID{#1}@#2}{%
+\def\Account@getpropertybase#1[#2]#3{%
+  \@ifundefined{Account\Account@getAccTypeAccID{#1}#2@#3}{%
     \PackageError{bookkeeping}{%
-      The property "#2" is not defined.\MessageBreak
+      The property "#2@#3" is not defined.\MessageBreak
     }{%
       please tell package author.\MessageBreak
     }%
   }{%
-    \csuse{Account\Account@getAccTypeAccID{#1}@#2}%
+    \csuse{Account\Account@getAccTypeAccID{#1}#2@#3}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getpropertyTLii}\jmarg{勘定科目名}^^A
+%               \marg{grandparent~prop.}\oarg{parent~prop.}\par
+% \changes{v1.1.2-alpha.2}{2025/12/13}
+%   {Grand parent management.}^^A
+%    \begin{macrocode}
+\def\Account@getpropertyTLii#1#2[#3]{%
+  \Account@getpropertyTLi{#1}[#2@#3]%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getpropertyTLi}\jmarg{勘定科目名}^^A
+%                                      \oarg{parent~prop.}\par
+% \changes{v1.1.2-alpha.2}{2025/12/13}
+%   {Grand parent management.}^^A
+%    \begin{macrocode}
+\def\Account@getpropertyTLi#1[#2]{%
+  \@ifnextchar[{%
+    \Account@getpropertyTLii{#1}{#2}%
+  }{%
+    \Account@getpropertybase{#1}[@#2]%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getproperty}\jmarg{勘定科目名}^^A
+%                     \oarg{parent~prop.}\marg{prop.}\par
+% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}^^A
+% \changes{v1.1.2-alpha.2}{2025/12/13}
+%   {Grand parent management.}^^A
+%  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
+%
+%  オプションで\meta{parent~prop.}に\meta{prop.}の親を指定できる．
+%    \begin{macrocode}
+\def\Account@getproperty#1{%
+  \@ifnextchar[{%
+    \Account@getpropertyTLi{#1}%
+  }{%
+    \Account@getpropertybase{#1}[\@empty]%
   }%
 }
 
