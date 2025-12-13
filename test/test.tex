@@ -1,0 +1,50 @@
+\documentclass[dvipdfmx,uplatex,b5paper,openany,jbase=12Q,nomag*,textwidth-limit=44]{bxjsarticle}
+\usepackage{../bookkeeping}
+
+\makeatletter
+\makeatother
+
+
+\registerAccountID{A}{C}{現金}
+\registerAccountID{L}{D}{借金}
+\registerAccountID{N}{D}{総資産}
+\registerAccountID{R}{D}{収入}
+\registerAccountID{E}{D}{費用}
+
+\journalentry*{01}{01}{現金}{1000}{総資産}
+\journalentry*{01}{01}{総資産}{200}{借金}
+\journalentry{01}{01}{現金}{1000}{借金}{お金を借りる}
+\journalentry{01}{02}{費用}{500}{現金}{商品購入}
+\journalentry{01}{04}{現金}{2000}{収入}{商品売却}
+\journalentry{01}{05}{借金}{1200}{現金}{お金を返す}
+
+
+\begin{document}
+\makeatletter
+\begin{itemize}
+\item 現金
+\item \Account@getAccID{現金}
+\item \Account@getAccType{現金}
+\item \Account@getAccTypeAccID{現金}
+  \begin{itemize}
+  \item \Account@getproperty{現金}{Name}
+  \item \Account@getproperty{現金}{LedgerCount}
+  \item \Account@getproperty{現金}{LedgerBalanceType}
+  % \item \Account@getproperty{現金}{hoge} % <- Red!
+  \end{itemize}
+\end{itemize}
+\begin{itemize}
+\item Hoge
+% \item \Account@getAccID{Hoge} % <- Red!
+% \item \Account@getAccType{Hoge} % <- Red!
+% \item \Account@getAccTypeAccID{Hoge} % <- Red!
+%   \begin{itemize}
+%   \item \Account@getproperty{現金}{Name} % <- Red!
+%   \item \Account@getproperty{現金}{LedgerCount} % <- Red!
+%   \item \Account@getproperty{現金}{LedgerBalanceType} % <- Red!
+%   \item \Account@getproperty{現金}{hoge} % <- Red!
+% \end{itemize}
+\end{itemize}
+\makeatother
+
+\end{document}
