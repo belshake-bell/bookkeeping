@@ -18,6 +18,21 @@
 \journalentry{01}{04}{現金}{2000}{収入}{商品売却}
 \journalentry{01}{05}{借金}{1200}{現金}{お金を返す}
 
+\makeatletter
+\def\testAccGetLedger#1#2{%
+  Ledger#1:
+    \begin{itemize}
+      \item \Account@getproperty{#2}[Ledger#1]{FullLEID}
+      \item \Account@getproperty{#2}[Ledger#1]{JEID}
+      \item \Account@getproperty{#2}[Ledger#1]{PartnerAccount}
+      \item \Account@getproperty{#2}[Ledger#1]{JEDesc}
+      \item \Account@getproperty{#2}[Ledger#1]{IsAccountDebit}
+      \item \Account@getproperty{#2}[Ledger#1]{AccountValue}
+    \end{itemize}
+}
+
+\makeatother
+
 
 \begin{document}
 \makeatletter
@@ -31,11 +46,28 @@
   \item \Account@getproperty{現金}{LedgerCount}
   \item \Account@getproperty{現金}{LedgerBalanceType}
   % \item \Account@getproperty{現金}{hoge} % <- Red!
-  \item \Account@getproperty{現金}[Month1]{Balance}
-  \item \Account@getproperty{現金}[Month1]{Debit}
-  \item \Account@getproperty{現金}[Month1]{Credit}
+  \item Month1:
+    \begin{itemize}
+      \item \Account@getproperty{現金}[Month1]{Balance}
+      \item \Account@getproperty{現金}[Month1]{Debit}
+      \item \Account@getproperty{現金}[Month1]{Credit}
+      \item \Account@getproperty{現金}[Month1]{Credit}
+    \end{itemize}
+  \item \testAccGetLedger1{現金}%
+  \item \testAccGetLedger2{現金}%
+  \item \testAccGetLedger3{現金}%
+  \item \testAccGetLedger4{現金}%
+  \item \testAccGetLedger5{現金}%
+  % \item \testAccGetLedger6{現金}% <- Red!
   \end{itemize}
+  \item \Account@advanceLedgerCount{現金}\Account@getproperty{現金}{LedgerCount}
+  \item \Account@advanceLedgerCount{現金}\Account@getproperty{現金}{LedgerCount}
 \end{itemize}
+
+\Account@getproperty{現金}{LedgerCount}
+\Account@setpropertySmpl{現金}{LedgerCount}{2}
+\Account@getproperty{現金}{LedgerCount}
+
 \begin{itemize}
 \item Hoge
 % \item \Account@getAccID{Hoge} % <- Red!
