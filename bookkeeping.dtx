@@ -779,6 +779,33 @@
 複合仕訳にするとなると科目の個数と各科目についてID割り振りが必要かなぁ……
 面倒なのでやらないと思う．
 \fi
+% \begin{macro}{\JE@getpropertySmpl}\marg{JEID}^^A
+%                                   \marg{prop.}\par
+% \changes{v1.1.2-alpha.4}{2025/12/14}
+%   {JEのgetterの新設．}^^A
+%  \meta{JEID}と欲しい\meta{prop.}から\meta{prop.}の値を得る．
+%    \begin{macrocode}
+\def\JE@getpropertySmpl#1#2{%
+  \@ifundefined{JE#1@#2}{%
+    \ifnum #1>\c@JECount
+      \PackageError{bookkeeping}{%
+        The JEID "#1" is over the number registered.
+      }{%
+        please tell package author.\MessageBreak
+      }%
+    \else
+      \PackageError{bookkeeping}{%
+        The property "#2" is not defined.
+      }{%
+        please tell package author.\MessageBreak
+      }%
+    \fi
+  }{%
+    \csuse{JE#1@#2}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\JE@setDate}\jmarg{仕訳月}\jmarg{仕訳日}\par
 % \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
 % 仕訳の月日を登録する．
@@ -1188,6 +1215,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \changes{v1.1.2-alpha.0}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 % \changes{v1.1.2-alpha.3}{2025/12/14}
 %   {Setterを使うように変更．}^^A
+% \changes{v1.1.2-alpha.4}{2025/12/14}
+%   {JEのgetterを使うように変更．}^^A
 %    \begin{macrocode}
   \Account@setpropertySmpl{#1}
     {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@FullLEID}
@@ -1200,7 +1229,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     {#2}%
   \Account@setpropertySmpl{#1}
     {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@JEDesc}
-    {\csuse{JE\the\c@JECount @Description}}%
+    {\JE@getpropertySmpl{\the\c@JECount}{Description}}%
   \Account@setpropertySmpl{#1}
     {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@IsAccountDebit}
     {#3}%

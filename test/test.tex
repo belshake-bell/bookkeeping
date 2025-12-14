@@ -19,47 +19,131 @@
 \journalentry{01}{05}{借金}{1200}{現金}{お金を返す}
 
 \makeatletter
+\def\testJEGetterbase#1#2{%
+  \classTitle{JE[#1].#2}:
+  \JE@getpropertySmpl{#1}{#2}%
+}
+\def\testJEGetter#1{%
+  JEID #1:
+  \begin{itemize}
+  \item
+    \testJEGetterbase{#1}{Month}
+  \item
+    \testJEGetterbase{#1}{Day}
+  \item Debit:
+    \begin{itemize}
+    \item
+      \testJEGetterbase{#1}{Debit@Accouunt}% <- Typo.
+    \item
+      \testJEGetterbase{#1}{Debit@Value}
+    \item
+      \testJEGetterbase{#1}{Debit@LEID}
+    \end{itemize}
+  \item Credit:
+    \begin{itemize}
+    \item
+      \testJEGetterbase{#1}{Credit@Accouunt}% <- Typo.
+    \item
+      \testJEGetterbase{#1}{Credit@Value}
+    \item
+      \testJEGetterbase{#1}{Credit@LEID}
+    \end{itemize}
+  \item
+    \testJEGetterbase{#1}{Description}
+  \item
+    \testJEGetterbase{#1}{Line}
+% \item
+%   \testJEGetterbase{#1}{Hoge}% <- Red!
+  \end{itemize}
+}
 \def\testAccGetLedger#1#2{%
   Ledger#1:
     \begin{itemize}
-      \item \Account@getproperty{#2}[Ledger#1]{FullLEID}
-      \item \Account@getproperty{#2}[Ledger#1]{JEID}
-      \item \Account@getproperty{#2}[Ledger#1]{PartnerAccount}
-      \item \Account@getproperty{#2}[Ledger#1]{JEDesc}
-      \item \Account@getproperty{#2}[Ledger#1]{IsAccountDebit}
-      \item \Account@getproperty{#2}[Ledger#1]{AccountValue}
+      \item
+        \classTitle{Account.Ledger[#1].FullLEID}:
+        \Account@getproperty{#2}[Ledger#1]{FullLEID}
+      \item
+        \classTitle{Account.Ledger[#1].JEID}:
+        \Account@getproperty{#2}[Ledger#1]{JEID}
+      \item
+        \classTitle{Account.Ledger[#1].PartnerAccount}:
+        \Account@getproperty{#2}[Ledger#1]{PartnerAccount}
+      \item
+        \classTitle{Account.Ledger[#1].JEDesc}:
+        \Account@getproperty{#2}[Ledger#1]{JEDesc}
+      \item
+        \classTitle{Account.Ledger[#1].IsAccountDebit}:
+        \Account@getproperty{#2}[Ledger#1]{IsAccountDebit}
+      \item
+        \classTitle{Account.Ledger[#1].AccountValue}:
+        \Account@getproperty{#2}[Ledger#1]{AccountValue}
     \end{itemize}
 }
 
 \makeatother
-
+\let\classTitle\texttt
 
 \begin{document}
 \makeatletter
 \begin{itemize}
-\item 現金
-\item \Account@getAccID{現金}
-\item \Account@getAccType{現金}
-\item \Account@getAccTypeAccID{現金}
+\item
+  \classTitle{Account.name}:
+  現金
+\item
+  \classTitle{Account.getAccID()}:
+  \Account@getAccID{現金}
+\item
+  \classTitle{Account.getAccType()}:
+  \Account@getAccType{現金}
+\item
+  \classTitle{Account.getAccTypeAccID()}:
+  \Account@getAccTypeAccID{現金}
+\end{itemize}
+
+\begin{itemize}
+\item
+  \classTitle{Account.Name}:
+  \Account@getproperty{現金}{Name}
+\item
+  \classTitle{Account.LedgerCount}:
+  \Account@getproperty{現金}{LedgerCount}
+\item
+  \classTitle{Account.LedgerBalanceType}:
+  \Account@getproperty{現金}{LedgerBalanceType}
+% \item \Account@getproperty{現金}{hoge} % <- Red!
+\item Month1:
   \begin{itemize}
-  \item \Account@getproperty{現金}{Name}
-  \item \Account@getproperty{現金}{LedgerCount}
-  \item \Account@getproperty{現金}{LedgerBalanceType}
-  % \item \Account@getproperty{現金}{hoge} % <- Red!
-  \item Month1:
-    \begin{itemize}
-      \item \Account@getproperty{現金}[Month1]{Balance}
-      \item \Account@getproperty{現金}[Month1]{Debit}
-      \item \Account@getproperty{現金}[Month1]{Credit}
-      \item \Account@getproperty{現金}[Month1]{Credit}
-    \end{itemize}
-  \item \testAccGetLedger1{現金}%
-  \item \testAccGetLedger2{現金}%
-  \item \testAccGetLedger3{現金}%
-  \item \testAccGetLedger4{現金}%
-  \item \testAccGetLedger5{現金}%
-  % \item \testAccGetLedger6{現金}% <- Red!
+    \item
+      \classTitle{Account.Month[1].Balance}:
+      \Account@getproperty{現金}[Month1]{Balance}
+    \item
+      \classTitle{Account.Month[1].Debit}:
+      \Account@getproperty{現金}[Month1]{Debit}
+    \item
+      \classTitle{Account.Month[1].Credit}:
+      \Account@getproperty{現金}[Month1]{Credit}
   \end{itemize}
+\item \testAccGetLedger1{現金}%
+\item \testAccGetLedger2{現金}%
+\item \testAccGetLedger3{現金}%
+\item \testAccGetLedger4{現金}%
+\item \testAccGetLedger5{現金}%
+% \item \testAccGetLedger6{現金}% <- Red!
+\end{itemize}
+
+\clearpage
+JECount: \the\c@JECount.
+\begin{itemize}
+\item \testJEGetter{1}
+\item \testJEGetter{2}
+\item \testJEGetter{3}
+\item \testJEGetter{4}
+\item \testJEGetter{5}
+\item \testJEGetter{6}
+% \item \testJEGetter{7}% <- Red!
+\end{itemize}
+
+\begin{itemize}
   \item \Account@advanceLedgerCount{現金}\Account@getproperty{現金}{LedgerCount}
   \item \Account@advanceLedgerCount{現金}\Account@getproperty{現金}{LedgerCount}
 \end{itemize}
