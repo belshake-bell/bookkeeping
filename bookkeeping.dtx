@@ -780,7 +780,7 @@
 面倒なのでやらないと思う．
 \fi
 % \begin{macro}{\JE@setDate}\jmarg{仕訳月}\jmarg{仕訳日}\par
-% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
 % 仕訳の月日を登録する．
 %    \begin{macrocode}
 %% journalentry (JE)
@@ -791,7 +791,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setDebit}\jmarg{借方勘定科目}\jmarg{金額}\par
-% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
 % 仕訳の借方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\JE@setDebit#1#2{%
@@ -801,7 +801,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setCredit}\jmarg{貸方勘定科目}\jmarg{金額}\par
-% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
 % 仕訳の貸方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\JE@setCredit#1#2{%
@@ -811,7 +811,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setDescription}\jmarg{摘要}\jmarg{摘要の有無(true or false)}\par
-% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
 % 仕訳の摘要を登録する．
 %    \begin{macrocode}
 \def\JE@setDescription#1#2{%
@@ -826,7 +826,7 @@
 %                             \jmarg{取引額}%
 %                             \jmarg{貸方科目名}%
 %                             \jmarg{摘要}%\par
-% \changes{v1.2.0-alpha.1}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 % 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
@@ -861,7 +861,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@IfExistDescription}\marg{JEID}\marg{true}\marg{false}\par
-% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
 % 取引IDが\meta{JEID}の取引について，摘要が存在するかどうかを条件として分岐する．
 %    \begin{macrocode}
 \def\JE@IfExistDescription#1#2#3{%
@@ -948,7 +948,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@Transaction}\marg{JEID}\par
-% \changes{v1.2.0-alpha.1}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 % 取引IDが\meta{JEID}の取引を出力する．
 %
 % まず摘要の有無を判定して摘要の行の処理を\cmd{\@tmp@PJ}に設定する
@@ -1185,7 +1185,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \BKtemp@countB=\csuse{Account\LE@tmpA @LedgerCount}\relax
 %    \end{macrocode}
 % この取引についての要素の登録．
-% \changes{v1.2.0-alpha.1}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 %    \begin{macrocode}
   \csxdef{Account\LE@tmpA @Ledger\the\BKtemp@countB @FullLEID}%
     {\LE@tmpA-\the\BKtemp@countB}%
@@ -1299,7 +1299,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\JE@PLtransfar}\jmarg{損益勘定科目名}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
-% \changes{v1.2.0-alpha.1}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
 % 収益と費用の各勘定科目について損益振替をする．
 % \cmd{\PLtransfar@AccTypeAccID}に損益勘定科目の\meta{AccType}\meta{AccID}を
 % 控えておく．
