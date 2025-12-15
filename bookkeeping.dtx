@@ -540,6 +540,8 @@
 %                                  \marg{Account Name}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% \changes{v1.1.2-alpha.8}{2025/12/15}
+%   {Accountのsetterを使用．}^^A
 % 勘定科目を登録する．
 % \TODO{\cmd{\registerAccount}で良くない？}
 %    \begin{macrocode}
@@ -551,29 +553,40 @@
   \global\advance\csuse{c@AccType#1@AccountCount}\@ne\relax%
   \csgdef{revAccount#3@Type}{#1}% AccType <- Account Name
   \csxdef{revAccount#3@ID}%
-    {\the\csname c@AccType#1@AccountCount\endcsname}% ID <- Account Name
-  \csgdef{Account#1\the\csuse{c@AccType#1@AccountCount}@Name}{#3}%
-  \csgdef{Account#1\the\csuse{c@AccType#1@AccountCount}@LedgerCount}{0}%
-  \csgdef{Account#1\the\csuse{c@AccType#1@AccountCount}@LedgerBalanceType}{#2}%
-  \BKtemp@countA=-1\relax
-  \edef\reserved@a{#1\the\csuse{c@AccType#1@AccountCount}}%
-  \register@Acc@Mon@Bal
-% \typeout{<AccType>: #1\par <AccID>: \the\csuse{c@AccType#1@AccountCount}}%
+    {\the\csuse{c@AccType#1@AccountCount}}% ID <- Account Name
+  \Account@setpropertySmpl{#3}{Name}{#3}%
+  \Account@setpropertySmpl{#3}{LedgerCount}{0}%
+  \Account@setpropertySmpl{#3}{LedgerBalanceType}{#2}%
+%<dbg>\typeout{<AccType>: #1}%
+%<dbg>\typeout{<AccID>: \the\csuse{c@AccType#1@AccountCount}}%
+%<dbg>\typeout{Account.Name: %
+%<dbg>         \Account@getpropertySmpl{#3}{Name}}%
+%<dbg>\typeout{Account.LedgerCount: %
+%<dbg>         \Account@getpropertySmpl{#3}{LedgerCount}}%
+%<dbg>\typeout{Account.LedgerBalanceType: %
+%<dbg>         \Account@getpropertySmpl{#3}{LedgerBalanceType}}%
+  \BKtemp@countA\z@
+  \register@Acc@Mon@Bal{#3}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\register@Acc@Mon@Bal}\par
+% \begin{macro}{\register@Acc@Mon@Bal}\marg{Account Name}\par
+% \changes{v1.1.2-alpha.8}{2025/12/15}
+%   {Accountのsetterを使用．}^^A
 % 勘定科目の月ごとの残高・借方合計・貸方合計の登録．
 %    \begin{macrocode}
-% \register@Acc@Mon@Bal: 勘定科目の月ごとの残高・借方合計・貸方合計の登録
-\def\register@Acc@Mon@Bal{%
-  \ifnum\BKtemp@countA<\BK@closingmonth
+\def\register@Acc@Mon@Bal#1{%
+  \ifnum\BKtemp@countA>\BK@closingmonth\relax
+%<dbg>\typeout{Process: End of init Account.Month}%
+    \expandafter\@gobble%
+  \else
+%<dbg>\typeout{process: Init Account.Month[\the\BKtemp@countA]}%
+    \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Balance}{0}%
+    \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Debit}{0}%
+    \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Credit}{0}%
     \global\advance\BKtemp@countA\@ne\relax
-    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Balance}{0}%
-    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Debit}{0}%
-    \csxdef{Account\reserved@a @Month\the\BKtemp@countA @Credit}{0}%
-    \expandafter\register@Acc@Mon@Bal
-  \fi
+    \expandafter\@firstofone%
+  \fi{\register@Acc@Mon@Bal{#1}}%
 }
 %    \end{macrocode}
 % \end{macro}
