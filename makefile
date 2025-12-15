@@ -31,12 +31,20 @@ all: $(STRIPTARGET) $(PDFTARGET)
 strip: $(STRIPTARGET)
 doc: $(PDFTARGET)
 test: $(TESTTARGET)
+debug:
+	$(MAKE) strip DEBUGSTRIP=DEBUG
 
+ifeq ($(DEBUGSTRIP),DEBUG)
+bookkeeping.sty: bookkeeping-dbg.ins bookkeeping.dtx
+	pdflatex $<
+else
 bookkeeping.sty: bookkeeping.ins bookkeeping.dtx
 	pdflatex $<
+endif
 
 ifeq ($(LATEXENGINE),lualatex)
 %.pdf: %.dtx
+	lualatex $(LATEXOpt) $<
 	lualatex $(LATEXOpt) $<
 	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
 	if [ -e $(basename $<).glo ];\
@@ -45,6 +53,7 @@ ifeq ($(LATEXENGINE),lualatex)
 	$(MAKE) movelog DOCTARGET=$(basename $(notdir $<))
 else
 %.dvi: %.dtx
+	$(LATEXENGINE) $(LATEXOpt) $<
 	$(LATEXENGINE) $(LATEXOpt) $<
 	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
 	if [ -e $(basename $<).glo ];\
