@@ -1211,8 +1211,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 勘定科目に登録された取引登録数を更新する．
 %    \begin{macrocode}
   \Account@advanceLedgerCount{#1}%
-  \BKtemp@countB=\csuse{Account\LE@tmpA @LedgerCount}\relax
 %    \end{macrocode}
+% \begin{macro}{\LE@currentLedgerCount}
+% \changes{v1.1.2-alpha.6}{2025/12/15}
+%   {現在の\cntname{LedgerCount}を表すマクロを新設．}^^A
+% 現在の\cntname{LedgerCount}をマクロにしておく．
+%    \begin{macrocode}
+  \xdef\LE@currentLedgerCount{\Account@getpropertySmpl{#1}{LedgerCount}}%
+%    \end{macrocode}
+% \end{macro}
 % この取引についての要素の登録．
 % \changes{v1.1.2-alpha.0}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 % \changes{v1.1.2-alpha.3}{2025/12/14}
@@ -1221,27 +1228,29 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {JEのgetterを使うように変更．}^^A
 %    \begin{macrocode}
   \Account@setpropertySmpl{#1}
-    {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@FullLEID}
-    {\Account@getAccTypeAccID{#1}-\Account@getpropertySmpl{#1}{LedgerCount}}%
+    {Ledger\LE@currentLedgerCount @FullLEID}
+    {\Account@getAccTypeAccID{#1}-\LE@currentLedgerCount}%
   \Account@setpropertySmpl{#1}
-    {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@JEID}
+    {Ledger\LE@currentLedgerCount @JEID}
     {\the\c@JECount}%
   \Account@setpropertySmpl{#1}
-    {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@PartnerAccount}
+    {Ledger\LE@currentLedgerCount @PartnerAccount}
     {#2}%
   \Account@setpropertySmpl{#1}
-    {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@JEDesc}
+    {Ledger\LE@currentLedgerCount @JEDesc}
     {\JE@getpropertySmpl{\the\c@JECount}{Description}}%
   \Account@setpropertySmpl{#1}
-    {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@IsAccountDebit}
+    {Ledger\LE@currentLedgerCount @IsAccountDebit}
     {#3}%
   \Account@setpropertySmpl{#1}
-    {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@AccountValue}
+    {Ledger\LE@currentLedgerCount @AccountValue}
     {#4}%
 %    \end{macrocode}
 % 勘定科目の月ごとの要素を更新する．
 % \changes{v1.1.2-alpha.5}{2025/12/15}
 %   {setterを使うように変更．}^^A
+% \changes{v1.1.2-alpha.6}{2025/12/15}
+%   {\cs{LE@currentLedgerCount}を使うように変更．}^^A
 % まず残高．
 %    \begin{macrocode}
   % Account balance, Debit and Credit in the month
@@ -1251,7 +1260,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   %   Account.Ledger[AccLdgID].AccountValue
   \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}{%
     \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}%
-    + \csuse{Account\LE@tmpA @Ledger\the\BKtemp@countB @AccountValue}\relax
+    + \csuse{Account\LE@tmpA @Ledger\LE@currentLedgerCount @AccountValue}\relax
   }%
 %    \end{macrocode}
 % 取引で借方に来ているときには借方残高に取引額を加算し，仕訳の借方科目の要素に\meta{LEID}を登録する．
@@ -1271,13 +1280,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
             {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}%
           +
           \Account@getpropertySmpl{#1}
-            {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@AccountValue}\relax
+            {Ledger\LE@currentLedgerCount @AccountValue}\relax
       }%
 %<dbg>\typeout{Procces: set JE.Debit.LEID}%
     \csxdef{JE\Account@getpropertySmpl{#1}
-            {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@JEID}@Debit@LEID}
+            {Ledger\LE@currentLedgerCount @JEID}@Debit@LEID}
       {\Account@getpropertySmpl{#1}
-            {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@FullLEID}%
+            {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
   \fi
 %    \end{macrocode}
@@ -1298,13 +1307,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
             {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
           +
           \Account@getpropertySmpl{#1}
-            {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@AccountValue}\relax
+            {Ledger\LE@currentLedgerCount @AccountValue}\relax
       }%
 %<dbg>\typeout{Procces: set JE.Credit.LEID}%
     \csxdef{JE\Account@getpropertySmpl{#1}
-            {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@JEID}@Credit@LEID}
+            {Ledger\LE@currentLedgerCount @JEID}@Credit@LEID}
       {\Account@getpropertySmpl{#1}
-            {Ledger\Account@getpropertySmpl{#1}{LedgerCount}@FullLEID}%
+            {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
   \fi
 }
