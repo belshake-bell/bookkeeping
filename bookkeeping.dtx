@@ -1253,6 +1253,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 現在の\cntname{LedgerCount}をマクロにしておく．
 %    \begin{macrocode}
   \xdef\LE@currentLedgerCount{\Account@getpropertySmpl{#1}{LedgerCount}}%
+%<dbg>\typeout{%
+%<dbg>  Account: #1,
+%<dbg>  LedgerCount: \Account@getpropertySmpl{#1}{LedgerCount}}%
 %    \end{macrocode}
 % \end{macro}
 % この取引についての要素の登録．
@@ -1286,26 +1289,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {setterを使うように変更．}^^A
 % \changes{v1.1.2-alpha.6}{2025/12/15}
 %   {\cs{LE@currentLedgerCount}を使うように変更．}^^A
-% まず残高．
+%
+% 取引で借方に来ているときには借方残高に取引額を加算し，
+% 仕訳の借方科目の要素に\meta{LEID}を登録する．
 %    \begin{macrocode}
   % Account balance, Debit and Credit in the month
-  \BKtemp@countA=\JE@getpropertySmpl{\the\c@JECount}{Month}\relax% tempcountA <- JE@Month
-  % Account.Month[mon.].Balance =
-  %   Account.Month[mon.].Balance +
-  %   Account.Ledger[AccLdgID].AccountValue
-  \csxdef{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}{%
-    \the\numexpr\csuse{Account\LE@tmpA @Month\the\BKtemp@countA @Balance}%
-    + \csuse{Account\LE@tmpA @Ledger\LE@currentLedgerCount @AccountValue}\relax
-  }%
-%    \end{macrocode}
-% 取引で借方に来ているときには借方残高に取引額を加算し，仕訳の借方科目の要素に\meta{LEID}を登録する．
-%    \begin{macrocode}
   \if#3D%
 %<dbg>\typeout{%
-%<dbg>  Account: #1,
-%<dbg>  LedgerCount: \Account@getpropertySmpl{#1}{LedgerCount}}%
-%<dbg>\typeout{%
-%<dbg>  Procces: 
+%<dbg>  Procces:
 %<dbg>  Set Account.Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].Debit}%
     \Account@setpropertySmpl{#1}
       {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}
@@ -1325,14 +1316,12 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       }%
   \fi
 %    \end{macrocode}
-% 取引で貸方に来ているときには貸方残高に取引額を加算し，仕訳の貸方科目の要素に\meta{LEID}を登録する．
+% 取引で貸方に来ているときには貸方残高に取引額を加算し，
+% 仕訳の貸方科目の要素に\meta{LEID}を登録する．
 %    \begin{macrocode}
   \if#3C%
 %<dbg>\typeout{%
-%<dbg>  Account: #1,
-%<dbg>  LedgerCount: \Account@getpropertySmpl{#1}{LedgerCount}}%
-%<dbg>\typeout{%
-%<dbg>  Procces: 
+%<dbg>  Procces:
 %<dbg>  Set Account.Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].Credit}%
     \Account@setpropertySmpl{#1}
       {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}
@@ -1351,6 +1340,25 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
   \fi
+%    \end{macrocode}
+% \changes{v1.1.2-alpha.9}{2025/12/15}
+%   {Ledger Entryの残高処理．}^^A
+% 最後に残高．
+% 
+%    \begin{macrocode}
+%<dbg>\typeout{%
+%<dbg>  Procces:
+%<dbg>  Set Account.Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].Balance}%
+  \Account@setpropertySmpl{#1}
+    {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Balance}
+    {%
+      \the\numexpr
+        \Account@getpropertySmpl{#1}
+          {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}%
+        -
+        \Account@getpropertySmpl{#1}
+          {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
+    \relax}%
 }
 %    \end{macrocode}
 % \end{macro}
