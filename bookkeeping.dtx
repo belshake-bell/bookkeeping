@@ -1559,6 +1559,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
         }%
     \fi
   \fi 
+%    \end{macrocode}
+% 出力マクロを呼び出す．
+%    \begin{macrocode}
   \PGL@printline{% LEID
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@FullLEID}%
     \label{LEID:\PGL@tmp@AccTypeAccID-#1}%
