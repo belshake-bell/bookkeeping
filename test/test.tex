@@ -59,16 +59,16 @@
 %   \testJEGetterbase{#1}{Hoge}% <- Red!
   \end{itemize}
 }
-\def\testJELoop{%
-  \setcounter{Iterator}{0}%
-  \test@JELoop
-}
 \def\test@JELoop{%
   \ifnum\value{Iterator}<\value{JECount}%
   \stepcounter{Iterator}%
   \item \testJEGetter{\theIterator}%
   \expandafter\test@JELoop
   \fi
+}
+\def\testJELoop{%
+  \setcounter{Iterator}{0}%
+  \test@JELoop
 }
 
 \def\testAccGet#1{%

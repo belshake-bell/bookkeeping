@@ -881,7 +881,7 @@
 %  \meta{JEID}と設定する\meta{prop.}を指定して\meta{datum}を設定する．
 %    \begin{macrocode}
 \def\JE@setpropertySmpl#1#2#3{%
-  \csxdef{JE\@arabic{#1}@#2}{#3}%
+  \csxdef{JE#1@#2}{#3}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1318,23 +1318,23 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \changes{v1.1.2-alpha.04}{2025/12/14}
 %   {JEのgetterを使うように変更．}^^A
 %    \begin{macrocode}
-  \Account@setpropertySmpl{#1}
-    {Ledger\LE@currentLedgerCount @FullLEID}
+  \Account@setpropertySmpl{#1}%
+    {Ledger\LE@currentLedgerCount @FullLEID}%
     {\Account@getAccTypeAccID{#1}-\LE@currentLedgerCount}%
-  \Account@setpropertySmpl{#1}
-    {Ledger\LE@currentLedgerCount @JEID}
+  \Account@setpropertySmpl{#1}%
+    {Ledger\LE@currentLedgerCount @JEID}%
     {\the\c@JECount}%
-  \Account@setpropertySmpl{#1}
-    {Ledger\LE@currentLedgerCount @PartnerAccount}
+  \Account@setpropertySmpl{#1}%
+    {Ledger\LE@currentLedgerCount @PartnerAccount}%
     {#2}%
-  \Account@setpropertySmpl{#1}
-    {Ledger\LE@currentLedgerCount @JEDesc}
+  \Account@setpropertySmpl{#1}%
+    {Ledger\LE@currentLedgerCount @JEDesc}%
     {\JE@getpropertySmpl{\the\c@JECount}{Description}}%
-  \Account@setpropertySmpl{#1}
-    {Ledger\LE@currentLedgerCount @IsAccountDebit}
+  \Account@setpropertySmpl{#1}%
+    {Ledger\LE@currentLedgerCount @IsAccountDebit}%
     {#3}%
-  \Account@setpropertySmpl{#1}
-    {Ledger\LE@currentLedgerCount @AccountValue}
+  \Account@setpropertySmpl{#1}%
+    {Ledger\LE@currentLedgerCount @AccountValue}%
     {#4}%
 %    \end{macrocode}
 % 勘定科目の月ごとの要素を更新する．
@@ -1351,22 +1351,30 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %<dbg>\typeout{%
 %<dbg>  Procces:
 %<dbg>  Set Account.Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].Debit}%
-    \Account@setpropertySmpl{#1}
-      {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}
+    \Account@setpropertySmpl{#1}%
+      {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}%
       {%
         \the\numexpr
-          \Account@getpropertySmpl{#1}
+          \Account@getpropertySmpl{#1}%
             {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}%
           +
-          \Account@getpropertySmpl{#1}
+          \Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @AccountValue}\relax
       }%
 %<dbg>\typeout{Procces: set JE.Debit.LEID}%
-    \csxdef{JE\Account@getpropertySmpl{#1}
-            {Ledger\LE@currentLedgerCount @JEID}@Debit@LEID}
-      {\Account@getpropertySmpl{#1}
+    \csxdef{JE\Account@getpropertySmpl{#1}%
+            {Ledger\LE@currentLedgerCount @JEID}@Debit@LEID}%
+      {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
+%<dbg>\typeout{%
+%<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
+%<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
+%<dbg>  .Debit.LEID=}%
+%<dbg>\typeout{\JE@getpropertySmpl{%
+%<dbg>    \Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @JEID}%
+%<dbg>  }{Debit@LEID}%
+%<dbg>}%
   \fi
 %    \end{macrocode}
 % 取引で貸方に来ているときには貸方残高に取引額を加算し，
@@ -1376,22 +1384,30 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %<dbg>\typeout{%
 %<dbg>  Procces:
 %<dbg>  Set Account.Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].Credit}%
-    \Account@setpropertySmpl{#1}
-      {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}
+    \Account@setpropertySmpl{#1}%
+      {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
       {%
         \the\numexpr
-          \Account@getpropertySmpl{#1}
+          \Account@getpropertySmpl{#1}%
             {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
           +
-          \Account@getpropertySmpl{#1}
+          \Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @AccountValue}\relax
       }%
 %<dbg>\typeout{Procces: set JE.Credit.LEID}%
-    \csxdef{JE\Account@getpropertySmpl{#1}
-            {Ledger\LE@currentLedgerCount @JEID}@Credit@LEID}
-      {\Account@getpropertySmpl{#1}
+    \csxdef{JE\Account@getpropertySmpl{#1}%
+            {Ledger\LE@currentLedgerCount @JEID}@Credit@LEID}%
+      {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
+%<dbg>\typeout{%
+%<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
+%<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
+%<dbg>  .Credit.LEID=}%
+%<dbg>\typeout{\JE@getpropertySmpl{%
+%<dbg>    \Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @JEID}%
+%<dbg>  }{Credit@LEID}%
+%<dbg>}%
   \fi
 %    \end{macrocode}
 % \changes{v1.1.2-alpha.09}{2025/12/15}
