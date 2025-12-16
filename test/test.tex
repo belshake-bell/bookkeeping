@@ -5,10 +5,10 @@
 \makeatother
 
 
-\registerAccountID{A}{C}{現金}
-\registerAccountID{L}{D}{借金}
-\registerAccountID{N}{D}{総資産}
-\registerAccountID{R}{D}{収入}
+\registerAccountID{A}{D}{現金}
+\registerAccountID{L}{C}{借金}
+\registerAccountID{N}{C}{総資産}
+\registerAccountID{R}{C}{収入}
 \registerAccountID{E}{D}{費用}
 
 \journalentry*{01}{01}{現金}{1000}{総資産}
@@ -56,6 +56,24 @@
 %   \testJEGetterbase{#1}{Hoge}% <- Red!
   \end{itemize}
 }
+\def\testAccGet#1{%
+  \item
+    \classTitle{Account.Name}:
+    \Account@getproperty{#1}{Name}
+  \item
+    \classTitle{Account.LedgerCount}:
+    \Account@getproperty{#1}{LedgerCount}
+  \item
+    \classTitle{Account.LedgerBalanceType}:
+    \Account@getproperty{#1}{LedgerBalanceType}
+  \item
+    \classTitle{Account.Balance}:
+    \Account@getproperty{#1}{Balance}
+  \item
+    \classTitle{Account.Balance for Output}:
+    \Account@getBalance{#1}
+}
+
 \def\testAccGetLedger#1#2{%
   Ledger#1:
     \begin{itemize}
@@ -77,6 +95,9 @@
       \item
         \classTitle{Account.Ledger[#1].AccountValue}:
         \Account@getproperty{#2}[Ledger#1]{AccountValue}
+      \item
+        \classTitle{Account.Ledger[#1].AccountBalance}:
+        \Account@getproperty{#2}[Ledger#1]{AccountBalance}
     \end{itemize}
 }
 
@@ -101,34 +122,55 @@
 \end{itemize}
 
 \begin{itemize}
-\item
-  \classTitle{Account.Name}:
-  \Account@getproperty{現金}{Name}
-\item
-  \classTitle{Account.LedgerCount}:
-  \Account@getproperty{現金}{LedgerCount}
-\item
-  \classTitle{Account.LedgerBalanceType}:
-  \Account@getproperty{現金}{LedgerBalanceType}
-% \item \Account@getproperty{現金}{hoge} % <- Red!
-\item Month1:
+\item 現金:
   \begin{itemize}
-    \item
-      \classTitle{Account.Month[1].Balance}:
-      \Account@getproperty{現金}[Month1]{Balance}
-    \item
-      \classTitle{Account.Month[1].Debit}:
-      \Account@getproperty{現金}[Month1]{Debit}
-    \item
-      \classTitle{Account.Month[1].Credit}:
-      \Account@getproperty{現金}[Month1]{Credit}
+  \item
+    \classTitle{Account.Name}:
+    \Account@getproperty{現金}{Name}
+  \item
+    \classTitle{Account.LedgerCount}:
+    \Account@getproperty{現金}{LedgerCount}
+  \item
+    \classTitle{Account.LedgerBalanceType}:
+    \Account@getproperty{現金}{LedgerBalanceType}
+  \item
+    \classTitle{Account.Balance}:
+    \Account@getproperty{現金}{Balance}
+  \item
+    \classTitle{Account.Balance for Output}:
+    \Account@getBalance{現金}
+  % \item \Account@getproperty{現金}{hoge} % <- Red!
+  \item Month1:
+    \begin{itemize}
+      \item
+        \classTitle{Account.Month[1].Balance}:
+        \Account@getproperty{現金}[Month1]{Balance}
+      \item
+        \classTitle{Account.Month[1].Debit}:
+        \Account@getproperty{現金}[Month1]{Debit}
+      \item
+        \classTitle{Account.Month[1].Credit}:
+        \Account@getproperty{現金}[Month1]{Credit}
+    \end{itemize}
+  \item \testAccGetLedger1{現金}%
+  \item \testAccGetLedger2{現金}%
+  \item \testAccGetLedger3{現金}%
+  \item \testAccGetLedger4{現金}%
+  \item \testAccGetLedger5{現金}%
+  % \item \testAccGetLedger6{現金}% <- Red!
   \end{itemize}
-\item \testAccGetLedger1{現金}%
-\item \testAccGetLedger2{現金}%
-\item \testAccGetLedger3{現金}%
-\item \testAccGetLedger4{現金}%
-\item \testAccGetLedger5{現金}%
-% \item \testAccGetLedger6{現金}% <- Red!
+\end{itemize}
+\clearpage
+\begin{itemize}
+\testAccGet{借金}
+\end{itemize}
+\clearpage
+\begin{itemize}
+\testAccGet{収入}
+\end{itemize}
+\clearpage
+\begin{itemize}
+\testAccGet{費用}
 \end{itemize}
 
 \clearpage

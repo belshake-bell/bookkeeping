@@ -442,7 +442,7 @@
 % \begin{macro}{\AccType@getAccType}\jmarg{勘定科目の種類ID}\par
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを設置．}
-% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
+% \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
 %  勘定科目の種類IDから勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
 \def\AccType@getAccType#1{%
@@ -477,6 +477,10 @@
 %   {勘定科目の種類に残高を自動判定するA(Auto)を追加．}
 %   勘定科目が借方残高(D)か貸方残高(C)か．
 %   v1.1.0から自動判定する(A)モードを追加．
+% \item[\cntname{Balance}]
+% \changes{v1.1.2-alpha.10}{2025/12/16}
+%   {\cntname{Account}に残高\cntname{Balance}を新設．}^^A
+%   残高を表す．
 % \item[\cntname{Month}\meta{month}@\meta{month~prop.}]
 %   \meta{month}で指定した月ごとの各要素にアクセスする．
 %   \meta{month~prop.}の種類は次の通り．
@@ -505,6 +509,11 @@
 %     登録された取引での借貸がどちらだったか（\cntname{D}または\cntname{C}）を得る．
 %   \item[\cntname{AccountValue}]
 %     登録された取引での取引額を得る．
+%   \item[\cntname{AccountBalance}]
+%   \changes{v1.1.2-alpha.10}{2025/12/16}
+%     {\cntname{Ledger}に登録された取引による
+%      取引後残高\cntname{AccountBalance}プロパティを新設．}^^A
+%     登録された取引による取引後残高を得る．
 %   \end{description}}\ledgerdescription
 % \end{description}
 % 
@@ -523,9 +532,9 @@
 \fi
 % \begin{macro}{\Account@setpropertySmpl}\jmarg{勘定科目名}^^A
 %                         \marg{prop.}\marg{datum}\par
-% \changes{v1.1.2-alpha.3}{2025/12/14}
+% \changes{v1.1.2-alpha.03}{2025/12/14}
 %   {Accountへのセッタの新設．}^^A
-% \changes{v1.1.2-alpha.7}{2025/12/15}
+% \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {マクロ定義の順番変更．}^^A
 %  勘定科目名および\meta{prop.}を指定して値\meta{datum}を設定する．
 %  ^^A 多分\xdef で困らないと思うけどわからん．
@@ -540,8 +549,10 @@
 %                                  \marg{Account Name}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
-% \changes{v1.1.2-alpha.8}{2025/12/15}
+% \changes{v1.1.2-alpha.08}{2025/12/15}
 %   {Accountのsetterを使用．}^^A
+% \changes{v1.1.2-alpha.10}{2025/12/16}
+%   {\cntname{Account}に残高\cntname{Balance}を新設．}^^A
 % 勘定科目を登録する．
 % \TODO{\cmd{\registerAccount}で良くない？}
 %    \begin{macrocode}
@@ -557,6 +568,7 @@
   \Account@setpropertySmpl{#3}{Name}{#3}%
   \Account@setpropertySmpl{#3}{LedgerCount}{0}%
   \Account@setpropertySmpl{#3}{LedgerBalanceType}{#2}%
+  \Account@setpropertySmpl{#3}{Balance}{0}%
 %<dbg>\typeout{<AccType>: #1}%
 %<dbg>\typeout{<AccID>: \the\csuse{c@AccType#1@AccountCount}}%
 %<dbg>\typeout{Account.Name: %
@@ -571,7 +583,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\register@Acc@Mon@Bal}\marg{Account Name}\par
-% \changes{v1.1.2-alpha.8}{2025/12/15}
+% \changes{v1.1.2-alpha.08}{2025/12/15}
 %   {Accountのsetterを使用．}^^A
 % 勘定科目の月ごとの残高・借方合計・貸方合計の登録．
 %    \begin{macrocode}
@@ -591,7 +603,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\Account@getAccID}\jmarg{勘定科目名}\par
-% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
+% \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
 %  勘定科目名から勘定科目ID\meta{AccID}を得る．
 %    \begin{macrocode}
 \def\Account@getAccID#1{%
@@ -610,7 +622,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\Account@getAccType}\jmarg{勘定科目名}\par
-% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}%
+% \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
 %  勘定科目名から勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
 \def\Account@getAccType#1{%
@@ -636,7 +648,7 @@
 % \end{macro}
 % \begin{macro}{\Account@getpropertySmpl}\jmarg{勘定科目名}^^A
 %                                        \marg{prop.}\par
-% \changes{v1.1.2-alpha.3}{2025/12/14}
+% \changes{v1.1.2-alpha.03}{2025/12/14}
 %   {\cs{Account@getproperty}のシンプル版．}^^A
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
@@ -655,8 +667,8 @@
 % \end{macro}
 % \begin{macro}{\Account@getpropertybase}\jmarg{勘定科目名}^^A
 %                     \oarg{parent~prop.}\marg{prop.}\par
-% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}^^A
-% \changes{v1.1.2-alpha.2}{2025/12/13}
+% \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}^^A
+% \changes{v1.1.2-alpha.02}{2025/12/13}
 %   {Grand parent management.}^^A
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %
@@ -677,7 +689,7 @@
 % \end{macro}
 % \begin{macro}{\Account@getpropertyTLii}\jmarg{勘定科目名}^^A
 %               \marg{grandparent~prop.}\oarg{parent~prop.}\par
-% \changes{v1.1.2-alpha.2}{2025/12/13}
+% \changes{v1.1.2-alpha.02}{2025/12/13}
 %   {Grand parent management.}^^A
 %    \begin{macrocode}
 \def\Account@getpropertyTLii#1#2[#3]{%
@@ -687,7 +699,7 @@
 % \end{macro}
 % \begin{macro}{\Account@getpropertyTLi}\jmarg{勘定科目名}^^A
 %                                      \oarg{parent~prop.}\par
-% \changes{v1.1.2-alpha.2}{2025/12/13}
+% \changes{v1.1.2-alpha.02}{2025/12/13}
 %   {Grand parent management.}^^A
 %    \begin{macrocode}
 \def\Account@getpropertyTLi#1[#2]{%
@@ -701,8 +713,8 @@
 % \end{macro}
 % \begin{macro}{\Account@getproperty}\jmarg{勘定科目名}^^A
 %                     \oarg{parent~prop.}\marg{prop.}\par
-% \changes{v1.1.2-alpha.1}{2025/12/12}{Error handling.}^^A
-% \changes{v1.1.2-alpha.2}{2025/12/13}
+% \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}^^A
+% \changes{v1.1.2-alpha.02}{2025/12/13}
 %   {Grand parent management.}^^A
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %
@@ -716,6 +728,47 @@
   }{%
     \Account@getpropertybase{#1}[\@empty]%
   }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@swBalanceType}\jmarg{勘定科目名}^^A
+%   \jmarg{借方科目時処理}\jmarg{貸方科目時処理}\jmarg{自動判定時処理}\par
+% \changes{v1.1.2-alpha.10}{2025/12/16}
+%   {\cntname{Account.LedgerBalanceType}に応じたスイッチマクロ．}^^A
+% 科目の借方貸方によりスイッチするマクロ．
+%    \begin{macrocode}
+\def\Account@swBalanceType#1#2#3#4{%
+  \if\Account@getpropertySmpl{#1}{LedgerBalanceType}D#2%
+  \else
+    \if\Account@getpropertySmpl{#1}{LedgerBalanceType}C#3%
+    \else
+      \if\Account@getpropertySmpl{#1}{LedgerBalanceType}A#4%
+      \fi
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getBalance}\jmarg{勘定科目名}\par
+% \changes{v1.1.2-alpha.10}{2025/12/16}
+%   {\cntname{Account.Balance}の一般出力用マクロ．}^^A
+% 科目の借方貸方を考慮した残高出力を得る．
+% すなわち
+% \begin{itemize}
+% \item 科目が借方(D)ならそのまま出力．
+% \item 科目が貸方(C)なら正負を反転させて出力．
+% \item 科目が自動判定(A)なら絶対値を出力．
+% \end{itemize}
+%    \begin{macrocode}
+\def\Account@getBalance#1{%
+  \the\numexpr
+  \Account@swBalanceType{#1}{1*}{-1*}{%
+    \ifnum\Account@getpropertySmpl{#1}{Balance}<\z@
+      -1*
+    \fi
+  }%
+  \Account@getpropertySmpl{#1}{Balance}%
+  \relax
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -796,7 +849,7 @@
 \fi
 % \begin{macro}{\JE@getpropertySmpl}\marg{JEID}^^A
 %                                   \marg{prop.}\par
-% \changes{v1.1.2-alpha.4}{2025/12/14}
+% \changes{v1.1.2-alpha.04}{2025/12/14}
 %   {JEのgetterの新設．}^^A
 %  \meta{JEID}と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
@@ -823,7 +876,7 @@
 % \end{macro}
 % \begin{macro}{\JE@setpropertySmpl}\marg{JEID}^^A
 %                       \marg{prop.}\marg{datum}\par
-% \changes{v1.1.2-alpha.7}{2025/12/15}
+% \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {JEのsetterの新設．}^^A
 %  \meta{JEID}と設定する\meta{prop.}を指定して\meta{datum}を設定する．
 %    \begin{macrocode}
@@ -833,8 +886,8 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setDate}\jmarg{仕訳月}\jmarg{仕訳日}\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
-% \changes{v1.1.2-alpha.5}{2025/12/15}
+% \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.05}{2025/12/15}
 %   {JE[JEID].MonthおよびDayを\cs{@arabic}を噛ませるように変更．}%
 % 仕訳の月日を登録する．
 %    \begin{macrocode}
@@ -846,7 +899,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setDebit}\jmarg{借方勘定科目}\jmarg{金額}\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
 % 仕訳の借方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\JE@setDebit#1#2{%
@@ -856,7 +909,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setCredit}\jmarg{貸方勘定科目}\jmarg{金額}\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
 % 仕訳の貸方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\JE@setCredit#1#2{%
@@ -866,7 +919,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setDescription}\jmarg{摘要}\jmarg{摘要の有無(true or false)}\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
 % 仕訳の摘要を登録する．
 %    \begin{macrocode}
 \def\JE@setDescription#1#2{%
@@ -881,9 +934,9 @@
 %                             \jmarg{取引額}%
 %                             \jmarg{貸方科目名}%
 %                             \jmarg{摘要}%\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}
+% \changes{v1.1.2-alpha.00}{2025/12/12}
 %   {renameの影響を受けマクロ名書き換え．}^^A
-% \changes{v1.1.2-alpha.7}{2025/12/15}
+% \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {JEのsetterを使用．}^^A
 % 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
@@ -905,9 +958,9 @@
 %                             \jmarg{借方科目名}%
 %                             \jmarg{取引額}%
 %                             \jmarg{貸方科目名}\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}
+% \changes{v1.1.2-alpha.00}{2025/12/12}
 %   {renameの影響を受けマクロ名書き換え．}^^A
-% \changes{v1.1.2-alpha.7}{2025/12/15}
+% \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {JEのsetterを使用．}^^A
 % 摘要の省略された仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
@@ -925,7 +978,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@IfExistDescription}\marg{JEID}\marg{true}\marg{false}\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
 % 取引IDが\meta{JEID}の取引について，摘要が存在するかどうかを条件として分岐する．
 %    \begin{macrocode}
 \def\JE@IfExistDescription#1#2#3{%
@@ -1012,7 +1065,7 @@
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@Transaction}\marg{JEID}\par
-% \changes{v1.1.2-alpha.0}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
+% \changes{v1.1.2-alpha.00}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
 % 取引IDが\meta{JEID}の取引を出力する．
 %
 % まず摘要の有無を判定して摘要の行の処理を\cmd{\@tmp@PJ}に設定する
@@ -1205,7 +1258,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 必ずしも持たせる必要はないと思うけど処理がめんどいと思う．
 \fi
 % \begin{macro}{\Account@advanceLedgerCount}\jmarg{勘定科目名}\par
-% \changes{v1.1.2-alpha.3}{2025/12/13}
+% \changes{v1.1.2-alpha.03}{2025/12/13}
 %   {\cntname{LedgerCount}を1進めるためのマクロを定義．}^^A
 % \cntname{LedgerCount}を1進める．
 %    \begin{macrocode}
@@ -1241,14 +1294,14 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \begin{macrocode}
   \edef\LE@tmpA{\Account@getAccTypeAccID{#1}}% \LE@tmpA <- <AccType><AccID>
 %    \end{macrocode}
-% \changes{v1.1.2-alpha.3}{2025/12/13}
+% \changes{v1.1.2-alpha.03}{2025/12/13}
 %   {\cntname{LedgerCount}を1進めるためのマクロを定義したので置き換え．}^^A
 % 勘定科目に登録された取引登録数を更新する．
 %    \begin{macrocode}
   \Account@advanceLedgerCount{#1}%
 %    \end{macrocode}
 % \begin{macro}{\LE@currentLedgerCount}
-% \changes{v1.1.2-alpha.6}{2025/12/15}
+% \changes{v1.1.2-alpha.06}{2025/12/15}
 %   {現在の\cntname{LedgerCount}を表すマクロを新設．}^^A
 % 現在の\cntname{LedgerCount}をマクロにしておく．
 %    \begin{macrocode}
@@ -1259,10 +1312,10 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % この取引についての要素の登録．
-% \changes{v1.1.2-alpha.0}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
-% \changes{v1.1.2-alpha.3}{2025/12/14}
+% \changes{v1.1.2-alpha.00}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
+% \changes{v1.1.2-alpha.03}{2025/12/14}
 %   {Setterを使うように変更．}^^A
-% \changes{v1.1.2-alpha.4}{2025/12/14}
+% \changes{v1.1.2-alpha.04}{2025/12/14}
 %   {JEのgetterを使うように変更．}^^A
 %    \begin{macrocode}
   \Account@setpropertySmpl{#1}
@@ -1285,9 +1338,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     {#4}%
 %    \end{macrocode}
 % 勘定科目の月ごとの要素を更新する．
-% \changes{v1.1.2-alpha.5}{2025/12/15}
+% \changes{v1.1.2-alpha.05}{2025/12/15}
 %   {setterを使うように変更．}^^A
-% \changes{v1.1.2-alpha.6}{2025/12/15}
+% \changes{v1.1.2-alpha.06}{2025/12/15}
 %   {\cs{LE@currentLedgerCount}を使うように変更．}^^A
 %
 % 取引で借方に来ているときには借方残高に取引額を加算し，
@@ -1341,7 +1394,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       }%
   \fi
 %    \end{macrocode}
-% \changes{v1.1.2-alpha.9}{2025/12/15}
+% \changes{v1.1.2-alpha.09}{2025/12/15}
 %   {Ledger Entryの残高処理．}^^A
 % 最後に残高．
 % 
@@ -1359,6 +1412,31 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
         \Account@getpropertySmpl{#1}
           {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
     \relax}%
+%    \end{macrocode}
+% \changes{v1.1.2-alpha.10}{2025/12/16}
+%   {\cntname{Account.Balance}，
+%    \cntname{Account.Ledger[LEID].AccountBalance}の更新の実装．}^^A
+% 取引後残高を求める．
+%    \begin{macrocode}
+%<dbg>\typeout{%
+%<dbg>  Procces:
+%<dbg>  Set Account.Ledger[\LE@currentLedgerCount].AccountBalance}%
+  \Account@setpropertySmpl{#1}
+    {Ledger\LE@currentLedgerCount @AccountBalance}
+    {%
+      \the\numexpr
+        \Account@getpropertySmpl{#1}
+          {Balance}%
+        \if#3D+\else-\fi
+          \Account@getpropertySmpl{#1}
+            {Ledger\LE@currentLedgerCount @AccountValue}%
+    \relax}%
+%<dbg>\typeout{%
+%<dbg>  Procces:
+%<dbg>  Set Account.Balance}%
+  \Account@setpropertySmpl{#1}{Balance}{%
+    \Account@getpropertySmpl{#1}
+      {Ledger\LE@currentLedgerCount @AccountBalance}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1428,7 +1506,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\JE@PLtransfar}\jmarg{損益勘定科目名}\par
 % \changes{v1.1.0}{2024/02/19}
 %   {ADD：損益振替仕訳の準備}%
-% \changes{v1.1.2-alpha.0}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
 % 収益と費用の各勘定科目について損益振替をする．
 % \cmd{\PLtransfar@AccTypeAccID}に損益勘定科目の\meta{AccType}\meta{AccID}を
 % 控えておく．
