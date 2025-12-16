@@ -4,19 +4,22 @@
 \makeatletter
 \makeatother
 
-
+\newcounter{Iterator}
 \registerAccountID{A}{D}{現金}
 \registerAccountID{L}{C}{借金}
 \registerAccountID{N}{C}{総資産}
 \registerAccountID{R}{C}{収入}
 \registerAccountID{E}{D}{費用}
+\registerAccountID{M}{A}{過不足}
 
 \journalentry*{01}{01}{現金}{1000}{総資産}
 \journalentry*{01}{01}{総資産}{200}{借金}
 \journalentry{01}{01}{現金}{1000}{借金}{お金を借りる}
+\journalentry*{01}{02}{現金}{300}{過不足}
 \journalentry{01}{02}{費用}{500}{現金}{商品購入}
 \journalentry{01}{04}{現金}{2000}{収入}{商品売却}
 \journalentry{01}{05}{借金}{1200}{現金}{お金を返す}
+\journalentry*{01}{05}{過不足}{100}{現金}
 
 \makeatletter
 \def\testJEGetterbase#1#2{%
@@ -56,6 +59,18 @@
 %   \testJEGetterbase{#1}{Hoge}% <- Red!
   \end{itemize}
 }
+\def\testJELoop{%
+  \setcounter{Iterator}{0}%
+  \test@JELoop
+}
+\def\test@JELoop{%
+  \ifnum\value{Iterator}<\value{JECount}%
+  \stepcounter{Iterator}%
+  \item \testJEGetter{\theIterator}%
+  \expandafter\test@JELoop
+  \fi
+}
+
 \def\testAccGet#1{%
   \item
     \classTitle{Account.Name}:
@@ -70,8 +85,9 @@
     \classTitle{Account.Balance}:
     \Account@getproperty{#1}{Balance}
   \item
-    \classTitle{Account.Balance for Output}:
+    \classTitle{Account.Balance} for Output:
     \Account@getBalance{#1}
+  \testAccGetLedgerLoop{#1}%
 }
 
 \def\testAccGetLedger#1#2{%
@@ -100,7 +116,18 @@
         \Account@getproperty{#2}[Ledger#1]{AccountBalance}
     \end{itemize}
 }
-
+\def\testAccGetLedgerLoop#1{%
+  \setcounter{Iterator}{0}%
+  \test@AccGetLedgerLoop{#1}%
+}
+\def\test@AccGetLedgerLoop#1{%
+  \ifnum\value{Iterator}<\Account@getpropertySmpl{#1}{LedgerCount}%
+  \stepcounter{Iterator}%
+  \item \testAccGetLedger{\theIterator}{#1}
+  \expandafter\@firstofone
+  \else\expandafter\@gobble
+  \fi{\test@AccGetLedgerLoop{#1}}%
+}
 \makeatother
 \let\classTitle\texttt
 
@@ -152,11 +179,7 @@
         \classTitle{Account.Month[1].Credit}:
         \Account@getproperty{現金}[Month1]{Credit}
     \end{itemize}
-  \item \testAccGetLedger1{現金}%
-  \item \testAccGetLedger2{現金}%
-  \item \testAccGetLedger3{現金}%
-  \item \testAccGetLedger4{現金}%
-  \item \testAccGetLedger5{現金}%
+  \testAccGetLedgerLoop{現金}%
   % \item \testAccGetLedger6{現金}% <- Red!
   \end{itemize}
 \end{itemize}
@@ -172,17 +195,17 @@
 \begin{itemize}
 \testAccGet{費用}
 \end{itemize}
+\clearpage
+\begin{itemize}
+\testAccGet{過不足}
+\end{itemize}
 
 \clearpage
 JECount: \the\c@JECount.
+\setcounter{Iterator}{0}%
 \begin{itemize}
-\item \testJEGetter{1}
-\item \testJEGetter{2}
-\item \testJEGetter{3}
-\item \testJEGetter{4}
-\item \testJEGetter{5}
-\item \testJEGetter{6}
-% \item \testJEGetter{7}% <- Red!
+\testJELoop
+% \item \testJEGetter{8}% <- Red!
 \end{itemize}
 
 \begin{itemize}
