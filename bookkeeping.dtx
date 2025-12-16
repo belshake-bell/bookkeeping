@@ -1640,38 +1640,38 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % 出力マクロを呼び出す．
 %    \begin{macrocode}
-  \PGL@printline{% LEID
+  \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@FullLEID}%
     \label{LEID:\PGL@tmp@AccTypeAccID-#1}%
-  }{% Month/Day
+  }{% Month/Day: JE.getDate(Account[Name].Ledger[LEID].JEID)
     \printJE@Date{\the\BKtemp@countB}%
-  }{% Account title
+  }{% Partner Account title: Account[Name].Ledger[LEID].PartnerAccount
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@PartnerAccount}%
-  }{% Desc.
+  }{% Desc.: Account[Name].Ledger[LEID].JEDesc
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@JEDesc}%
-  }{% JEID
+  }{% JEID: Account[Name].Ledger[LEID].JEID
     \hyperref[JEID:\the\BKtemp@countB]{\the\BKtemp@countB}%
-  }{% Debit
+  }{% Debit: 条件分けして Account[Name].Ledger[LEID].AccountValue
     \if\Acc@Ledg@IsAccDeb D\relax%
       \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@AccountValue}%
       \global\advance\sum@debit
                      \csuse{Account\PGL@tmp@AccTypeAccID
                              @Ledger#1@AccountValue}\relax
     \fi
-  }{% Credit
+  }{% Credit: 条件分けして Account[Name].Ledger[LEID].AccountValue
     \if\Acc@Ledg@IsAccDeb C\relax%
       \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@AccountValue}%
       \global\advance\sum@credit
                      \csuse{Account\PGL@tmp@AccTypeAccID
                              @Ledger#1@AccountValue}\relax
     \fi
-  }{% Balance type
+  }{% Balance type: Account[Name].LedgerBalanceTypeで条件分け
     \if\Acc@LedgBalType D%
       借% Debt
     \else
       貸% Credit
     \fi
-  }{% Balance
+  }{% Balance: Account[Name].Balance
     \Acc@LedgText}%
 }
 %    \end{macrocode}
