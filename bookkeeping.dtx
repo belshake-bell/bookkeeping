@@ -569,16 +569,18 @@
   \Account@setpropertySmpl{#3}{LedgerCount}{0}%
   \Account@setpropertySmpl{#3}{LedgerBalanceType}{#2}%
   \Account@setpropertySmpl{#3}{Balance}{0}%
-%<dbg>\typeout{<AccType>: #1}%
-%<dbg>\typeout{<AccID>: \the\csuse{c@AccType#1@AccountCount}}%
-%<dbg>\typeout{Account.Name: %
+%<dbg>\typeout{Start  : \unexpanded{\registerAccountID}.}%
+%<dbg>\typeout{AccType: #1}%
+%<dbg>\typeout{AccID  : \the\csuse{c@AccType#1@AccountCount}}%
+%<dbg>\typeout{Account[#3].Name: %
 %<dbg>         \Account@getpropertySmpl{#3}{Name}}%
-%<dbg>\typeout{Account.LedgerCount: %
+%<dbg>\typeout{Account[#3].LedgerCount: %
 %<dbg>         \Account@getpropertySmpl{#3}{LedgerCount}}%
-%<dbg>\typeout{Account.LedgerBalanceType: %
+%<dbg>\typeout{Account[#3].LedgerBalanceType: %
 %<dbg>         \Account@getpropertySmpl{#3}{LedgerBalanceType}}%
   \BKtemp@countA\z@
   \register@Acc@Mon@Bal{#3}%
+%<dbg>\typeout{Finish : \unexpanded{\registerAccountID}.}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -589,10 +591,10 @@
 %    \begin{macrocode}
 \def\register@Acc@Mon@Bal#1{%
   \ifnum\BKtemp@countA>\BK@closingmonth\relax
-%<dbg>\typeout{Process: End of init Account.Month}%
+%<dbg>\typeout{Process: End of init Account[#1].Month}%
     \expandafter\@gobble%
   \else
-%<dbg>\typeout{process: Init Account.Month[\the\BKtemp@countA]}%
+%<dbg>\typeout{Process: Init Account[#1].Month[\the\BKtemp@countA]}%
     \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Balance}{0}%
     \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Debit}{0}%
     \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Credit}{0}%
@@ -1288,6 +1290,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %% #3: is account Debit? (boolean; D or C)
 %% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
 \def\ledger@entry#1#2#3#4{%
+%<dbg>\typeout{Start  :\noexpand\ledger@entry .}%
 %    \end{macrocode}
 % 事前準備．
 % 見通しを良くするために\meta{AccType}\meta{AccID}を\cmd{\LE@tmpA}に定義しておく．
@@ -1367,11 +1370,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
-%<dbg>\typeout{%
+%<dbg>\message{%
 %<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
 %<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
 %<dbg>  .Debit.LEID=}%
-%<dbg>\typeout{\JE@getpropertySmpl{%
+%<dbg>\message{\JE@getpropertySmpl{%
 %<dbg>    \Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @JEID}%
 %<dbg>  }{Debit@LEID}%
 %<dbg>}%
@@ -1400,11 +1403,11 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
-%<dbg>\typeout{%
+%<dbg>\message{%
 %<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
 %<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
 %<dbg>  .Credit.LEID=}%
-%<dbg>\typeout{\JE@getpropertySmpl{%
+%<dbg>\message{\JE@getpropertySmpl{%
 %<dbg>    \Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @JEID}%
 %<dbg>  }{Credit@LEID}%
 %<dbg>}%
