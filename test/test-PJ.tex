@@ -1,0 +1,48 @@
+\documentclass[dvipdfmx,uplatex,b5paper,openany,jbase=12Q,nomag*,textwidth-limit=44]{bxjsarticle}
+\usepackage{../bookkeeping}
+
+\newcounter{Iterator}
+\registerAccountID{A}{D}{現金}
+\registerAccountID{L}{C}{借金}
+\registerAccountID{N}{C}{総資産}
+\registerAccountID{R}{C}{収入}
+\registerAccountID{E}{D}{費用}
+\registerAccountID{M}{A}{過不足}
+
+\journalentry*{01}{01}{現金}{1000}{総資産}
+\journalentry*{01}{01}{総資産}{200}{借金}
+\journalentry{01}{01}{現金}{1000}{借金}{お金を借りる}
+\journalentry*{01}{02}{現金}{300}{過不足}
+\journalentry{01}{02}{費用}{500}{現金}{商品購入}
+\journalentry{01}{04}{現金}{2000}{収入}{商品売却}
+\journalentry{01}{05}{借金}{1200}{現金}{お金を返す}
+\journalentry*{01}{05}{過不足}{100}{現金}
+\journalentry{01}{08}{現金}{1000}{借金}{お金を借りる}
+\journalentry{01}{09}{費用}{500}{現金}{商品購入}
+\journalentry{01}{11}{現金}{2000}{収入}{商品売却}
+\journalentry{01}{13}{借金}{1200}{現金}{お金を返す}
+\journalentry{01}{14}{現金}{1000}{借金}{お金を借りる}
+\journalentry{01}{15}{費用}{500}{現金}{商品購入}
+\journalentry{01}{17}{現金}{2000}{収入}{商品売却}
+\journalentry{01}{19}{費用}{500}{現金}{商品購入}
+\journalentry{01}{21}{現金}{2000}{収入}{商品売却}
+\journalentry{01}{23}{借金}{1200}{現金}{お金を返す}
+\journalentry{01}{24}{現金}{1000}{借金}{お金を借りる}
+\journalentry{01}{25}{費用}{500}{現金}{商品購入}
+\journalentry{01}{27}{現金}{2000}{収入}{商品売却}
+
+\makeatletter
+\def\testPJ{%
+  \ifnum\value{Iterator}<\value{JECount}%
+  \stepcounter{Iterator}%
+  \PJ@Transaction{\theIterator}%
+  \expandafter\testPJ
+  \fi
+}
+\makeatother
+
+\begin{document}
+
+\printjournal
+
+\end{document}

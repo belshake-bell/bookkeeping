@@ -984,7 +984,7 @@
 % 取引IDが\meta{JEID}の取引について，摘要が存在するかどうかを条件として分岐する．
 %    \begin{macrocode}
 \def\JE@IfExistDescription#1#2#3{%
-  \csname ifJE#1@Description\endcsname
+  \csuse{ifJE#1@Description}%
   #2\else#3\fi
 }
 
@@ -1068,46 +1068,48 @@
 % \end{macro}
 % \begin{macro}{\PJ@Transaction}\marg{JEID}\par
 % \changes{v1.1.2-alpha.00}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {不要な\cs{edef}を削除．}^^A
 % 取引IDが\meta{JEID}の取引を出力する．
-%
-% まず摘要の有無を判定して摘要の行の処理を\cmd{\@tmp@PJ}に設定する
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
-  \JE@IfExistDescription{#1}{%
-    \gdef\@tmp@PJ{%
-      \PJ@printline*{}{}{\csuse{JE#1@Description}}{}{}{}\hline
-    }%
-  }{%
-    \global\let\@tmp@PJ\hline
-  }%
+%<dbg>\typeout{Start  :\noexpand\PJ@Transaction .}%
+%<dbg>\typeout{Status :JEID=#1.}%
 %    \end{macrocode}
 % 借方の行．
 %    \begin{macrocode}
-  \edef\@tmp@PJ@deb{\csuse{JE#1@Debit@LEID}}%
   \PJ@printline{#1\label{JEID:#1}}{\printJE@Date{#1}}
-               {（\csname JE#1@Debit@Accouunt\endcsname）}{}
+               {（\csuse{JE#1@Debit@Accouunt}）}{}
                {\hyperref[LEID:\csuse{JE#1@Debit@LEID}]%
                          {\csuse{JE#1@Debit@LEID}}}
-               {\csname JE#1@Debit@Value\endcsname}{}%
+               {\csuse{JE#1@Debit@Value}}{}%
 %    \end{macrocode}
 % 貸方の行．
 %    \begin{macrocode}
-  \edef\@tmp@PJ@cre{\csuse{JE#1@Credit@LEID}}%
   \PJ@printline{}{}
-               {}{（\csname JE#1@Credit@Accouunt\endcsname）}
+               {}{（\csuse{JE#1@Credit@Accouunt}）}
                {\hyperref[LEID:\csuse{JE#1@Credit@LEID}]%
                          {\csuse{JE#1@Credit@LEID}}}
-               {}{\csname JE#1@Credit@Value\endcsname}%
+               {}{\csuse{JE#1@Credit@Value}}%
 %    \end{macrocode}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {摘要の行で不要な\cs{gdef}を削除して素直な実装に．}^^A
 % 摘要の行．
 %    \begin{macrocode}
-  \@tmp@PJ
+  \JE@IfExistDescription{#1}{%
+    \PJ@printline*{}{}{\csuse{JE#1@Description}}{}{}{}\hline
+  }{%
+    \hline
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@CarryPrev}%
 % 前頁繰越の出力．
-% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタで管理している．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタ
+% および\cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@CarryPrev{\gdef\n@xtprev{}%
   \PJ@printline{}{}{前頁繰越}{}{}
@@ -1117,7 +1119,8 @@
 % \end{macro}
 % \begin{macro}{\PJ@CarryForward}%
 % 次頁繰越の出力．
-% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタで管理している．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
+% \cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@CarryForward{%
   \PJ@printline{}{}{}{次頁繰越}{}
@@ -1127,7 +1130,8 @@
 % \end{macro}
 % \begin{macro}{\PJ@Terminate}%
 % 仕訳帳を締め切った際の総計の出力．
-% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタで管理している．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
+% \cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@Terminate{%
   \PJ@printline{}{}{}{総計}{}
@@ -1139,18 +1143,23 @@
 % 仕訳帳の表の内容を出力する．
 %    \begin{macrocode}
 \def\PJ@Loop@Table{%
+%<dbg>\typeout{Start  :\noexpand\PJ@Loop@Table .}%
   \gdef\n@xt{}%
 %    \end{macrocode}
 % 取引をすべて出力したなら仕訳帳を締め切る処理をする．
 %    \begin{macrocode}
   \ifnum\c@JEIDiterator>\numexpr\c@JECount-1\relax
+%<dbg>\typeout{Process:Terminate.}%
+%<dbg>\typeout{Status :cnt.JEIDiterator=\theJEIDiterator .}%
     \PJ@Terminate
 %    \end{macrocode}
-% 現在の仕訳帳の行数が1ページ当たりの最大行数\cmd{\maxtablelinenumber}以上であるならば，
+% 現在の仕訳帳の行数が1ページ当たりの最大行数
+% \cmd{\maxtablelinenumber}以上であるならば，
 % 次頁繰越の処理をする．
 %    \begin{macrocode}
   \else
     \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
+%<dbg>\typeout{Process:CarryForward.}%
       \gdef\n@xt{\PJ@Loop}%
       \gdef\n@xtprev{\PJ@CarryPrev}%
       \PJ@CarryForward
@@ -1158,12 +1167,16 @@
 % \cntname{JEIDiterator}を進めて，それを取引IDとする取引について処理をする：
 % \begin{enumerate}
 %   \item 行数をカウントし，
-%   \item \cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタに借方および貸方金額を加算し
+%   \item \cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタに
+%         借方および貸方金額を加算し
 %   \item 取引を出力し，
 %   \item 再帰する．
 % \end{enumerate}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {不要なコメント行を削除．}^^A
 %    \begin{macrocode}
     \else
+%<dbg>\typeout{Process:Transaction.}%
       \refstepcounter{JEIDiterator}%
       \global\advance\c@tableLineCount
         \csuse{JE\the\c@JEIDiterator @Line}\relax
@@ -1171,9 +1184,12 @@
         \csuse{JE\the\c@JEIDiterator @Debit@Value}\relax
       \global\advance\sum@credit
         \csuse{JE\the\c@JEIDiterator @Credit@Value}\relax
+%<dbg>\typeout{Status :cnt.JEIDiterator=\theJEIDiterator .}%
+%<dbg>\typeout{Status :cnt.tableLineCount=\thetableLineCount .}%
+%<dbg>\typeout{Status :cnt.sum@debit=\the\sum@debit .}%
+%<dbg>\typeout{Status :cnt.sum@credit=\the\sum@credit .}%
       \PJ@Transaction{\the\c@JEIDiterator}%
       \expandafter\expandafter\expandafter\PJ@Loop@Table\expandafter\expandafter
-%     \gdef\n@xt{\PJ@Loop@Table}%
     \fi
   \fi
 }
@@ -1184,6 +1200,7 @@
 %
 %    \begin{macrocode}
 \def\PJ@Loop{%
+%<dbg>\typeout{Start  :\noexpand\PJ@Loop .}%
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r|r}
     \makebox[2\zw]{ID}%
@@ -1194,7 +1211,8 @@
     & \makebox[5\zw][c]{借方}%
     & \makebox[5\zw][c]{貸方} \\ \hline
 %    \end{macrocode}
-% 次頁繰越をしたときには\cmd{\n@xtprev}は前頁繰越の処理が定義されている；それ以外の時には空．
+% 次頁繰越をしたときには\cmd{\n@xtprev}は前頁繰越の処理が定義されている；
+% それ以外の時には空．
 %    \begin{macrocode}
     \n@xtprev
     \PJ@Loop@Table
@@ -1206,7 +1224,8 @@
   \clearpage
   \global\c@tableLineCount\z@\relax
 %    \end{macrocode}
-% 次頁繰越をしたときには\cmd{\n@xt}はこのマクロへの再帰処理が定義されている；それ以外の時，つまり仕訳帳を締め切ったときには空．
+% 次頁繰越をしたときには\cmd{\n@xt}はこのマクロへの再帰処理が定義されている；
+% それ以外の時，つまり仕訳帳を締め切ったときには空．
 %    \begin{macrocode}
   \n@xt
 }
@@ -1215,9 +1234,11 @@
 % \begin{macro}{\printjournal}%
 % 仕訳帳を出力する．
 %
-% 取引IDのイテレータ\cntname{JEIDiterator}カウンタをゼロクリアし，再帰用マクロを空にして\cmd{\PJ@Loop}を呼び出す．
+% 取引IDのイテレータ\cntname{JEIDiterator}カウンタをゼロクリアし，
+% 再帰用マクロを空にして\cmd{\PJ@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printjournal}{%
+%<dbg>\typeout{Start  :\noexpand\printjournal .}%
   \setcounter{JEIDiterator}{0}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
@@ -1494,10 +1515,12 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\LMC@l@@p}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
 % \meta{Account}を\cmd{\BKtemp@countC}でイテレーション．
 %    \begin{macrocode}
 \def\LMC@l@@p{% loop for each AccID
-  \ifnum\BKtemp@countC<\csname c@AccType\LMC@AccType @AccountCount\endcsname
+  \ifnum\BKtemp@countC<\csuse{c@AccType\LMC@AccType @AccountCount}%
     \global\advance\BKtemp@countC\@ne
     \xdef\reserved@a{\csuse{Account\LMC@AccType\the\BKtemp@countC @Name}}%
     \expandafter\ledger@entry\expandafter{\reserved@a}{\LMC@month}{\relax}{0}%
@@ -1745,11 +1768,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
 % ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
 % 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p{%
-  \ifnum\c@AccountIDiterator<\csname c@AccType\PGL@tmp@AccType @AccountCount\endcsname
+  \ifnum\c@AccountIDiterator<\csuse{c@AccType\PGL@tmp@AccType @AccountCount}%
     \stepcounter{AccountIDiterator}%
     \expandafter\subsection\expandafter%
       {\csuse{Account\PGL@tmp@AccType\the\c@AccountIDiterator @Name}}%
@@ -1816,9 +1841,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     \else
       \gdef\n@xt{\PGL@L@@p}%
       \stepcounter{AccLdgIDiterator}%
-      \ifnum\csname Account\PGL@tmp@AccType\the\c@AccountIDiterator
-                    @Ledger\the\c@AccLdgIDiterator
-                    @AccountValue\endcsname=0\relax
+      \ifnum\csuse{Account\PGL@tmp@AccType\the\c@AccountIDiterator%
+                    @Ledger\the\c@AccLdgIDiterator%
+                    @AccountValue}=0\relax
         \stepcounter{tableLineCount}%
         \PGL@MonthlyClosing%
       \else
@@ -1980,7 +2005,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \xdef\TB@tmp@AccTT@ThisMonth{Account\reserved@a @Month\the\c@MonthIterator}%
   \xdef\TB@tmp@AccT@ThisMonth{Account\TB@tmp@AccType @Month\the\c@MonthIterator}%
   \xdef\Acc@LedgBalType{%
-    \csname Account\reserved@a @LedgerBalanceType\endcsname}%
+    \csuse{Account\reserved@a @LedgerBalanceType}}%
   \TB@printline{% Debt balance
     \TB@Table@Acc@OneLine@BalanceDebt
   }{%
@@ -2101,7 +2126,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \cmd{\TB@Table@Loop}を呼び出す．
 %    \begin{macrocode}
 \def\TB@Table@L@@p{%
-  \ifnum\c@AccountIDiterator<\csname c@AccType\TB@tmp@AccType @AccountCount\endcsname
+  \ifnum\c@AccountIDiterator<\csuse{c@AccType\TB@tmp@AccType @AccountCount}%
     \stepcounter{AccountIDiterator}%
 %   \typeout{4: AccountIDiterator=\the\c@AccountIDiterator}%
     \TB@Table@Acc@OneLine

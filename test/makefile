@@ -2,7 +2,7 @@ TEXMFLOCAL   = $(shell kpsewhich --var-value TEXMFLOCAL)
 STRIPTARGET  = bookkeeping.sty
 DOCTARGET    = bookkeeping
 PDFTARGET    = $(addsuffix .pdf,$(DOCTARGET))
-TESTTARGET   = test.pdf
+TESTTARGET   = $(addsuffix .pdf,$(basename $(wildcard *.tex)))
 DVITARGET    = $(addsuffix .dvi,$(DOCTARGET))
 LATEXENGINE := uplatex #lualatex
 LATEXOpt    := -interaction batchmode
@@ -27,13 +27,14 @@ define removebase
 endef
 .PHONY: all strip doc test install clean cleanall cleandoc movelog makelog
 
-default: test.pdf
+default: $(TESTTARGET)
 all: $(STRIPTARGET) $(PDFTARGET)
 strip: $(STRIPTARGET)
 doc: $(PDFTARGET)
 test: $(TESTTARGET)
 
 test.pdf: test.tex ../bookkeeping.sty
+test-PJ.pdf: test-PJ.tex ../bookkeeping.sty
 
 ifeq ($(LATEXENGINE),lualatex)
 %.pdf: %.tex
