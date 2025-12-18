@@ -784,7 +784,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    \end{macrocode}
 % \end{macro}
-% \subsection{仕訳と仕訳帳}
+% \subsection{仕訳と転記}
 % \subsubsection{仕訳}
 % 取引の仕訳．
 % 取引仕訳の総登録数は\cntname{JECount}カウンタで得られる．
@@ -1026,240 +1026,6 @@
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
-% \subsubsection{仕訳帳}
-% 仕訳帳の出力．
-% 各\meta{JEID}について書き出していくだけだが，
-% 次ページ・前ページ繰り越しのために\cmd{\sum@debit}および\cmd{\sum@credit}の加算も行っている．
-% \begin{macro}{\printJE@Date}\jmarg{仕訳月}\jmarg{仕訳日}\par
-% 仕訳帳の月日表示を出力する．
-%    \begin{macrocode}
-\def\printJE@Date#1{%
-  \csuse{JE#1@Month}/\csuse{JE#1@Day}%
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@x@printline}\marg{JEID}%
-%                               \jmarg{月日}%
-%                               \jmarg{摘要欄（左）}%
-%                               \jmarg{摘要欄（右）}%
-%                               \marg{LEID}%
-%                               \jmarg{借方}%
-%                               \jmarg{貸方}\par
-% 仕訳帳の表の1行を出力する．
-%    \begin{macrocode}
-\def\PJ@x@printline#1#2#3#4#5#6#7{%
-  #1&#2&#3&#4&#5&#6&#7\\%
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@s@printline}\marg{JEID}%
-%                               \jmarg{月日}%
-%                               \jmarg{摘要欄}%
-%                               \marg{LEID}%
-%                               \jmarg{借方}%
-%                               \jmarg{貸方}\par
-% 摘要を記述するために用いる．
-% 摘要欄は左詰め．
-%    \begin{macrocode}
-\def\PJ@s@printline#1#2#3#4#5#6{%
-  #1&#2&\multicolumn{2}{l|}{#3}&#4&#5&#6\\%
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@printline}%
-% 星付きは摘要を記述するときに，星なしはそれ以外の時に用いる．
-%    \begin{macrocode}
-\def\PJ@printline{%
-  \@ifstar{\PJ@s@printline}{\PJ@x@printline}%
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@Transaction}\marg{JEID}\par
-% \changes{v1.1.2-alpha.00}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
-% \changes{v1.1.2-alpha.11}{2025/12/17}
-%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
-% \changes{v1.1.2-alpha.11}{2025/12/17}
-%   {不要な\cs{edef}を削除．}^^A
-% 取引IDが\meta{JEID}の取引を出力する．
-%    \begin{macrocode}
-\def\PJ@Transaction#1{% #1: journal entry ID
-%<dbg>\typeout{Start  :\noexpand\PJ@Transaction .}%
-%<dbg>\typeout{Status :JEID=#1.}%
-%    \end{macrocode}
-% 借方の行．
-%    \begin{macrocode}
-  \PJ@printline{#1\label{JEID:#1}}{\printJE@Date{#1}}
-               {（\csuse{JE#1@Debit@Accouunt}）}{}
-               {\hyperref[LEID:\csuse{JE#1@Debit@LEID}]%
-                         {\csuse{JE#1@Debit@LEID}}}
-               {\csuse{JE#1@Debit@Value}}{}%
-%    \end{macrocode}
-% 貸方の行．
-%    \begin{macrocode}
-  \PJ@printline{}{}
-               {}{（\csuse{JE#1@Credit@Accouunt}）}
-               {\hyperref[LEID:\csuse{JE#1@Credit@LEID}]%
-                         {\csuse{JE#1@Credit@LEID}}}
-               {}{\csuse{JE#1@Credit@Value}}%
-%    \end{macrocode}
-% \changes{v1.1.2-alpha.11}{2025/12/17}
-%   {摘要の行で不要な\cs{gdef}を削除して素直な実装に．}^^A
-% 摘要の行．
-%    \begin{macrocode}
-  \JE@IfExistDescription{#1}{%
-    \PJ@printline*{}{}{\csuse{JE#1@Description}}{}{}{}\hline
-  }{%
-    \hline
-  }%
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@CarryPrev}%
-% 前頁繰越の出力．
-% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタ
-% および\cmd{\sum@credit}カウンタで管理している．
-%    \begin{macrocode}
-\def\PJ@CarryPrev{\gdef\n@xtprev{}%
-  \PJ@printline{}{}{前頁繰越}{}{}
-               {\the\sum@debit}{\the\sum@credit}\hline
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@CarryForward}%
-% 次頁繰越の出力．
-% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
-% \cmd{\sum@credit}カウンタで管理している．
-%    \begin{macrocode}
-\def\PJ@CarryForward{%
-  \PJ@printline{}{}{}{次頁繰越}{}
-               {\the\sum@debit}{\the\sum@credit}\hline
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@Terminate}%
-% 仕訳帳を締め切った際の総計の出力．
-% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
-% \cmd{\sum@credit}カウンタで管理している．
-%    \begin{macrocode}
-\def\PJ@Terminate{%
-  \PJ@printline{}{}{}{総計}{}
-               {\the\sum@debit}{\the\sum@credit}\hline
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@Loop@Table}%
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 仕訳帳の表の内容を出力する．
-%    \begin{macrocode}
-\def\PJ@Loop@Table{%
-%<dbg>\typeout{Start  :\noexpand\PJ@Loop@Table .}%
-  \gdef\n@xt{}%
-%    \end{macrocode}
-% 取引をすべて出力したなら仕訳帳を締め切る処理をする．
-%    \begin{macrocode}
-  \ifnum\c@Iterator@JEID>\numexpr\c@JECount-1\relax
-%<dbg>\typeout{Process:Terminate.}%
-%<dbg>\typeout{Status :cnt.Iterator@JEID=\theIterator@JEID .}%
-    \PJ@Terminate
-%    \end{macrocode}
-% 現在の仕訳帳の行数が1ページ当たりの最大行数
-% \cmd{\maxtablelinenumber}以上であるならば，
-% 次頁繰越の処理をする．
-%    \begin{macrocode}
-  \else
-    \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
-%<dbg>\typeout{Process:CarryForward.}%
-      \gdef\n@xt{\PJ@Loop}%
-      \gdef\n@xtprev{\PJ@CarryPrev}%
-      \PJ@CarryForward
-%    \end{macrocode}
-% \cntname{Iterator@JEID}を進めて，それを取引IDとする取引について処理をする：
-% \begin{enumerate}
-%   \item 行数をカウントし，
-%   \item \cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタに
-%         借方および貸方金額を加算し
-%   \item 取引を出力し，
-%   \item 再帰する．
-% \end{enumerate}
-% \changes{v1.1.2-alpha.11}{2025/12/17}
-%   {不要なコメント行を削除．}^^A
-%    \begin{macrocode}
-    \else
-%<dbg>\typeout{Process:Transaction.}%
-      \refstepcounter{Iterator@JEID}%
-      \global\advance\c@tableLineCount
-        \csuse{JE\the\c@Iterator@JEID @Line}\relax
-      \global\advance\sum@debit
-        \csuse{JE\the\c@Iterator@JEID @Debit@Value}\relax
-      \global\advance\sum@credit
-        \csuse{JE\the\c@Iterator@JEID @Credit@Value}\relax
-%<dbg>\typeout{Status :cnt.Iterator@JEID=\theIterator@JEID .}%
-%<dbg>\typeout{Status :cnt.tableLineCount=\thetableLineCount .}%
-%<dbg>\typeout{Status :cnt.sum@debit=\the\sum@debit .}%
-%<dbg>\typeout{Status :cnt.sum@credit=\the\sum@credit .}%
-      \PJ@Transaction{\the\c@Iterator@JEID}%
-      \expandafter\expandafter\expandafter\PJ@Loop@Table\expandafter\expandafter
-    \fi
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PJ@Loop}%
-% 仕訳帳の表の外形を作る（内容は\cmd{\PJ@Loop@Table}で出力する）．
-%
-%    \begin{macrocode}
-\def\PJ@Loop{%
-%<dbg>\typeout{Start  :\noexpand\PJ@Loop .}%
-  \begin{table}[ht]\centering
-  \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r|r}
-    \makebox[2\zw]{ID}%
-    & \multicolumn{1}{c|}{date}%
-    & \makebox[10\zw][c]{摘}
-    & \makebox[10\zw][c]{要}%
-    & \makebox[2\zw][c]{LEID}%
-    & \makebox[5\zw][c]{借方}%
-    & \makebox[5\zw][c]{貸方} \\ \hline
-%    \end{macrocode}
-% 次頁繰越をしたときには\cmd{\n@xtprev}は前頁繰越の処理が定義されている；
-% それ以外の時には空．
-%    \begin{macrocode}
-    \n@xtprev
-    \PJ@Loop@Table
-  \end{tabular}
-  \end{table}
-%    \end{macrocode}
-% 1ページの出力が終わったなら改ページをして仕訳表の行数をゼロに戻す．
-%    \begin{macrocode}
-  \clearpage
-  \global\c@tableLineCount\z@\relax
-%    \end{macrocode}
-% 次頁繰越をしたときには\cmd{\n@xt}はこのマクロへの再帰処理が定義されている；
-% それ以外の時，つまり仕訳帳を締め切ったときには空．
-%    \begin{macrocode}
-  \n@xt
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\printjournal}%
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 仕訳帳を出力する．
-%
-% 取引IDのイテレータ\cntname{Iterator@JEID}カウンタをゼロクリアし，
-% 再帰用マクロを空にして\cmd{\PJ@Loop}を呼び出す．
-%    \begin{macrocode}
-\newcommand{\printjournal}{%
-%<dbg>\typeout{Start  :\noexpand\printjournal .}%
-  \setcounter{Iterator@JEID}{0}%
-  \gdef\n@xtprev{}%
-  \gdef\n@xt{}%
-  \PJ@Loop
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    \end{macrocode}
-% \end{macro}
-% \subsection{総勘定元帳}
 % \subsubsection{総勘定元帳への転記登録}\label{ss:総勘定元帳への転記登録}%
 % 仕訳の登録と同時に総勘定元帳への登録も行う．
 % 
@@ -1607,6 +1373,240 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
+% \subsection{仕訳帳と総勘定元帳の出力}
+% \subsubsection{仕訳帳}
+% 仕訳帳の出力．
+% 各\meta{JEID}について書き出していくだけだが，
+% 次ページ・前ページ繰り越しのために\cmd{\sum@debit}および\cmd{\sum@credit}の加算も行っている．
+% \begin{macro}{\printJE@Date}\jmarg{仕訳月}\jmarg{仕訳日}\par
+% 仕訳帳の月日表示を出力する．
+%    \begin{macrocode}
+\def\printJE@Date#1{%
+  \csuse{JE#1@Month}/\csuse{JE#1@Day}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@x@printline}\marg{JEID}%
+%                               \jmarg{月日}%
+%                               \jmarg{摘要欄（左）}%
+%                               \jmarg{摘要欄（右）}%
+%                               \marg{LEID}%
+%                               \jmarg{借方}%
+%                               \jmarg{貸方}\par
+% 仕訳帳の表の1行を出力する．
+%    \begin{macrocode}
+\def\PJ@x@printline#1#2#3#4#5#6#7{%
+  #1&#2&#3&#4&#5&#6&#7\\%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@s@printline}\marg{JEID}%
+%                               \jmarg{月日}%
+%                               \jmarg{摘要欄}%
+%                               \marg{LEID}%
+%                               \jmarg{借方}%
+%                               \jmarg{貸方}\par
+% 摘要を記述するために用いる．
+% 摘要欄は左詰め．
+%    \begin{macrocode}
+\def\PJ@s@printline#1#2#3#4#5#6{%
+  #1&#2&\multicolumn{2}{l|}{#3}&#4&#5&#6\\%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@printline}%
+% 星付きは摘要を記述するときに，星なしはそれ以外の時に用いる．
+%    \begin{macrocode}
+\def\PJ@printline{%
+  \@ifstar{\PJ@s@printline}{\PJ@x@printline}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Transaction}\marg{JEID}\par
+% \changes{v1.1.2-alpha.00}{2025/12/12}{renameの影響を受けマクロ名書き換え．}%
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {不要な\cs{edef}を削除．}^^A
+% 取引IDが\meta{JEID}の取引を出力する．
+%    \begin{macrocode}
+\def\PJ@Transaction#1{% #1: journal entry ID
+%<dbg>\typeout{Start  :\noexpand\PJ@Transaction .}%
+%<dbg>\typeout{Status :JEID=#1.}%
+%    \end{macrocode}
+% 借方の行．
+%    \begin{macrocode}
+  \PJ@printline{#1\label{JEID:#1}}{\printJE@Date{#1}}
+               {（\csuse{JE#1@Debit@Accouunt}）}{}
+               {\hyperref[LEID:\csuse{JE#1@Debit@LEID}]%
+                         {\csuse{JE#1@Debit@LEID}}}
+               {\csuse{JE#1@Debit@Value}}{}%
+%    \end{macrocode}
+% 貸方の行．
+%    \begin{macrocode}
+  \PJ@printline{}{}
+               {}{（\csuse{JE#1@Credit@Accouunt}）}
+               {\hyperref[LEID:\csuse{JE#1@Credit@LEID}]%
+                         {\csuse{JE#1@Credit@LEID}}}
+               {}{\csuse{JE#1@Credit@Value}}%
+%    \end{macrocode}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {摘要の行で不要な\cs{gdef}を削除して素直な実装に．}^^A
+% 摘要の行．
+%    \begin{macrocode}
+  \JE@IfExistDescription{#1}{%
+    \PJ@printline*{}{}{\csuse{JE#1@Description}}{}{}{}\hline
+  }{%
+    \hline
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@CarryPrev}%
+% 前頁繰越の出力．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタ
+% および\cmd{\sum@credit}カウンタで管理している．
+%    \begin{macrocode}
+\def\PJ@CarryPrev{\gdef\n@xtprev{}%
+  \PJ@printline{}{}{前頁繰越}{}{}
+               {\the\sum@debit}{\the\sum@credit}\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@CarryForward}%
+% 次頁繰越の出力．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
+% \cmd{\sum@credit}カウンタで管理している．
+%    \begin{macrocode}
+\def\PJ@CarryForward{%
+  \PJ@printline{}{}{}{次頁繰越}{}
+               {\the\sum@debit}{\the\sum@credit}\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Terminate}%
+% 仕訳帳を締め切った際の総計の出力．
+% 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
+% \cmd{\sum@credit}カウンタで管理している．
+%    \begin{macrocode}
+\def\PJ@Terminate{%
+  \PJ@printline{}{}{}{総計}{}
+               {\the\sum@debit}{\the\sum@credit}\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Loop@Table}%
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 仕訳帳の表の内容を出力する．
+%    \begin{macrocode}
+\def\PJ@Loop@Table{%
+%<dbg>\typeout{Start  :\noexpand\PJ@Loop@Table .}%
+  \gdef\n@xt{}%
+%    \end{macrocode}
+% 取引をすべて出力したなら仕訳帳を締め切る処理をする．
+%    \begin{macrocode}
+  \ifnum\c@Iterator@JEID>\numexpr\c@JECount-1\relax
+%<dbg>\typeout{Process:Terminate.}%
+%<dbg>\typeout{Status :cnt.Iterator@JEID=\theIterator@JEID .}%
+    \PJ@Terminate
+%    \end{macrocode}
+% 現在の仕訳帳の行数が1ページ当たりの最大行数
+% \cmd{\maxtablelinenumber}以上であるならば，
+% 次頁繰越の処理をする．
+%    \begin{macrocode}
+  \else
+    \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
+%<dbg>\typeout{Process:CarryForward.}%
+      \gdef\n@xt{\PJ@Loop}%
+      \gdef\n@xtprev{\PJ@CarryPrev}%
+      \PJ@CarryForward
+%    \end{macrocode}
+% \cntname{Iterator@JEID}を進めて，それを取引IDとする取引について処理をする：
+% \begin{enumerate}
+%   \item 行数をカウントし，
+%   \item \cmd{\sum@debit}カウンタおよび\cmd{\sum@credit}カウンタに
+%         借方および貸方金額を加算し
+%   \item 取引を出力し，
+%   \item 再帰する．
+% \end{enumerate}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {不要なコメント行を削除．}^^A
+%    \begin{macrocode}
+    \else
+%<dbg>\typeout{Process:Transaction.}%
+      \refstepcounter{Iterator@JEID}%
+      \global\advance\c@tableLineCount
+        \csuse{JE\the\c@Iterator@JEID @Line}\relax
+      \global\advance\sum@debit
+        \csuse{JE\the\c@Iterator@JEID @Debit@Value}\relax
+      \global\advance\sum@credit
+        \csuse{JE\the\c@Iterator@JEID @Credit@Value}\relax
+%<dbg>\typeout{Status :cnt.Iterator@JEID=\theIterator@JEID .}%
+%<dbg>\typeout{Status :cnt.tableLineCount=\thetableLineCount .}%
+%<dbg>\typeout{Status :cnt.sum@debit=\the\sum@debit .}%
+%<dbg>\typeout{Status :cnt.sum@credit=\the\sum@credit .}%
+      \PJ@Transaction{\the\c@Iterator@JEID}%
+      \expandafter\expandafter\expandafter\PJ@Loop@Table\expandafter\expandafter
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PJ@Loop}%
+% 仕訳帳の表の外形を作る（内容は\cmd{\PJ@Loop@Table}で出力する）．
+%
+%    \begin{macrocode}
+\def\PJ@Loop{%
+%<dbg>\typeout{Start  :\noexpand\PJ@Loop .}%
+  \begin{table}[ht]\centering
+  \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r|r}
+    \makebox[2\zw]{ID}%
+    & \multicolumn{1}{c|}{date}%
+    & \makebox[10\zw][c]{摘}
+    & \makebox[10\zw][c]{要}%
+    & \makebox[2\zw][c]{LEID}%
+    & \makebox[5\zw][c]{借方}%
+    & \makebox[5\zw][c]{貸方} \\ \hline
+%    \end{macrocode}
+% 次頁繰越をしたときには\cmd{\n@xtprev}は前頁繰越の処理が定義されている；
+% それ以外の時には空．
+%    \begin{macrocode}
+    \n@xtprev
+    \PJ@Loop@Table
+  \end{tabular}
+  \end{table}
+%    \end{macrocode}
+% 1ページの出力が終わったなら改ページをして仕訳表の行数をゼロに戻す．
+%    \begin{macrocode}
+  \clearpage
+  \global\c@tableLineCount\z@\relax
+%    \end{macrocode}
+% 次頁繰越をしたときには\cmd{\n@xt}はこのマクロへの再帰処理が定義されている；
+% それ以外の時，つまり仕訳帳を締め切ったときには空．
+%    \begin{macrocode}
+  \n@xt
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\printjournal}%
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 仕訳帳を出力する．
+%
+% 取引IDのイテレータ\cntname{Iterator@JEID}カウンタをゼロクリアし，
+% 再帰用マクロを空にして\cmd{\PJ@Loop}を呼び出す．
+%    \begin{macrocode}
+\newcommand{\printjournal}{%
+%<dbg>\typeout{Start  :\noexpand\printjournal .}%
+  \setcounter{Iterator@JEID}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+  \PJ@Loop
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \end{macro}
 % \subsubsection{総勘定元帳の出力}
 % 一貫して\cmd{\PGL@}を接頭辞として用いるようにする．
 % \begin{macro}{\PGL@printline}%
@@ -1752,137 +1752,6 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   v ^
   \PGL@Transaction
 \fi
-% \begin{macro}{\printgeneralledger}\par
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 実際に総勘定元帳を出力するコマンド．
-% いくつかのパラメタを初期化して\cmd{\PLG@Loop}を呼び出す．
-%    \begin{macrocode}
-\newcommand{\printgeneralledger}{%
-  \setcounter{Iterator@AccTypeID}{0}%
-  \gdef\n@xtprev{}%
-  \gdef\n@xt{}%
-  \PGL@Loop
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PGL@Loop}\par
-% \changes{v1.1.0}{2024/02/27}
-%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
-% \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 各勘定科目の種類について\cmd{\PLG@L@@p}を呼び出す．
-%    \begin{macrocode}
-\def\PGL@Loop{%
-  \ifnum\c@Iterator@AccTypeID<\c@AccountTypeCount\relax
-    \stepcounter{Iterator@AccTypeID}%
-    \xdef\PGL@tmp@AccType{\AccType@getAccType{\the\c@Iterator@AccTypeID}}%
-    \setcounter{Iterator@AccountID}{0}%
-    \expandafter\PGL@L@@p
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PGL@L@@p}\par
-% \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% \changes{v1.1.0}{2024/02/27}
-%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
-% \changes{v1.1.2-alpha.11}{2025/12/17}
-%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
-% 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
-%    \begin{macrocode}
-\def\PGL@L@@p{%
-  \ifnum\c@Iterator@AccountID<\csuse{c@AccType\PGL@tmp@AccType @AccountCount}%
-    \stepcounter{Iterator@AccountID}%
-    \expandafter\subsection\expandafter%
-      {\csuse{Account\PGL@tmp@AccType\the\c@Iterator@AccountID @Name}}%
-    \setcounter{Iterator@Account@LEID}{0}%
-    \setcounter{LedgerEntryBalance}{0}%
-    \global\sum@debit\z@\relax\global\sum@credit\z@\relax
-    \expandafter\PGL@ACLoop
-  \else
-    \expandafter\PGL@Loop
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PGL@ACLoop}\par
-% 勘定元帳の表を作り，（改ページが
-% 1ページ当たりの行数を超えたことに因るときには前頁繰越をして）
-% \cmd{\PLG@ACLoop@Table}を呼び出す．
-% その処理が終わった後改ページをして\cmd{\PLG@ACLoop@Table}内で設定した
-% \cmd{\n@xt}を呼び出す：これは改ページが
-% 1ページ当たりの行数を超えたことに因るときには\cmd{\PGL@ACLoop}，
-% 勘定科目の仕訳を全て出力したことに因るときには\cmd{\PGL@L@@p}である．
-% 
-%    \begin{macrocode}
-\def\PGL@ACLoop{%
-  \begin{table}[ht]\centering
-  \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
-  \PGL@printline{\makebox[4\zw]{LEID}}%
-                {\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
-                {\makebox[7\zw]{相手勘定科目}}%
-                {\multicolumn{1}{c|}{\makebox[10\zw]{摘}\makebox[10\zw]{要}}}%
-                {\makebox[2\zw]{JEID}}%
-                {\makebox[4\zw]{借方}}%
-                {\makebox[4\zw]{貸方}}%
-                {\makebox[2\zw]{借/貸}}%
-                {\makebox[4\zw]{残高}}\hline
-    \n@xtprev
-    \PGL@ACLoop@Table
-  \end{tabular}
-  \end{table}
-  \clearpage
-  \global\c@tableLineCount\z@\relax
-  \n@xt
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PGL@ACLoop@Table}\par
-% \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
-% 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
-% その他改ページ処理など．
-%    \begin{macrocode}
-\def\PGL@ACLoop@Table{%
-  \ifnum\c@Iterator@Account@LEID>\numexpr
-      \csuse{Account\PGL@tmp@AccType\the\c@Iterator@AccountID @LedgerCount}-1\relax
-    \hline
-    \PGL@Terminate
-  \else
-    \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
-      \hline
-      \gdef\n@xt{\PGL@ACLoop}%
-      \gdef\n@xtprev{\PGL@CarryPrev}%
-      \PGL@CarryForward
-    \else
-      \gdef\n@xt{\PGL@L@@p}%
-      \stepcounter{Iterator@Account@LEID}%
-      \ifnum\csuse{Account\PGL@tmp@AccType\the\c@Iterator@AccountID%
-                    @Ledger\the\c@Iterator@Account@LEID%
-                    @AccountValue}=0\relax
-        \stepcounter{tableLineCount}%
-        \PGL@MonthlyClosing%
-      \else
-        \stepcounter{tableLineCount}%
-        \PGL@Transaction{\the\c@Iterator@Account@LEID}%
-      \fi
-      \expandafter\expandafter\expandafter\PGL@ACLoop@Table
-      \expandafter\expandafter
-    \fi
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
 % \begin{macro}{\PGL@CarryPrev}%
 % 前頁繰越処理．
 %    \begin{macrocode}
@@ -1938,6 +1807,137 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \begin{macrocode}
 \def\PGL@Terminate{%
   \PGL@printline{}{}{}{}{}{\the\sum@debit}{\the\sum@credit}{}{}\hline\hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@ACLoop@Table}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
+% 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
+% その他改ページ処理など．
+%    \begin{macrocode}
+\def\PGL@ACLoop@Table{%
+  \ifnum\c@Iterator@Account@LEID>\numexpr
+      \csuse{Account\PGL@tmp@AccType\the\c@Iterator@AccountID @LedgerCount}-1\relax
+    \hline
+    \PGL@Terminate
+  \else
+    \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
+      \hline
+      \gdef\n@xt{\PGL@ACLoop}%
+      \gdef\n@xtprev{\PGL@CarryPrev}%
+      \PGL@CarryForward
+    \else
+      \gdef\n@xt{\PGL@L@@p}%
+      \stepcounter{Iterator@Account@LEID}%
+      \ifnum\csuse{Account\PGL@tmp@AccType\the\c@Iterator@AccountID%
+                    @Ledger\the\c@Iterator@Account@LEID%
+                    @AccountValue}=0\relax
+        \stepcounter{tableLineCount}%
+        \PGL@MonthlyClosing%
+      \else
+        \stepcounter{tableLineCount}%
+        \PGL@Transaction{\the\c@Iterator@Account@LEID}%
+      \fi
+      \expandafter\expandafter\expandafter\PGL@ACLoop@Table
+      \expandafter\expandafter
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@ACLoop}\par
+% 勘定元帳の表を作り，（改ページが
+% 1ページ当たりの行数を超えたことに因るときには前頁繰越をして）
+% \cmd{\PLG@ACLoop@Table}を呼び出す．
+% その処理が終わった後改ページをして\cmd{\PLG@ACLoop@Table}内で設定した
+% \cmd{\n@xt}を呼び出す：これは改ページが
+% 1ページ当たりの行数を超えたことに因るときには\cmd{\PGL@ACLoop}，
+% 勘定科目の仕訳を全て出力したことに因るときには\cmd{\PGL@L@@p}である．
+% 
+%    \begin{macrocode}
+\def\PGL@ACLoop{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
+  \PGL@printline{\makebox[4\zw]{LEID}}%
+                {\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
+                {\makebox[7\zw]{相手勘定科目}}%
+                {\multicolumn{1}{c|}{\makebox[10\zw]{摘}\makebox[10\zw]{要}}}%
+                {\makebox[2\zw]{JEID}}%
+                {\makebox[4\zw]{借方}}%
+                {\makebox[4\zw]{貸方}}%
+                {\makebox[2\zw]{借/貸}}%
+                {\makebox[4\zw]{残高}}\hline
+    \n@xtprev
+    \PGL@ACLoop@Table
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \global\c@tableLineCount\z@\relax
+  \n@xt
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@L@@p}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
+% 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
+%    \begin{macrocode}
+\def\PGL@L@@p{%
+  \ifnum\c@Iterator@AccountID<\csuse{c@AccType\PGL@tmp@AccType @AccountCount}%
+    \stepcounter{Iterator@AccountID}%
+    \expandafter\subsection\expandafter%
+      {\csuse{Account\PGL@tmp@AccType\the\c@Iterator@AccountID @Name}}%
+    \setcounter{Iterator@Account@LEID}{0}%
+    \setcounter{LedgerEntryBalance}{0}%
+    \global\sum@debit\z@\relax\global\sum@credit\z@\relax
+    \expandafter\PGL@ACLoop
+  \else
+    \expandafter\PGL@Loop
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@Loop}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 各勘定科目の種類について\cmd{\PLG@L@@p}を呼び出す．
+%    \begin{macrocode}
+\def\PGL@Loop{%
+  \ifnum\c@Iterator@AccTypeID<\c@AccountTypeCount\relax
+    \stepcounter{Iterator@AccTypeID}%
+    \xdef\PGL@tmp@AccType{\AccType@getAccType{\the\c@Iterator@AccTypeID}}%
+    \setcounter{Iterator@AccountID}{0}%
+    \expandafter\PGL@L@@p
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\printgeneralledger}\par
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 実際に総勘定元帳を出力するコマンド．
+% いくつかのパラメタを初期化して\cmd{\PLG@Loop}を呼び出す．
+%    \begin{macrocode}
+\newcommand{\printgeneralledger}{%
+  \setcounter{Iterator@AccTypeID}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+  \PGL@Loop
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2062,119 +2062,6 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\printmonthlytrialbalance}\par
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 1月から月ごとの残高試算表を出力する．
-% 実装としては初期化をして\cmd{\TB@Loop}呼び出す形．
-%    \begin{macrocode}
-\newcommand{\printmonthlytrialbalance}{%
-  \setcounter{Iterator@Account@Month}{0}%
-  \gdef\n@xtprev{}%
-  \gdef\n@xt{}%
-% \typeout{1}%
-  \TB@Loop
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\TB@Loop}\par
-% \changes{v1.1.0}{2025/04/07}
-%   {カウンタ条件式周りの調整（\cmd{\c@Iterator@Account@Month}を回して
-%    =14となるときを排除する）．}%
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 月についてイテレータ\cmd{\c@Iterator@Account@Month}を回して，
-% 各月ごとの残高試算表の出力処理を行う．
-%    \begin{macrocode}
-\def\TB@Loop{%
-  \ifnum\c@Iterator@Account@Month<\numexpr\c@ClosingMonthCount-1\relax
-    \stepcounter{Iterator@Account@Month}%
-    \BKtemp@countA\z@ \BKtemp@countB\z@
-    \BKtemp@countC\z@ \BKtemp@countD\z@
-    \expandafter\subsection\expandafter{\the\c@Iterator@Account@Month 月}%
-    \setcounter{Iterator@AccTypeID}{0}%
-%   \typeout{2: Iterator@Account@Month=\the\c@Iterator@Account@Month}%
-    \expandafter\TB@printTable
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\TB@printTable}\par
-% \changes{v1.1.0}{2025/02/05}
-%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
-% 残高試算表の表を組み，\cmd{\TB@Loop}を再帰的に呼び出す．
-%    \begin{macrocode}
-\def\TB@printTable{%
-  \begin{table}[ht]\centering
-  \begin{tabular}{rrcrr}
-    \multicolumn{2}{c}{借方}&&\multicolumn{2}{c}{貸方}\\%
-    \TB@printline{\makebox[5\zw]{残高}}{\makebox[5\zw]{合計}}%
-                 {\makebox[10\zw]{勘定科目}}{\makebox[5\zw]{合計}}%
-                 {\makebox[5\zw]{残高}}\hline%
-    \TB@Table@Loop
-    \hline
-    \TB@printTable@sumAccType
-    \hline
-    \TB@printline{\the\BKtemp@countA}{\the\BKtemp@countB}%
-                 {合計}%
-                 {\the\BKtemp@countC}{\the\BKtemp@countD}\hline%
-  \end{tabular}
-  \end{table}
-  \clearpage
-  \TB@Loop
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\TB@Table@Loop}\par
-% \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% \changes{v1.1.0}{2025/02/05}
-%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@L@@p}を呼び出す．
-%    \begin{macrocode}
-\def\TB@Table@Loop{%
-  \ifnum\c@Iterator@AccTypeID<\c@AccountTypeCount\relax
-    \stepcounter{Iterator@AccTypeID}%
-    \xdef\TB@tmp@AccType{\AccType@getAccType{\the\c@Iterator@AccTypeID}}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @sumDebit}{0}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @Debit}{0}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @sumCredit}{0}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @Credit}{0}%
-    \setcounter{Iterator@AccountID}{0}%
-%   \typeout{3: Iterator@AccTypeID=\TB@tmp@AccType}%
-    \expandafter\TB@Table@L@@p
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\TB@Table@L@@p}\par
-% \changes{v1.1.0}{2024/02/27}
-%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
-% \changes{v1.1.0}{2024/02/27}
-%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
-% \changes{v1.1.0}{2025/02/05}
-%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
-% \changes{v1.1.2-alpha.12}{2025/12/18}
-%   {イテレータ用カウンタの命名変更による修正．}^^A
-% 各勘定科目についてイテレータを回し，\cmd{\TB@Table@Acc@OneLine}を呼び出し
-% \cmd{\TB@Table@L@@p}を再帰的に呼び出す処理をする．
-% その勘定科目の種類に属する勘定科目についてイテレータを回し終えたら
-% \cmd{\TB@Table@Loop}を呼び出す．
-%    \begin{macrocode}
-\def\TB@Table@L@@p{%
-  \ifnum\c@Iterator@AccountID<\csuse{c@AccType\TB@tmp@AccType @AccountCount}%
-    \stepcounter{Iterator@AccountID}%
-%   \typeout{4: Iterator@AccountID=\the\c@Iterator@AccountID}%
-    \TB@Table@Acc@OneLine
-    \expandafter\TB@Table@L@@p
-  \else
-    \TB@Table@Loop
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
 % \begin{macro}{\TB@printTable@sumAccType}\par
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
@@ -2211,6 +2098,119 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
                {その他}%
                {\csuse{AccountM@Month\the\c@Iterator@Account@Month @Credit}}%
                {\csuse{AccountM@Month\the\c@Iterator@Account@Month @sumCredit}}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@Table@L@@p}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% \changes{v1.1.0}{2025/02/05}
+%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 各勘定科目についてイテレータを回し，\cmd{\TB@Table@Acc@OneLine}を呼び出し
+% \cmd{\TB@Table@L@@p}を再帰的に呼び出す処理をする．
+% その勘定科目の種類に属する勘定科目についてイテレータを回し終えたら
+% \cmd{\TB@Table@Loop}を呼び出す．
+%    \begin{macrocode}
+\def\TB@Table@L@@p{%
+  \ifnum\c@Iterator@AccountID<\csuse{c@AccType\TB@tmp@AccType @AccountCount}%
+    \stepcounter{Iterator@AccountID}%
+%   \typeout{4: Iterator@AccountID=\the\c@Iterator@AccountID}%
+    \TB@Table@Acc@OneLine
+    \expandafter\TB@Table@L@@p
+  \else
+    \TB@Table@Loop
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@Table@Loop}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
+% \changes{v1.1.0}{2025/02/05}
+%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@L@@p}を呼び出す．
+%    \begin{macrocode}
+\def\TB@Table@Loop{%
+  \ifnum\c@Iterator@AccTypeID<\c@AccountTypeCount\relax
+    \stepcounter{Iterator@AccTypeID}%
+    \xdef\TB@tmp@AccType{\AccType@getAccType{\the\c@Iterator@AccTypeID}}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @sumDebit}{0}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @Debit}{0}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @sumCredit}{0}%
+    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @Credit}{0}%
+    \setcounter{Iterator@AccountID}{0}%
+%   \typeout{3: Iterator@AccTypeID=\TB@tmp@AccType}%
+    \expandafter\TB@Table@L@@p
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@printTable}\par
+% \changes{v1.1.0}{2025/02/05}
+%   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
+% 残高試算表の表を組み，\cmd{\TB@Loop}を再帰的に呼び出す．
+%    \begin{macrocode}
+\def\TB@printTable{%
+  \begin{table}[ht]\centering
+  \begin{tabular}{rrcrr}
+    \multicolumn{2}{c}{借方}&&\multicolumn{2}{c}{貸方}\\%
+    \TB@printline{\makebox[5\zw]{残高}}{\makebox[5\zw]{合計}}%
+                 {\makebox[10\zw]{勘定科目}}{\makebox[5\zw]{合計}}%
+                 {\makebox[5\zw]{残高}}\hline%
+    \TB@Table@Loop
+    \hline
+    \TB@printTable@sumAccType
+    \hline
+    \TB@printline{\the\BKtemp@countA}{\the\BKtemp@countB}%
+                 {合計}%
+                 {\the\BKtemp@countC}{\the\BKtemp@countD}\hline%
+  \end{tabular}
+  \end{table}
+  \clearpage
+  \TB@Loop
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\TB@Loop}\par
+% \changes{v1.1.0}{2025/04/07}
+%   {カウンタ条件式周りの調整（\cmd{\c@Iterator@Account@Month}を回して
+%    =14となるときを排除する）．}%
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 月についてイテレータ\cmd{\c@Iterator@Account@Month}を回して，
+% 各月ごとの残高試算表の出力処理を行う．
+%    \begin{macrocode}
+\def\TB@Loop{%
+  \ifnum\c@Iterator@Account@Month<\numexpr\c@ClosingMonthCount-1\relax
+    \stepcounter{Iterator@Account@Month}%
+    \BKtemp@countA\z@ \BKtemp@countB\z@
+    \BKtemp@countC\z@ \BKtemp@countD\z@
+    \expandafter\subsection\expandafter{\the\c@Iterator@Account@Month 月}%
+    \setcounter{Iterator@AccTypeID}{0}%
+%   \typeout{2: Iterator@Account@Month=\the\c@Iterator@Account@Month}%
+    \expandafter\TB@printTable
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\printmonthlytrialbalance}\par
+% \changes{v1.1.2-alpha.12}{2025/12/18}
+%   {イテレータ用カウンタの命名変更による修正．}^^A
+% 1月から月ごとの残高試算表を出力する．
+% 実装としては初期化をして\cmd{\TB@Loop}呼び出す形．
+%    \begin{macrocode}
+\newcommand{\printmonthlytrialbalance}{%
+  \setcounter{Iterator@Account@Month}{0}%
+  \gdef\n@xtprev{}%
+  \gdef\n@xt{}%
+% \typeout{1}%
+  \TB@Loop
 }
 %</style>
 %    \end{macrocode}
