@@ -46,6 +46,8 @@ ifeq ($(LATEXENGINE),lualatex)
 %.pdf: %.dtx
 	lualatex $(LATEXOpt) $<
 	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
+	if [ -e $(basename $<).glo ];\
+		then makeindex -q -s gglo.ist -o $(addsuffix .gls,$(basename $<)) $(addsuffix .glo,$(basename $<)); fi
 	lualatex $(LATEXOpt) $<
 	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
 	if [ -e $(basename $<).glo ];\
@@ -56,6 +58,8 @@ else
 %.dvi: %.dtx
 	$(LATEXENGINE) $(LATEXOpt) $<
 	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
+	if [ -e $(basename $<).glo ];\
+		then makeindex -q -s gglo.ist -o $(addsuffix .gls,$(basename $<)) $(addsuffix .glo,$(basename $<)); fi
 	$(LATEXENGINE) $(LATEXOpt) $<
 	if [ -e $(basename $<).idx ]; then makeindex -q -s gind.ist $(basename $<); fi
 	if [ -e $(basename $<).glo ];\
