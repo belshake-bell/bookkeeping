@@ -382,9 +382,22 @@
 % 一時的なカウンタ．
 %    \begin{macrocode}
 \newcount\BKtemp@countD
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    \end{macrocode}
 % \end{tcounter}
+% \begin{macro}{\BK@hline}
+% \changes{v1.1.2-alpha.14}{2025/12/18}
+%   {垂直方向のスキップを発生させない（正確には打ち消す）\cs{hline}．}
+% 垂直方向のスキップを発生させない（正確には打ち消す）\cmd{\hline}．
+%    \begin{macrocode}
+\def\BK@hline{%
+  \noalign{\ifnum0=`}\fi
+    \hrule \@height \arrayrulewidth
+    \vskip-\arrayrulewidth \futurelet
+    \reserved@a\@xhline}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \end{macrocode}
+% \end{macro}
 % \subsection{勘定科目の種類および勘定科目}
 % \subsubsection{勘定科目の種類}
 % \changes{v1.1.0}{2024/02/21}
