@@ -1944,6 +1944,16 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \subsection{合計残高試算表}
+% \begingroup\centering\makeatletter
+% \begin{tabular}{rrcrr}
+% \TB@printTableHeader
+% \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
+% \TB@printline{借方残高}{借方}{合計}{貸方}{貸方残高}\hline%
+% \end{tabular}\makeatother\par
+% \endgroup
+% 大体こんな感じ．
 % \begin{macro}{\TB@printline}%
 %   \jmarg{借方残高}%
 %   \jmarg{借方}%
@@ -2151,6 +2161,23 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\TB@printTableHeader}\par
+% \changes{v1.1.2-alpha.13}{2025/02/05}
+%   {残高試算表のヘッダをマクロ化．}%
+% 残高試算表の表のヘッダを出力する．
+%    \begin{macrocode}
+\def\TB@printTableHeader{%
+  \multicolumn{2}{c}{借方}&&\multicolumn{2}{c}{貸方}\\%
+  \TB@printline
+    {\makebox[5\zw]{残高}}%
+    {\makebox[5\zw]{合計}}%
+    {\makebox[10\zw]{勘定科目}}%
+    {\makebox[5\zw]{合計}}%
+    {\makebox[5\zw]{残高}}%
+  \hline
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\TB@printTable}\par
 % \changes{v1.1.0}{2025/02/05}
 %   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
@@ -2159,10 +2186,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \def\TB@printTable{%
   \begin{table}[ht]\centering
   \begin{tabular}{rrcrr}
-    \multicolumn{2}{c}{借方}&&\multicolumn{2}{c}{貸方}\\%
-    \TB@printline{\makebox[5\zw]{残高}}{\makebox[5\zw]{合計}}%
-                 {\makebox[10\zw]{勘定科目}}{\makebox[5\zw]{合計}}%
-                 {\makebox[5\zw]{残高}}\hline%
+    \TB@printTableHeader
     \TB@Table@Loop
     \hline
     \TB@printTable@sumAccType
