@@ -1528,6 +1528,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \changes{v1.1.2-alpha.11}{2025/12/17}
 %   {不要な\cs{edef}を削除．}^^A
 % \changes{v1.1.2-alpha.16}{2025/12/19}{Fix Typo.}%
+% \changes{v1.1.2-alpha.17}{2025/12/19}
+%   {\cs{csuse}からGetterに変更．}^^A
 % 取引IDが\meta{JEID}の取引を出力する．
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
@@ -1537,25 +1539,25 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 借方の行．
 %    \begin{macrocode}
   \PJ@printline{#1\label{JEID:#1}}{\printJE@Date{#1}}
-               {（\csuse{JE#1@Debit@Account}）}{}
-               {\hyperref[LEID:\csuse{JE#1@Debit@LEID}]%
-                         {\csuse{JE#1@Debit@LEID}}}
-               {\csuse{JE#1@Debit@Value}}{}%
+               {（\JE@getpropertySmpl{#1}{Debit@Account}）}{}
+               {\hyperref[LEID:\JE@getpropertySmpl{#1}{Debit@LEID}]%
+                         {\JE@getpropertySmpl{#1}{Debit@LEID}}}
+               {\JE@getpropertySmpl{#1}{Debit@Value}}{}%
 %    \end{macrocode}
 % 貸方の行．
 %    \begin{macrocode}
   \PJ@printline{}{}
-               {}{（\csuse{JE#1@Credit@Account}）}
-               {\hyperref[LEID:\csuse{JE#1@Credit@LEID}]%
-                         {\csuse{JE#1@Credit@LEID}}}
-               {}{\csuse{JE#1@Credit@Value}}%
+               {}{（\JE@getpropertySmpl{#1}{Credit@Account}）}
+               {\hyperref[LEID:\JE@getpropertySmpl{#1}{Credit@LEID}]%
+                         {\JE@getpropertySmpl{#1}{Credit@LEID}}}
+               {}{\JE@getpropertySmpl{#1}{Credit@Value}}%
 %    \end{macrocode}
 % \changes{v1.1.2-alpha.11}{2025/12/17}
 %   {摘要の行で不要な\cs{gdef}を削除して素直な実装に．}^^A
 % 摘要の行．
 %    \begin{macrocode}
   \JE@IfExistDescription{#1}{%
-    \PJ@printline*{}{}{\csuse{JE#1@Description}}{}{}{}\hline
+    \PJ@printline*{}{}{\JE@getpropertySmpl{#1}{Description}}{}{}{}\hline
   }{%
     \hline
   }%
@@ -1632,16 +1634,18 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \end{enumerate}
 % \changes{v1.1.2-alpha.11}{2025/12/17}
 %   {不要なコメント行を削除．}^^A
+% \changes{v1.1.2-alpha.17}{2025/12/19}
+%   {\cs{csuse}からGetterに変更．}^^A
 %    \begin{macrocode}
     \else
 %<dbg>\typeout{Process:Transaction.}%
       \refstepcounter{Iterator@JEID}%
       \global\advance\c@tableLineCount
-        \csuse{JE\the\c@Iterator@JEID @Line}\relax
+        \JE@getpropertySmpl{\the\c@Iterator@JEID}{Line}\relax
       \global\advance\sum@debit
-        \csuse{JE\the\c@Iterator@JEID @Debit@Value}\relax
+        \JE@getpropertySmpl{\the\c@Iterator@JEID}{Debit@Value}\relax
       \global\advance\sum@credit
-        \csuse{JE\the\c@Iterator@JEID @Credit@Value}\relax
+        \JE@getpropertySmpl{\the\c@Iterator@JEID}{Credit@Value}\relax
 %<dbg>\typeout{Status :cnt.Iterator@JEID=\theIterator@JEID .}%
 %<dbg>\typeout{Status :cnt.tableLineCount=\thetableLineCount .}%
 %<dbg>\typeout{Status :cnt.sum@debit=\the\sum@debit .}%
