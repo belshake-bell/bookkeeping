@@ -434,6 +434,7 @@
 %   {the name of registerAccType is changed to BK@registerAccType.}
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタ．}
+% \changes{v1.1.2-alpha.17}{2025/12/19}{不要なコメント行の削除．}%
 % 勘定科目の種類\meta{AccType}を登録する．
 % カウンタを確保するので無意味に何度も呼び出さないこと．
 %    \begin{macrocode}
@@ -446,7 +447,6 @@
   \csgdef{AccType#1@Name}{#2}%
   \csxdef{revAccType\the\c@AccountTypeCount @AccType}{#1}%
   \csxdef{AccType#1@ID}{\theAccountTypeCount}%
-%%\csdef{BK@AccType\the\c@AccountTypeCount}{#1}%
   \newcounter{AccType#1@AccountCount}%
 }
 %    \end{macrocode}
@@ -460,6 +460,24 @@
 \BK@registerAccType{M}{その他}% その他 (Misc.)
 
 %    \end{macrocode}
+% \begin{macro}{\AccType@getpropertySmpl}^^A
+%   \jmarg{勘定科目の種類}\marg{prop.}\par
+% \changes{v1.1.2-alpha.17}{2025/12/19}{Getterの新設．}%
+%  勘定科目の種類と欲しい\meta{prop.}から\meta{prop.}の値を得る．
+%    \begin{macrocode}
+\def\AccType@getpropertySmpl#1#2{%
+  \@ifundefined{AccType#1@#2}{%
+    \PackageError{bookkeeping}{%
+      The property "#2" is not defined in AccType.\MessageBreak
+    }{%
+      please tell package author.\MessageBreak
+    }%
+  }{%
+    \csuse{AccType#1@#2}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\AccType@getAccType}\jmarg{勘定科目の種類ID}\par
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを設置．}
