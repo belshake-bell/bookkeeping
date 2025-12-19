@@ -129,15 +129,32 @@
 %   {make this .dtx file}
 % \changes{v1.0.0}{2023/02/05}
 %   {make .sty file}
-% \DoNotIndex{\@,\@@par,\@beginparpenalty,\@empty}
-% \DoNotIndex{\@flushglue,\@gobble,\@input}
+% \iffalse TeX \fi
+% \DoNotIndex{\hrule}
+% \DoNotIndex{\message}
+% \DoNotIndex{\noalign}
+% \iffalse e-TeX \fi
+% \DoNotIndex{\expanded}
+% \DoNotIndex{\unexpanded}
+% \iffalse LaTeX \fi
+% \DoNotIndex{\@,\@@par}
+% \DoNotIndex{\@arabic}
+% \DoNotIndex{\@beginparpenalty}
+% \DoNotIndex{\@elt,\@empty}
+% \DoNotIndex{\@firstofone,\@flushglue,\@forloop,\@fortmp}
+% \DoNotIndex{\@gobble,\@gtempa}
+% \DoNotIndex{\@height}
+% \DoNotIndex{\@ifnextchar,\@ifundefined,\@input}
 % \DoNotIndex{\@makefnmark,\@makeother,\@maketitle}
-% \DoNotIndex{\@namedef,\@ne,\@spaces,\@tempa}
-% \DoNotIndex{\@tempb,\@tempswafalse,\@tempswatrue}
-% \DoNotIndex{\@thanks,\@thefnmark,\@topnum}
-% \DoNotIndex{\@@,\@elt,\@forloop,\@fortmp,\@gtempa,\@totalleftmargin}
-% \DoNotIndex{\",\/,\@ifundefined,\@nil,\@verbatim,\@vobeyspaces}
-% \DoNotIndex{\|,\~,\ ,\active,\advance,\aftergroup,\begingroup,\bgroup}
+% \DoNotIndex{\@namedef,\@nil,\@ne}
+% \DoNotIndex{\@spaces}
+% \DoNotIndex{\@tempa,\@tempb,\@tempswafalse,\@tempswatrue}
+% \DoNotIndex{\@thanks,\@thefnmark,\@topnum,\@totalleftmargin}
+% \DoNotIndex{\@@}
+% \DoNotIndex{\@verbatim,\@vobeyspaces}
+% \DoNotIndex{\@xhline}
+% \DoNotIndex{\",\/,\|,\~,\ }
+% \DoNotIndex{\active,\advance,\aftergroup,\begingroup,\bgroup}
 % \DoNotIndex{\mathcal,\csname,\def,\documentstyle,\dospecials,\edef}
 % \DoNotIndex{\egroup}
 % \DoNotIndex{\else,\endcsname,\endgroup,\endinput,\endtrivlist}
@@ -187,8 +204,13 @@
 % \DoNotIndex{\numexpr,\dimexpr}
 % \DoNotIndex{\zw}
 % \DoNotIndex{\multicolumn}
+% \DoNotIndex{\value}
+% \DoNotIndex{\MassageBreak}
+% \DoNotIndex{\PackageError}
+% \DoNotIndex{\ProvidePackage}
 % \iffalse etoolbox \fi
 % \DoNotIndex{\csuse,\csdef,\csedef,\csgdef,\csxdef,\letcs}
+% \DoNotIndex{\ifcsstring}
 % \iffalse hyperref \fi
 % \DoNotIndex{\hyperref}
 % \title{\filename}
@@ -657,29 +679,33 @@
 %<dbg>         \Account@getpropertySmpl{#3}{LedgerCount}}%
 %<dbg>\typeout{Account[#3].LedgerBalanceType: %
 %<dbg>         \Account@getpropertySmpl{#3}{LedgerBalanceType}}%
-  \BKtemp@countA\z@
-  \register@Acc@Mon@Bal{#3}%
+  \Account@init@Month{0}{#3}%
 %<dbg>\typeout{Finish : \unexpanded{\registerAccountID}.}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\register@Acc@Mon@Bal}\marg{Account Name}\par
+% \begin{macro}{\Account@init@Month}\marg{init~month}\marg{Account~Name}\par
 % \changes{v1.1.2-alpha.08}{2025/12/15}
 %   {Accountのsetterを使用．}^^A
-% 勘定科目の月ごとの残高・借方合計・貸方合計の登録．
+% \changes{v1.1.2-alpha.17}{2025/12/19}
+%   {Rename from \cs{register@Acc@Mon@Bal}．}^^A
+% 勘定科目の月ごとの残高・借方合計・貸方合計の初期化．
 %    \begin{macrocode}
-\def\register@Acc@Mon@Bal#1{%
-  \ifnum\BKtemp@countA>\BK@closingmonth\relax
-%<dbg>\typeout{Process: End of init Account[#1].Month}%
+\def\Account@init@Month#1#2{%
+  \ifnum#1>\BK@closingmonth\relax
+%<dbg>\typeout{Process: End of init Account[#2].Month}%
     \expandafter\@gobble%
   \else
-%<dbg>\typeout{Process: Init Account[#1].Month[\the\BKtemp@countA]}%
-    \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Balance}{0}%
-    \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Debit}{0}%
-    \Account@setpropertySmpl{#1}{Month\the\BKtemp@countA @Credit}{0}%
-    \global\advance\BKtemp@countA\@ne\relax
+%<dbg>\typeout{Process: Init Account[#2].Month[#1]}%
+    \Account@setpropertySmpl{#2}{Month#1@Balance}{0}%
+    \Account@setpropertySmpl{#2}{Month#1@Debit}{0}%
+    \Account@setpropertySmpl{#2}{Month#1@Credit}{0}%
     \expandafter\@firstofone%
-  \fi{\register@Acc@Mon@Bal{#1}}%
+  \fi
+  {%
+    \expandafter\Account@init@Month\expandafter
+      {\expanded{\the\numexpr#1+1\relax}}{#2}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
