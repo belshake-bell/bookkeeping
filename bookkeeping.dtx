@@ -963,20 +963,22 @@
 % \end{macro}
 % \begin{macro}{\JE@setDebit}\jmarg{借方勘定科目}\jmarg{金額}\par
 % \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.16}{2025/12/19}{Fix Typo.}%
 % 仕訳の借方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\JE@setDebit#1#2{%
-  \csgdef{JE\the\c@JECount @Debit@Accouunt}{#1}%
+  \csgdef{JE\the\c@JECount @Debit@Account}{#1}%
   \csgdef{JE\the\c@JECount @Debit@Value}{#2}%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\JE@setCredit}\jmarg{貸方勘定科目}\jmarg{金額}\par
 % \changes{v1.1.2-alpha.00}{2025/12/12}{rename.}%
+% \changes{v1.1.2-alpha.16}{2025/12/19}{Fix Typo.}%
 % 仕訳の貸方勘定科目および金額を登録する．
 %    \begin{macrocode}
 \def\JE@setCredit#1#2{%
-  \csgdef{JE\the\c@JECount @Credit@Accouunt}{#1}%
+  \csgdef{JE\the\c@JECount @Credit@Account}{#1}%
   \csgdef{JE\the\c@JECount @Credit@Value}{#2}%
 }
 %    \end{macrocode}
@@ -1481,6 +1483,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
 % \changes{v1.1.2-alpha.11}{2025/12/17}
 %   {不要な\cs{edef}を削除．}^^A
+% \changes{v1.1.2-alpha.16}{2025/12/19}{Fix Typo.}%
 % 取引IDが\meta{JEID}の取引を出力する．
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
@@ -1490,7 +1493,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 借方の行．
 %    \begin{macrocode}
   \PJ@printline{#1\label{JEID:#1}}{\printJE@Date{#1}}
-               {（\csuse{JE#1@Debit@Accouunt}）}{}
+               {（\csuse{JE#1@Debit@Account}）}{}
                {\hyperref[LEID:\csuse{JE#1@Debit@LEID}]%
                          {\csuse{JE#1@Debit@LEID}}}
                {\csuse{JE#1@Debit@Value}}{}%
@@ -1498,7 +1501,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 貸方の行．
 %    \begin{macrocode}
   \PJ@printline{}{}
-               {}{（\csuse{JE#1@Credit@Accouunt}）}
+               {}{（\csuse{JE#1@Credit@Account}）}
                {\hyperref[LEID:\csuse{JE#1@Credit@LEID}]%
                          {\csuse{JE#1@Credit@LEID}}}
                {}{\csuse{JE#1@Credit@Value}}%
