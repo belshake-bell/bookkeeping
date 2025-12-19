@@ -1,5 +1,8 @@
-\documentclass[dvipdfmx,uplatex,b5paper,openany,jbase=12Q,nomag*,textwidth-limit=44]{bxjsarticle}
+\documentclass[dvipdfmx,uplatex,a4paper,jbase=12Q,nomag*,textwidth-limit=44]{bxjsarticle}
 \usepackage{../bookkeeping}
+\setpagelayout*{headheight=0cm,%
+                vdivide={5mm,,5mm},%
+                hdivide={10mm,,10mm}}
 
 \newcounter{Iterator}
 \registerAccountID{A}{D}{現金}
@@ -17,7 +20,7 @@
 \journalentry{01}{04}{現金}{2000}{収入}{商品売却}
 \journalentry{01}{05}{借金}{1200}{現金}{お金を返す}
 \journalentry*{01}{05}{過不足}{100}{現金}
-\journalentry{01}{08}{現金}{1000}{借金}{お金を借りる}
+\journalentry{01}{08}{現金}{4000}{借金}{お金を借りる}
 \journalentry{01}{09}{費用}{500}{現金}{商品購入}
 \journalentry{01}{11}{現金}{2000}{収入}{商品売却}
 \journalentry{01}{13}{借金}{1200}{現金}{お金を返す}
@@ -44,5 +47,6 @@
 \begin{document}
 
 \printjournal
+\printgeneralledger
 
 \end{document}

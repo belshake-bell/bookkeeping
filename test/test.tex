@@ -26,6 +26,7 @@
 
 \newcounter{Iterator}
 \registerAccountID{A}{D}{現金}
+\registerAccountID{A}{D}{口座預金}
 \registerAccountID{L}{C}{借金}
 \registerAccountID{N}{C}{総資産}
 \registerAccountID{R}{C}{収入}
@@ -33,6 +34,7 @@
 \registerAccountID{M}{A}{過不足}
 
 \journalentry*{01}{01}{現金}{1000}{総資産}
+\journalentry*{01}{01}{口座預金}{500}{総資産}
 \journalentry*{01}{01}{総資産}{200}{借金}
 \journalentry{01}{01}{現金}{1000}{借金}{お金を借りる}
 \journalentry*{01}{02}{現金}{300}{過不足}
@@ -42,6 +44,21 @@
 \journalentry*{01}{05}{過不足}{100}{現金}
 
 \makeatletter
+\def\testGetAccNameFromID@base#1;#2;{% #1 AccID #2: AccType
+  \typeout{\noexpand\testGetAccNameFromID@base param1=#1 param2=#2}%
+  \ifnum#1>\value{AccType#2@AccountCount}%
+    \typeout{Ende: \noexpand\testGetAccNameFromID@base}%
+    \expandafter\@gobble
+  \else
+    \typeout{\Account@getNameFromId{#2}{#1}}%
+    \expandafter\@firstofone
+  \fi{\expandafter\testGetAccNameFromID@base\the\numexpr#1+1;#2;}%
+}
+\def\testGetAccNameFromID#1{% #1: AccType
+  \typeout{\noexpand\testGetAccNameFromID param1=#1}%
+  \testGetAccNameFromID@base1;#1;%
+}
+\testGetAccNameFromID{A}
 \def\testJEGetterbase#1#2{%
   \classTitle{JE[#1].#2}:
   \JE@getpropertySmpl{#1}{#2}%

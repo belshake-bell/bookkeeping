@@ -753,6 +753,25 @@
 \def\Account@getAccTypeAccID#1{\Account@getAccType{#1}\Account@getAccID{#1}}
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\Account@getNameFromId}\marg{AccType}^^A
+%                                      \marg{AccID}\par
+% \changes{v1.1.2-alpha.18}{2025/12/19}
+%   {AccTypeとAccIDから勘定科目名を得るマクロ\cs{Account@getNameFromId}の新設．}^^A
+% AccTypeとAccIDから勘定科目名を得る．
+%    \begin{macrocode}
+\def\Account@getNameFromId#1#2{%
+  \@ifundefined{Account#1#2@Name}{%
+    \PackageError{bookkeeping}{%
+      The AccType-AccID "#1#2" is not defined.\MessageBreak
+    }{%
+      please tell package author.\MessageBreak
+    }%
+  }{%
+    \csuse{Account#1#2@Name}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\Account@getpropertySmpl}\jmarg{勘定科目名}^^A
 %                                        \marg{prop.}\par
 % \changes{v1.1.2-alpha.03}{2025/12/14}
@@ -1743,7 +1762,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@Transaction}\marg{AccLdgID}\par
+% \begin{macro}{\PGL@Transaction}\marg{AccLdgID}\marg{Account~Name}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
 % \changes{v1.1.0}{2025/02/05}
@@ -1753,10 +1772,18 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    残高表示を別マクロ化．}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
-% \meta{AccLdgID}の取引を出力する．
+% \changes{v1.1.2-alpha.18}{2025/12/19}
+%   {引数の取り方を変更．}^^A
+% 勘定科目名が\meta{Account~Name}の\meta{AccLdgID}の取引を出力する．
 % \TODO{長いし分割した方がいい．}
+% \TODO{2番目の引数を使うように変更する．}
 %    \begin{macrocode}
-\def\PGL@Transaction#1{% #1: ladger entry ID
+%% #1: ladger entry ID
+%% #2: Account Name
+\def\PGL@Transaction#1#2{%
+%<dbg>\typeout{Start  : \unexpanded{\PGL@Transaction}.}%
+%<dbg>\typeout{  Param: ladger entry ID #1.}%
+%<dbg>\typeout{  Param: Account Name #2.}%
   \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@Iterator@AccountID}%
   \global\BKtemp@countB=%
     \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@JEID}\relax%
@@ -1922,6 +1949,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
+% \changes{v1.1.2-alpha.18}{2025/12/19}
+%   {\cs{PGL@Transaction}の引数の取り方を変更したのに合わせて修正．}^^A
 % ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
 % 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
@@ -1948,6 +1977,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       \else
         \stepcounter{tableLineCount}%
         \PGL@Transaction{\the\c@Iterator@Account@LEID}%
+          {\Account@getNameFromId{\PGL@tmp@AccType}{\the\c@Iterator@AccountID}}%
       \fi
       \expandafter\expandafter\expandafter\PGL@ACLoop@Table
       \expandafter\expandafter
