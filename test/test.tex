@@ -2,6 +2,26 @@
 \usepackage{../bookkeeping}
 
 \makeatletter
+% #1: AccountID
+% #2: AccType
+% #3: Month
+\edef\t@tttt{\typeout{展開！}}
+\typeout{\expandonce{\t@tttt}}
+\edef\t@tttt{\numexpr1+1\relax}
+\typeout{\unexpanded{\expanded{\numexpr1+1\relax}}}
+\typeout{\unexpanded{\t@tttt}}
+\typeout{\expandafter\unexpanded\expandafter{\t@tttt}}
+\typeout{\expandafter{\the\numexpr1+1\relax}}
+\typeout{\expandafter\unexpanded\expandafter{\expanded{\the\numexpr1+1\relax}}}
+\def\temp#1#2#3{%
+  \ifnum#1>\value{AccType#2@AccountCount}%
+    \expandafter\@gobble
+  \else
+    \item #1: \csname Account#2#1@Month#3@Debit\endcsname
+    \typeout{\expandonce{\csname Account#2#1@Month#3@Debit\endcsname}}
+    \expandafter\@firstofone
+  \fi{\expandafter\temp\expandafter{\the\numexpr#1+1\relax}{#2}{#3}}%
+}
 \makeatother
 
 \newcounter{Iterator}
@@ -216,6 +236,10 @@ JECount: \the\c@JECount.
 \Account@getproperty{現金}{LedgerCount}
 \Account@setpropertySmpl{現金}{LedgerCount}{2}
 \Account@getproperty{現金}{LedgerCount}
+
+\begin{itemize}
+\temp{0}{A}{1}
+\end{itemize}
 
 \begin{itemize}
 \item Hoge

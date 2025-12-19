@@ -481,7 +481,44 @@
 }
 %    \end{macrocode}
 % \end{macro}
-%
+% \begin{macro}{\AccType@getBalanceSum@base}\marg{AccountID}\jmarg{勘定科目の種類}\par
+% \changes{v1.1.2-alpha.15}{2025/12/19}%
+%   {\cs{AccType@getBalanceSum@base}を追加．}%
+% 勘定科目の種類名から
+% その勘定科目の種類に属する勘定科目の残高の総和を得る．
+%    \begin{macrocode}
+\def\AccType@getBalanceSum@base#1#2{%
+  \ifnum#1>\value{AccType#2@AccountCount}%
+    \relax\expandafter\@gobble
+  \else
+    +\csuse{Account#2#1@Balance}%
+    \expandafter\@firstofone
+  \fi{%
+    \expandafter\AccType@getBalanceSum@base\expandafter{\the\numexpr#1+1\relax}{#2}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@getBalanceSum}\jmarg{勘定科目の種類}\par
+% \changes{v1.1.2-alpha.15}{2025/12/19}%
+%   {\cs{AccType@getBalanceSum}を追加．}%
+% 勘定科目の種類名から
+% その勘定科目の種類に属する勘定科目の残高の総和を得る．
+%    \begin{macrocode}
+\def\AccType@getBalanceSum#1{%
+  \ifnum1>\value{AccType#1@AccountCount}%
+    \expandafter\@gobble
+  \else
+%<dbg>\typeout{\expandonce{\csname Account#11\endcsname}}
+    \numexpr\csuse{Account#11@Balance}%
+    \expandafter\@firstofone
+  \fi{%
+    \expandafter\AccType@getBalanceSum@base\expandafter{\the\numexpr1+1\relax}{#1}%
+  }%
+}
+
+%    \end{macrocode}
+% \end{macro}
 % \subsubsection{勘定科目}\label{ss:勘定科目}%
 % 勘定科目のIDを\meta{AccType}\meta{AccID}と表すこととすると，
 % 勘定科目の各要素には\cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@\meta{prop.}}で
