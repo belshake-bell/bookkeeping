@@ -1604,6 +1604,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \begin{macrocode}
 \def\PJ@Loop@Table{%
 %<dbg>\typeout{Start  :\noexpand\PJ@Loop@Table .}%
+%<dbg>\typeout{nest.if:\the\currentiflevel .}%
   \gdef\n@xt{}%
 %    \end{macrocode}
 % 取引をすべて出力したなら仕訳帳を締め切る処理をする．
@@ -1636,6 +1637,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {不要なコメント行を削除．}^^A
 % \changes{v1.1.2-alpha.17}{2025/12/19}
 %   {\cs{csuse}からGetterに変更．}^^A
+% \changes{v1.1.2-alpha.17.01}{2025/12/19}
+%   {FIX: \cs{expandafter}と\cs{fi}の数の整合性．}^^A
 %    \begin{macrocode}
     \else
 %<dbg>\typeout{Process:Transaction.}%
@@ -1651,7 +1654,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %<dbg>\typeout{Status :cnt.sum@debit=\the\sum@debit .}%
 %<dbg>\typeout{Status :cnt.sum@credit=\the\sum@credit .}%
       \PJ@Transaction{\the\c@Iterator@JEID}%
-      \expandafter\expandafter\expandafter\PJ@Loop@Table\expandafter\expandafter
+      \expandafter\expandafter\expandafter\PJ@Loop@Table
     \fi
   \fi
 }
