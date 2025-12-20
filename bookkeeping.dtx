@@ -84,7 +84,8 @@
        \ensuremath\langle
        \normalfont\textit{#1}%
        \ensuremath\rangle}}}
-\newcommand{\TODO}[1]{\par {\small [ToDo] #1}}
+\newcommand{\TODO}[1]{\par {\makebox[3\zw]{[ToDo]}：#1}}
+\newcommand{\NOTE}[1]{\par {\makebox[3\zw]{[Note]}：#1}}
 
 \NewDocElement[
   macrolike = true ,
@@ -547,6 +548,11 @@
 %   {条件を満たすとき・debug時も内部値表現となるよう修正．}%
 % 勘定科目の種類名から
 % その勘定科目の種類に属する勘定科目の残高の総和を得る．
+% 
+% \NOTE{初期値判定も\cs{AccType@getBalanceSum@base}に回すことはできるけど
+% 不必要にif判定を毎度回すのはなぁ……ということで
+% DRY原則には反するけど見送り．}
+% 
 %    \begin{macrocode}
 \def\AccType@getBalanceSum#1{%
   \ifnum1>\value{AccType#1@AccountCount}%
