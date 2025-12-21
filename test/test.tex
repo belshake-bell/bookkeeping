@@ -122,6 +122,12 @@
     \classTitle{Account.Balance}:
     \Account@getproperty{#1}{Balance}
   \item
+    \classTitle{Account.Debit}:
+    \Account@getproperty{#1}{Debit}
+  \item
+    \classTitle{Account.Credit}:
+    \Account@getproperty{#1}{Credit}
+  \item
     \classTitle{Account.Balance} for Output:
     \Account@getBalance{#1}
   \testAccGetLedgerLoop{#1}%
@@ -171,54 +177,7 @@
 \begin{document}
 \makeatletter
 \begin{itemize}
-\item
-  \classTitle{Account.name}:
-  現金
-\item
-  \classTitle{Account.getAccID()}:
-  \Account@getAccID{現金}
-\item
-  \classTitle{Account.getAccType()}:
-  \Account@getAccType{現金}
-\item
-  \classTitle{Account.getAccTypeAccID()}:
-  \Account@getAccTypeAccID{現金}
-\end{itemize}
-
-\begin{itemize}
-\item 現金:
-  \begin{itemize}
-  \item
-    \classTitle{Account.Name}:
-    \Account@getproperty{現金}{Name}
-  \item
-    \classTitle{Account.LedgerCount}:
-    \Account@getproperty{現金}{LedgerCount}
-  \item
-    \classTitle{Account.LedgerBalanceType}:
-    \Account@getproperty{現金}{LedgerBalanceType}
-  \item
-    \classTitle{Account.Balance}:
-    \Account@getproperty{現金}{Balance}
-  \item
-    \classTitle{Account.Balance for Output}:
-    \Account@getBalance{現金}
-  % \item \Account@getproperty{現金}{hoge} % <- Red!
-  \item Month1:
-    \begin{itemize}
-      \item
-        \classTitle{Account.Month[1].Balance}:
-        \Account@getproperty{現金}[Month1]{Balance}
-      \item
-        \classTitle{Account.Month[1].Debit}:
-        \Account@getproperty{現金}[Month1]{Debit}
-      \item
-        \classTitle{Account.Month[1].Credit}:
-        \Account@getproperty{現金}[Month1]{Credit}
-    \end{itemize}
-  \testAccGetLedgerLoop{現金}%
-  % \item \testAccGetLedger6{現金}% <- Red!
-  \end{itemize}
+\testAccGet{現金}
 \end{itemize}
 \clearpage
 \begin{itemize}

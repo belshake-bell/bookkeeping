@@ -588,6 +588,14 @@
 % \changes{v1.1.2-alpha.10}{2025/12/16}
 %   {\cntname{Account}に残高\cntname{Balance}を新設．}^^A
 %   残高を表す．
+% \item[\cntname{Debit}]
+% \changes{v1.1.2-alpha.19.02}{2025/12/22}
+%   {\cntname{Account}に借方残高\cntname{Debit}を新設．}^^A
+%   借方残高を表す．
+% \item[\cntname{Credit}]
+% \changes{v1.1.2-alpha.19.02}{2025/12/22}
+%   {\cntname{Account}に貸方残高\cntname{Credit}を新設．}^^A
+%   貸方残高を表す．
 % \item[\cntname{Month}\meta{month}@\meta{month~prop.}]
 %   \meta{month}で指定した月ごとの各要素にアクセスする．
 %   \meta{month~prop.}の種類は次の通り．
@@ -660,6 +668,9 @@
 %   {Accountのsetterを使用．}^^A
 % \changes{v1.1.2-alpha.10}{2025/12/16}
 %   {\cntname{Account}に残高\cntname{Balance}を新設．}^^A
+% \changes{v1.1.2-alpha.19.02}{2025/12/22}
+%   {\cntname{Account}に借方残高\cntname{Debit}および
+%    貸方残高\cntname{Credit}を新設．}^^A
 % 勘定科目を登録する．
 % \TODO{\cmd{\registerAccount}で良くない？}
 %    \begin{macrocode}
@@ -676,6 +687,8 @@
   \Account@setpropertySmpl{#3}{LedgerCount}{0}%
   \Account@setpropertySmpl{#3}{LedgerBalanceType}{#2}%
   \Account@setpropertySmpl{#3}{Balance}{0}%
+  \Account@setpropertySmpl{#3}{Debit}{0}%
+  \Account@setpropertySmpl{#3}{Credit}{0}%
 %<dbg>\typeout{Start  : \unexpanded{\registerAccountID}.}%
 %<dbg>\typeout{AccType: #1}%
 %<dbg>\typeout{AccID  : \the\csuse{c@AccType#1@AccountCount}}%
@@ -1268,6 +1281,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {setterを使うように変更．}^^A
 % \changes{v1.1.2-alpha.06}{2025/12/15}
 %   {\cs{LE@currentLedgerCount}を使うように変更．}^^A
+% \changes{v1.1.2-alpha.19.02}{2025/12/22}
+%   {\cntname{Account}に借方残高\cntname{Debit}および
+%    貸方残高\cntname{Credit}を新設．}^^A
 %
 % 取引で借方に来ているときには借方残高に取引額を加算し，
 % 仕訳の借方科目の要素に\meta{LEID}を登録する．
@@ -1293,6 +1309,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
+%<dbg>\typeout{%
+%<dbg>  Procces:
+%<dbg>  Set Account.Debit}%
+  \Account@setpropertySmpl{#1}{Debit}{%
+    \the\numexpr
+      \Account@getpropertySmpl{#1}{Debit}%
+      +1*\Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @AccountValue}%
+    \relax
+  }%
 %<dbg>\message{%
 %<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
 %<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
@@ -1326,6 +1351,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
+%<dbg>\typeout{%
+%<dbg>  Procces:
+%<dbg>  Set Account.Credit}%
+    \Account@setpropertySmpl{#1}{Credit}{%
+      \the\numexpr
+        \Account@getpropertySmpl{#1}{Credit}%
+        +1*\Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @AccountValue}%
+      \relax
+    }%
 %<dbg>\message{%
 %<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
 %<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
