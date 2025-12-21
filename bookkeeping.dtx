@@ -1776,10 +1776,10 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \changes{v1.1.0}{2025/02/05}
 %   {勘定科目の種類に残高を自動判定するA(Auto)を追加したのに合わせて
 %    残高表示を別マクロ化．}%
-% \changes{v1.1.2-alpha.12}{2025/12/18}
+% \changes{v1.1.2-alpha.12}{2025/12/18}%
 %   {イテレータ用カウンタの命名変更による修正．}^^A
-% \changes{v1.1.2-alpha.18}{2025/12/19}
-%   {引数の取り方を変更．}^^A
+% \changes{v1.1.2-alpha.19}{2025/12/21}%
+%   {\cs{csuse}をGetterに変更．}^^A
 % 勘定科目名が\meta{Account~Name}の\meta{AccLdgID}の取引を出力する．
 % \TODO{長いし分割した方がいい．}
 % \TODO{2番目の引数を使うように変更する．}
@@ -1792,13 +1792,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %<dbg>\typeout{  Param: Account Name #2.}%
   \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@Iterator@AccountID}%
   \global\BKtemp@countB=%
-    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@JEID}\relax%
+    \csuse{Account\Account@getAccTypeAccID{#2}@Ledger#1@JEID}\relax%
     % tempcountB <- Account[AccType][AccID].Ledger[AccLdgID].JEID
   \xdef\Acc@Ledg@IsAccDeb{%
-    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@IsAccountDebit}%
+    \csuse{Account\Account@getAccTypeAccID{#2}@Ledger#1@IsAccountDebit}%
   }%
   \xdef\Acc@LedgBalType{%
-    \csuse{Account\PGL@tmp@AccTypeAccID @LedgerBalanceType}%
+    \csuse{Account\Account@getAccTypeAccID{#2}@LedgerBalanceType}%
   }%
   \if\Acc@LedgBalType A%
     \ifnum\c@LedgerEntryBalance<0%
@@ -1809,16 +1809,16 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \fi
   \if\Acc@Ledg@IsAccDeb\Acc@LedgBalType
     \global\advance\c@LedgerEntryBalance
-                   \csuse{Account\PGL@tmp@AccTypeAccID
+                   \csuse{Account\Account@getAccTypeAccID{#2}%
                            @Ledger#1@AccountValue}\relax
     \xdef\Acc@LedgText{\the\c@LedgerEntryBalance}%
   \else
     \global\advance\c@LedgerEntryBalance
-                  -\csuse{Account\PGL@tmp@AccTypeAccID
+                  -\csuse{Account\Account@getAccTypeAccID{#2}%
                            @Ledger#1@AccountValue}\relax
     \ifnum\c@LedgerEntryBalance<0\relax
       \ifcsstring
-        {Account\PGL@tmp@AccTypeAccID @LedgerBalanceType}{A}
+        {Account\Account@getAccTypeAccID{#2}@LedgerBalanceType}{A}
         {% true: Balance type is A
           \if\Acc@LedgBalType D%
             \xdef\Acc@LedgBalType{C}%
@@ -1841,29 +1841,27 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 出力マクロを呼び出す．
 %    \begin{macrocode}
   \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
-    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@FullLEID}%
-    \label{LEID:\PGL@tmp@AccTypeAccID-#1}%
+    \Account@getpropertySmpl{#2}{Ledger#1@FullLEID}%
+    \label{LEID:\Account@getpropertySmpl{#2}{Ledger#1@FullLEID}}%
   }{% Month/Day: JE.getDate(Account[Name].Ledger[LEID].JEID)
     \printJE@Date{\the\BKtemp@countB}%
   }{% Partner Account title: Account[Name].Ledger[LEID].PartnerAccount
-    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@PartnerAccount}%
+    \Account@getpropertySmpl{#2}{Ledger#1@PartnerAccount}%
   }{% Desc.: Account[Name].Ledger[LEID].JEDesc
-    \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@JEDesc}%
+    \Account@getpropertySmpl{#2}{Ledger#1@JEDesc}%
   }{% JEID: Account[Name].Ledger[LEID].JEID
     \hyperref[JEID:\the\BKtemp@countB]{\the\BKtemp@countB}%
   }{% Debit: 条件分けして Account[Name].Ledger[LEID].AccountValue
     \if\Acc@Ledg@IsAccDeb D\relax%
-      \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@AccountValue}%
+      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@debit
-                     \csuse{Account\PGL@tmp@AccTypeAccID
-                             @Ledger#1@AccountValue}\relax
+                     \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Credit: 条件分けして Account[Name].Ledger[LEID].AccountValue
     \if\Acc@Ledg@IsAccDeb C\relax%
-      \csuse{Account\PGL@tmp@AccTypeAccID @Ledger#1@AccountValue}%
+      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@credit
-                     \csuse{Account\PGL@tmp@AccTypeAccID
-                             @Ledger#1@AccountValue}\relax
+                     \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Balance type: Account[Name].LedgerBalanceTypeで条件分け
     \if\Acc@LedgBalType D%
