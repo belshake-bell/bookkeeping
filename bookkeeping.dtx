@@ -915,6 +915,29 @@
   \Account@getpropertySmpl{#1}{Balance}%
   \relax
 }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\Account@getLedgerBalance}\jmarg{勘定科目名}\marg{LedgerID}\par
+% \changes{v1.1.2-alpha.19.06}{2025/12/22}
+%   {\cntname{Account.Ledger.Balance}の一般出力用マクロ．}^^A
+% 科目の借方貸方を考慮した残高出力を得る．
+% すなわち
+% \begin{itemize}
+% \item 科目が借方(D)ならそのまま出力．
+% \item 科目が貸方(C)なら正負を反転させて出力．
+% \item 科目が自動判定(A)なら絶対値を出力．
+% \end{itemize}
+%    \begin{macrocode}
+\def\Account@getLedgerBalance#1#2{%
+  \the\numexpr
+  \Account@swBalanceType{#1}{1*}{-1*}{%
+    \ifnum\Account@getpropertySmpl{#1}{Ledger#2@AccountBalance}<\z@
+      -1*
+    \fi
+  }%
+  \Account@getpropertySmpl{#1}{Ledger#2@AccountBalance}%
+  \relax
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    \end{macrocode}
@@ -1814,6 +1837,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {イテレータ用カウンタの命名変更による修正．}^^A
 % \changes{v1.1.2-alpha.19}{2025/12/21}%
 %   {\cs{csuse}をGetterに変更．}^^A
+% \changes{v1.1.2-alpha.19.06}{2025/12/22}%
+%   {マクロのシンプル化．}^^A
 % 勘定科目名が\meta{Account~Name}の\meta{AccLdgID}の取引を出力する．
 % \TODO{長いし分割した方がいい．}
 % \TODO{2番目の引数を使うように変更する．}
@@ -1824,87 +1849,54 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %<dbg>\typeout{Start  : \unexpanded{\PGL@Transaction}.}%
 %<dbg>\typeout{  Param: ladger entry ID #1.}%
 %<dbg>\typeout{  Param: Account Name #2.}%
-  \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@Iterator@AccountID}%
-  \global\BKtemp@countB=%
-    \csuse{Account\Account@getAccTypeAccID{#2}@Ledger#1@JEID}\relax%
-    % tempcountB <- Account[AccType][AccID].Ledger[AccLdgID].JEID
-  \xdef\Acc@Ledg@IsAccDeb{%
-    \csuse{Account\Account@getAccTypeAccID{#2}@Ledger#1@IsAccountDebit}%
-  }%
-  \xdef\Acc@LedgBalType{%
-    \csuse{Account\Account@getAccTypeAccID{#2}@LedgerBalanceType}%
-  }%
-  \if\Acc@LedgBalType A%
-    \ifnum\c@LedgerEntryBalance<0%
-      \xdef\Acc@LedgBalType{D}%残高<0なら Debt
-    \else
-      \xdef\Acc@LedgBalType{C}%% 残高>=0なら Credit
-    \fi
-  \fi
-  \if\Acc@Ledg@IsAccDeb\Acc@LedgBalType
-    \global\advance\c@LedgerEntryBalance
-                   \csuse{Account\Account@getAccTypeAccID{#2}%
-                           @Ledger#1@AccountValue}\relax
-    \xdef\Acc@LedgText{\the\c@LedgerEntryBalance}%
-  \else
-    \global\advance\c@LedgerEntryBalance
-                  -\csuse{Account\Account@getAccTypeAccID{#2}%
-                           @Ledger#1@AccountValue}\relax
-    \ifnum\c@LedgerEntryBalance<0\relax
-      \ifcsstring
-        {Account\Account@getAccTypeAccID{#2}@LedgerBalanceType}{A}
-        {% true: Balance type is A
-          \if\Acc@LedgBalType D%
-            \xdef\Acc@LedgBalType{C}%
-          \else
-            \xdef\Acc@LedgBalType{D}%
-          \fi
-          \begingroup
-            \c@LedgerEntryBalance=-\c@LedgerEntryBalance
-            \xdef\Acc@LedgText{\the\c@LedgerEntryBalance}%
-          \endgroup
-        }{% false: Balance type is NOT A
-          \begingroup
-            \c@LedgerEntryBalance=-\c@LedgerEntryBalance
-            \xdef\Acc@LedgText{▲\the\c@LedgerEntryBalance}%
-          \endgroup
-        }%
-    \fi
-  \fi 
-%    \end{macrocode}
-% 出力マクロを呼び出す．
-%    \begin{macrocode}
   \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
+%<dbg>\typeout{Process: Account[Name].Ledger[LEID].FullLEID.}%
     \Account@getpropertySmpl{#2}{Ledger#1@FullLEID}%
     \label{LEID:\Account@getpropertySmpl{#2}{Ledger#1@FullLEID}}%
   }{% Month/Day: JE.getDate(Account[Name].Ledger[LEID].JEID)
-    \printJE@Date{\the\BKtemp@countB}%
+%<dbg>\typeout{Process: Month/Day.}%
+    \printJE@Date{\Account@getpropertySmpl{#2}{Ledger#1@JEID}}%
   }{% Partner Account title: Account[Name].Ledger[LEID].PartnerAccount
+%<dbg>\typeout{Process: Account[Name].Ledger[LEID].PartnerAccount.}%
     \Account@getpropertySmpl{#2}{Ledger#1@PartnerAccount}%
   }{% Desc.: Account[Name].Ledger[LEID].JEDesc
+%<dbg>\typeout{Process: Account[Name].Ledger[LEID].JEDesc.}%
     \Account@getpropertySmpl{#2}{Ledger#1@JEDesc}%
   }{% JEID: Account[Name].Ledger[LEID].JEID
-    \hyperref[JEID:\the\BKtemp@countB]{\the\BKtemp@countB}%
+%<dbg>\typeout{Process: Account[Name].Ledger[LEID].JEID.}%
+    \hyperref[JEID:\Account@getpropertySmpl{#2}{Ledger#1@JEID}]%
+      {\Account@getpropertySmpl{#2}{Ledger#1@JEID}}%
   }{% Debit: 条件分けして Account[Name].Ledger[LEID].AccountValue
-    \if\Acc@Ledg@IsAccDeb D\relax%
+%<dbg>\typeout{Process: Debit; Account[Name].Ledger[LEID].AccountValue.}%
+    \if\Account@getpropertySmpl{#2}{Ledger#1@IsAccountDebit}D\relax%
       \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@debit
                      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Credit: 条件分けして Account[Name].Ledger[LEID].AccountValue
-    \if\Acc@Ledg@IsAccDeb C\relax%
+%<dbg>\typeout{Process: Credit; Account[Name].Ledger[LEID].AccountValue.}%
+    \if\Account@getpropertySmpl{#2}{Ledger#1@IsAccountDebit}C\relax%
       \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@credit
                      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Balance type: Account[Name].LedgerBalanceTypeで条件分け
-    \if\Acc@LedgBalType D%
-      借% Debt
-    \else
-      貸% Credit
-    \fi
+%<dbg>\typeout{Process: Account[Name].LedgerBalanceType.}%
+    \Account@swBalanceType{#2}{%
+      借
+    }{%
+      貸
+    }{%
+      \ifnum\Account@getpropertySmpl{#2}{Ledger#1@AccountBalance}>\z@
+        借
+      \else
+        貸
+      \fi
+    }%
   }{% Balance: Account[Name].Balance
-    \Acc@LedgText}%
+%<dbg>\typeout{Process: Account[Name].Ledger[LEID].Balance.}%
+    \Account@getLedgerBalance{#2}{#1}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
