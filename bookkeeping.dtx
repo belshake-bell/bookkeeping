@@ -407,6 +407,19 @@
 \newcount\BKtemp@countD
 %    \end{macrocode}
 % \end{tcounter}
+% \begin{macro}{\BK@printMinusBalance}\marg{number}\par
+% \changes{v1.1.2-alpha.19.07}{2025/12/22}
+%   {New: 負数を▲表記に直すマクロ．}
+% 負数を▲表記に直すマクロ．
+%    \begin{macrocode}
+\def\BK@printMinusBalance#1{%
+  \ifnum#1<0%
+    ▲\the\numexpr -1*#1\relax
+  \else#1%
+  \fi
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\BK@hline}
 % \changes{v1.1.2-alpha.14}{2025/12/18}
 %   {垂直方向のスキップを発生させない（正確には打ち消す）\cs{hline}．}
@@ -906,14 +919,14 @@
 % \end{itemize}
 %    \begin{macrocode}
 \def\Account@getBalance#1{%
-  \the\numexpr
+  \BK@printMinusBalance{\the\numexpr
   \Account@swBalanceType{#1}{1*}{-1*}{%
     \ifnum\Account@getpropertySmpl{#1}{Balance}<\z@
       -1*
     \fi
   }%
   \Account@getpropertySmpl{#1}{Balance}%
-  \relax
+  \relax}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -929,14 +942,14 @@
 % \end{itemize}
 %    \begin{macrocode}
 \def\Account@getLedgerBalance#1#2{%
-  \the\numexpr
+  \BK@printMinusBalance{\the\numexpr
   \Account@swBalanceType{#1}{1*}{-1*}{%
     \ifnum\Account@getpropertySmpl{#1}{Ledger#2@AccountBalance}<\z@
       -1*
     \fi
   }%
   \Account@getpropertySmpl{#1}{Ledger#2@AccountBalance}%
-  \relax
+  \relax}%
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
