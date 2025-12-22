@@ -1974,11 +1974,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@Terminate}%
+% \begin{macro}{\PGL@Terminate}\jmarg{勘定科目名}\par
+% \changes{v1.1.2-alpha.19.03}{2025/12/22}
+%   {最終的な借方・貸方残高および残高を表示するように変更．}^^A
 % 締切処理．
 %    \begin{macrocode}
-\def\PGL@Terminate{%
-  \PGL@printline{}{}{}{}{}{\the\sum@debit}{\the\sum@credit}{}{}\hline\hline
+\def\PGL@Terminate#1{%
+  \PGL@printline{}{}{}{}{}%
+    {\Account@getpropertySmpl{#1}{Debit}}%
+    {\Account@getpropertySmpl{#1}{Credit}}{}{}\hline\hline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1991,6 +1995,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{PGL@Transaction}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.01}{2025/12/21}
 %   {引数で勘定科目名を取るように変更．}^^A
+% \changes{v1.1.2-alpha.19.03}{2025/12/19}
+%   {\cs{PGL@Terminate}の引数の取り方を変更したのに合わせて修正．}^^A
 % ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
 % 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
@@ -1998,7 +2004,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \def\PGL@ACLoop@Table#1{%
   \ifnum\c@Iterator@Account@LEID>\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
     \hline
-    \PGL@Terminate
+    \PGL@Terminate{#1}%
     \expandafter\@gobble
   \else
     \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
