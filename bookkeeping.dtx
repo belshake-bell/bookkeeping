@@ -2034,9 +2034,31 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\PGL@tableHeader}\par
+% \changes{v1.1.2-alpha.19.05}{2025/12/22}
+%   {\cs{PGL@tableHeader}の新設．}^^A
+% 勘定元帳の表のヘッダを出力する．
+% 
+%    \begin{macrocode}
+\def\PGL@tableHeader{%
+  \PGL@printline
+    {\makebox[4\zw]{LEID}}%
+    {\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
+    {\makebox[7\zw]{相手勘定科目}}%
+    {\multicolumn{1}{c|}{\makebox[10\zw]{摘}\makebox[10\zw]{要}}}%
+    {\makebox[2\zw]{JEID}}%
+    {\makebox[4\zw]{借方}}%
+    {\makebox[4\zw]{貸方}}%
+    {\makebox[2\zw]{借/貸}}%
+    {\makebox[4\zw]{残高}}\hline
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\PGL@ACLoop}\par
 % \changes{v1.1.2-alpha.19.01}{2025/12/21}
 %   {\cs{PGL@ACLoop@Table}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.05}{2025/12/22}
+%   {表のヘッダを\cs{PGL@tableHeader}に移設．}^^A
 % 勘定元帳の表を作り，（改ページが
 % 1ページ当たりの行数を超えたことに因るときには前頁繰越をして）
 % \cmd{\PLG@ACLoop@Table}を呼び出す．
@@ -2049,15 +2071,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \def\PGL@ACLoop{%
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
-  \PGL@printline{\makebox[4\zw]{LEID}}%
-                {\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
-                {\makebox[7\zw]{相手勘定科目}}%
-                {\multicolumn{1}{c|}{\makebox[10\zw]{摘}\makebox[10\zw]{要}}}%
-                {\makebox[2\zw]{JEID}}%
-                {\makebox[4\zw]{借方}}%
-                {\makebox[4\zw]{貸方}}%
-                {\makebox[2\zw]{借/貸}}%
-                {\makebox[4\zw]{残高}}\hline
+    \PGL@tableHeader
     \n@xtprev
     \PGL@ACLoop@Table{\Account@getNameFromId{\PGL@tmp@AccType}{\the\c@Iterator@AccountID}}%
   \end{tabular}
