@@ -2110,19 +2110,24 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{PGL@Loop}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.04}{2025/12/22}
 %   {\cs{PGL@L@@p}の引数の取り方を変更．}^^A
+% \changes{v1.1.2-alpha.19.09}{2025/12/23}
+%   {Getterを使用するように変更．}^^A
 % ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
 % 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p#1#2{%
-  \ifnum\c@Iterator@AccountID<\csuse{c@AccType\PGL@tmp@AccType @AccountCount}%
+  \ifnum\c@Iterator@AccountID<\AccType@getpropertySmpl{\PGL@tmp@AccType}{AccountCount}%
     \stepcounter{Iterator@AccountID}%
+%<dbg>\typeout{Process: Iterator@AccountID = \theIterator@AccountID.}%
     \expandafter\subsection\expandafter%
-      {\csuse{Account\PGL@tmp@AccType\the\c@Iterator@AccountID @Name}}%
+      {\Account@getNameFromId{\PGL@tmp@AccType}{\the\c@Iterator@AccountID}}%
     \setcounter{Iterator@Account@LEID}{0}%
     \setcounter{LedgerEntryBalance}{0}%
     \global\sum@debit\z@\relax\global\sum@credit\z@\relax
     \expandafter\@firstoftwo
   \else
+%<dbg>\typeout{Process: Go to \unexpanded{\PGL@Loop}.}%
+%<dbg>\typeout{Process: Iterator@AccountID = \theIterator@AccountID.}%
     \expandafter\@secondoftwo
   \fi{\PGL@ACLoop}{\PGL@Loop{}}%
 }
