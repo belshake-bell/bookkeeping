@@ -910,6 +910,8 @@
 % \begin{macro}{\Account@getBalance}\jmarg{勘定科目名}\par
 % \changes{v1.1.2-alpha.10}{2025/12/16}
 %   {\cntname{Account.Balance}の一般出力用マクロ．}^^A
+% \changes{v1.1.2-alpha.19.07}{2025/12/22}
+%   {負数の表現のために\cs{BK@printMinusBalance}を使用する．}^^A
 % 科目の借方貸方を考慮した残高出力を得る．
 % すなわち
 % \begin{itemize}
@@ -933,6 +935,8 @@
 % \begin{macro}{\Account@getLedgerBalance}\jmarg{勘定科目名}\marg{LedgerID}\par
 % \changes{v1.1.2-alpha.19.06}{2025/12/22}
 %   {\cntname{Account.Ledger.Balance}の一般出力用マクロ．}^^A
+% \changes{v1.1.2-alpha.19.07}{2025/12/22}
+%   {負数の表現のために\cs{BK@printMinusBalance}を使用する．}^^A
 % 科目の借方貸方を考慮した残高出力を得る．
 % すなわち
 % \begin{itemize}
