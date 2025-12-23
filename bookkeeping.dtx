@@ -1815,15 +1815,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \end{macro}
 % \subsubsection{総勘定元帳の出力}
 % 一貫して\cmd{\PGL@}を接頭辞として用いるようにする．
-% \begin{macro}{\PGL@printline}%
-%   \marg{AccLdgID}%
-%   \jmarg{月/日}%
-%   \jmarg{相手勘定科目名}%
-%   \jmarg{摘要}%
-%   \marg{JEID}%
-%   \jmarg{借方}%
-%   \jmarg{貸方}%
-%   \jmarg{残高賃借}%
+% \begin{macro}{\PGL@printline}^^A
+%   \marg{AccLdgID}^^A
+%   \jmarg{月/日}^^A
+%   \jmarg{相手勘定科目名}^^A
+%   \jmarg{摘要}^^A
+%   \marg{JEID}^^A
+%   \jmarg{借方}^^A
+%   \jmarg{貸方}^^A
+%   \jmarg{残高賃借}^^A
 %   \jmarg{残高}\par
 % 総勘定元帳での各取引の出力用．
 %    \begin{macrocode}
@@ -1842,7 +1842,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@Transaction}\marg{AccLdgID}\marg{Account~Name}\par
+% \begin{macro}{\PGL@Transaction}^^A
+%   \meta{AccLdgID}\cntname{;}\meta{Account~Name}\cntname{;}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
 % \changes{v1.1.0}{2025/02/05}
@@ -1856,16 +1857,17 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{csuse}をGetterに変更．}^^A
 % \changes{v1.1.2-alpha.19.06}{2025/12/22}%
 %   {マクロのシンプル化．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}%
+%   {引数の取り方を変更．}^^A
 % 勘定科目名が\meta{Account~Name}の\meta{AccLdgID}の取引を出力する．
 % \TODO{長いし分割した方がいい．}
 % \TODO{2番目の引数を使うように変更する．}
 %    \begin{macrocode}
 %% #1: ladger entry ID
 %% #2: Account Name
-\def\PGL@Transaction#1#2{%
-%<dbg>\typeout{Start  : \unexpanded{\PGL@Transaction}.}%
-%<dbg>\typeout{  Param: ladger entry ID #1.}%
-%<dbg>\typeout{  Param: Account Name #2.}%
+\def\PGL@Transaction#1;#2;{%
+%<dbg>\typeout{Start  : \unexpanded{\PGL@Transaction}.
+%<dbg>         LEID=#1, Account Name #2.}%
   \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
 %<dbg>\typeout{Process: Account[Name].Ledger[LEID].FullLEID.}%
     \Account@getpropertySmpl{#2}{Ledger#1@FullLEID}%
@@ -1947,7 +1949,9 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@MonthlyClosing}\marg{Month}\marg{LEID}\marg{Account~Name}\par%
+% \begin{macro}{\PGL@MonthlyClosing}^^A
+%   \meta{Month}\cntname{;}\meta{LEID}\cntname{;}^^A
+%   \meta{Account~Name}\cntname{;}\par%
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
@@ -1957,7 +1961,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 月次締切処理．
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing#1;#2;#3;{%
-%<dbg>\typeout{Startin: \noexpand\PGL@MonthlyClosing . Args1: #1, Args2: #2, Args3: #3, }%
+%<dbg>\typeout{Startin: \noexpand\PGL@MonthlyClosing.
+%<dbg>  Month: #1, LEID: #2, Account Name: #3, }%
   \global\sum@debit\z@\relax \global\sum@credit\z@\relax
   \Account@setpropertySmpl{#3}{Month#1@Balance}{\the\c@LedgerEntryBalance}%
   \PGL@printline{}{}{#1月決算}{}{}%
@@ -1989,7 +1994,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@ACLoop@Table}\jmarg{勘定科目名}\par
+% \begin{macro}{\PGL@ACLoop@Table}\jmarg{勘定科目名}\cntname{;}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.2-alpha.12}{2025/12/18}
@@ -2004,11 +2009,17 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{PGL@L@@p}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.08}{2025/12/23}%
 %   {\cs{PGL@MonthlyClosing}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}%
+%   {\cs{PGL@Transaction}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}%
+%   {引数の取り方を修正．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}
+%   {\cs{PGL@ACLoop}，\cs{PGL@L@@p}の引数へ値を渡して処理できるように．}^^A
 % ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
 % 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
 %    \begin{macrocode}
-\def\PGL@ACLoop@Table#1{%
+\def\PGL@ACLoop@Table#1;{%
 %<dbg>%\typeout{Startin: \noexpand\PGL@ACLoop@Table . Args1: #1}%
   \ifnum\c@Iterator@Account@LEID>\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
     \hline
@@ -2018,17 +2029,18 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \else
     \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
       \hline
-      \gdef\n@xt{\PGL@ACLoop}%
+      \gdef\n@xt{\PGL@ACLoop#1;}%
       \gdef\n@xtprev{\PGL@CarryPrev}%
 %<dbg>\typeout{Process: CarryForward.}%
       \PGL@CarryForward
       \expandafter\expandafter\expandafter\@gobble
     \else
-      \gdef\n@xt{\PGL@L@@p{}{}}%
+      \gdef\n@xt{\expandafter\PGL@L@@p\expanded{{\the\numexpr\Account@getAccID{#1}+1}{\Account@getAccType{#1}}}}%
+      \stepcounter{tableLineCount}%
       \stepcounter{Iterator@Account@LEID}%
+%<dbg>\typeout{Status : tableLineCount = \the\c@tableLineCount .}%
 %<dbg>\typeout{Status : Iterator@Account@LEID = \the\c@Iterator@Account@LEID .}%
       \ifnum\Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @AccountValue}=0\relax
-        \stepcounter{tableLineCount}%
 %<dbg>\typeout{Process: Monthly Closing.}%
         \expandafter\PGL@MonthlyClosing\expanded{%
           \Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @PartnerAccount};%
@@ -2036,14 +2048,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
           #1;%
         }%
       \else
-        \stepcounter{tableLineCount}%
 %<dbg>\typeout{Process: Transaction.}%
-        \PGL@Transaction{\the\c@Iterator@Account@LEID}%
-          {\Account@getNameFromId{\PGL@tmp@AccType}{\the\c@Iterator@AccountID}}%
+        \expandafter\PGL@Transaction\expanded{%
+          \the\c@Iterator@Account@LEID;%
+          #1;%
+        }%
       \fi
       \expandafter\expandafter\expandafter\@firstofone
     \fi
-  \fi{\PGL@ACLoop@Table{#1}}%
+  \fi{\expandafter\PGL@ACLoop@Table\expanded{#1;}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2067,11 +2080,17 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@ACLoop}\par
+% \begin{macro}{\PGL@ACLoop}\jmarg{勘定科目名}\cntname{;}\par
 % \changes{v1.1.2-alpha.19.01}{2025/12/21}
 %   {\cs{PGL@ACLoop@Table}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.05}{2025/12/22}
 %   {表のヘッダを\cs{PGL@tableHeader}に移設．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}%
+%   {\cs{PGL@ACLoop@Table}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}%
+%   {引数の取り方を変更．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}
+%   {\cs{PGL@ACLoop@Table}の引数へ引数の値を渡して処理できるように．}^^A
 % 勘定元帳の表を作り，（改ページが
 % 1ページ当たりの行数を超えたことに因るときには前頁繰越をして）
 % \cmd{\PLG@ACLoop@Table}を呼び出す．
@@ -2081,12 +2100,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 勘定科目の仕訳を全て出力したことに因るときには\cmd{\PGL@L@@p}である．
 % 
 %    \begin{macrocode}
-\def\PGL@ACLoop{%
+\def\PGL@ACLoop#1;{%
+%<dbg>\typeout{Start: \unexpanded{\PGL@ACLoop}, 勘定科目名=#1.}%
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
     \PGL@tableHeader
     \n@xtprev
-    \PGL@ACLoop@Table{\Account@getNameFromId{\PGL@tmp@AccType}{\the\c@Iterator@AccountID}}%
+    \PGL@ACLoop@Table#1;
   \end{tabular}
   \end{table}
   \clearpage
@@ -2112,24 +2132,36 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{PGL@L@@p}の引数の取り方を変更．}^^A
 % \changes{v1.1.2-alpha.19.09}{2025/12/23}
 %   {Getterを使用するように変更．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}%
+%   {\cs{PGL@ACLoop}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}
+%   {\cs{PGL@Loop}の引数へ値を渡して処理できるように．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}
+%   {大小判定を逆に変更．}^^A
 % ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
 % 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p#1#2{%
-  \ifnum\c@Iterator@AccountID<\AccType@getpropertySmpl{\PGL@tmp@AccType}{AccountCount}%
-    \stepcounter{Iterator@AccountID}%
-%<dbg>\typeout{Process: Iterator@AccountID = \theIterator@AccountID.}%
+%<dbg>\typeout{Start: \unexpanded{\PGL@L@@p}, AccountID=#1, AccType=#2.}%
+%<dbg>\typeout{Status : AccType[#2].AccountCount =
+%<dbg>  \the\value{AccType#2@AccountCount}.}%
+  \ifnum#1>\value{AccType#2@AccountCount}%
+%<dbg>\typeout{Process: Go to \unexpanded{\PGL@Loop}.}%
+    \expandafter\@secondoftwo
+  \else
     \expandafter\subsection\expandafter%
-      {\Account@getNameFromId{\PGL@tmp@AccType}{\the\c@Iterator@AccountID}}%
+      {\Account@getNameFromId{#2}{#1}}%
     \setcounter{Iterator@Account@LEID}{0}%
     \setcounter{LedgerEntryBalance}{0}%
     \global\sum@debit\z@\relax\global\sum@credit\z@\relax
     \expandafter\@firstoftwo
-  \else
-%<dbg>\typeout{Process: Go to \unexpanded{\PGL@Loop}.}%
-%<dbg>\typeout{Process: Iterator@AccountID = \theIterator@AccountID.}%
-    \expandafter\@secondoftwo
-  \fi{\PGL@ACLoop}{\PGL@Loop{}}%
+  \fi
+  {\expandafter\PGL@ACLoop\expanded{%
+    \Account@getNameFromId{#2}{#1};%
+  }}%
+  {\expandafter\PGL@Loop\expanded{%
+    {\the\numexpr\AccType@getpropertySmpl{#2}{ID}+1}}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2144,17 +2176,21 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{PGL@Loop}の引数の取り方を変更．}^^A
 % \changes{v1.1.2-alpha.19.04}{2025/12/22}
 %   {\cs{PGL@L@@p}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}
+%   {\cs{PGL@L@@p}の引数へ値を渡して処理できるように．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}
+%   {大小判定を逆に変更．}^^A
 % 各勘定科目の種類について\cmd{\PLG@L@@p}を呼び出す．
 %    \begin{macrocode}
 \def\PGL@Loop#1{%
-  \ifnum\c@Iterator@AccTypeID<\c@AccountTypeCount\relax
-    \stepcounter{Iterator@AccTypeID}%
-    \xdef\PGL@tmp@AccType{\AccType@getAccType{\the\c@Iterator@AccTypeID}}%
-    \setcounter{Iterator@AccountID}{0}%
-    \expandafter\@firstofone
-  \else
+%<dbg>\typeout{Start: \unexpanded{\PGL@Loop}, AccTypeID=#1.}%
+  \ifnum#1>\value{AccountTypeCount}\relax
     \expandafter\@gobble
-  \fi{\PGL@L@@p{}{}}%
+  \else
+    \expandafter\@firstofone
+  \fi{\expandafter\PGL@L@@p\expanded
+    {{1}{\AccType@getAccType{#1}}}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2163,14 +2199,16 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {イテレータ用カウンタの命名変更による修正．}^^A
 % \changes{v1.1.2-alpha.19.04}{2025/12/22}
 %   {\cs{PGL@Loop}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.10}{2025/12/23}
+%   {\cs{PGL@Loop}の引数へ値を渡して処理できるように．}^^A
 % 実際に総勘定元帳を出力するコマンド．
 % いくつかのパラメタを初期化して\cmd{\PLG@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printgeneralledger}{%
-  \setcounter{Iterator@AccTypeID}{0}%
+%<dbg>\typeout{Start: \unexpanded{\printgeneralledger}.}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
-  \PGL@Loop{}%
+  \PGL@Loop{1}%
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
