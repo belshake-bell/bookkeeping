@@ -1947,30 +1947,22 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@MonthlyClosing}%
+% \begin{macro}{\PGL@MonthlyClosing}\marg{Month}\marg{LEID}\marg{Account~Name}\par%
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
+% \changes{v1.1.2-alpha.19.08}{2025/12/23}%
+%   {引数の設定．}^^A
 % 月次締切処理．
 %    \begin{macrocode}
-\def\PGL@MonthlyClosing{%
-  \xdef\PGL@tmp@AccTypeAccID{\PGL@tmp@AccType\the\c@Iterator@AccountID}%
-  \xdef\Acc@LedgBalType{%
-    \csuse{Account\PGL@tmp@AccTypeAccID
-           @LedgerBalanceType}}%
-  \xdef\tmp@PGL@ClosingMonth{%
-    \csuse{Account\PGL@tmp@AccTypeAccID
-           @Ledger\the\c@Iterator@Account@LEID
-           @PartnerAccount}}% \tmp@PGL@ClosingMonth <- Closing month
+\def\PGL@MonthlyClosing#1;#2;#3;{%
+%<dbg>\typeout{Startin: \noexpand\PGL@MonthlyClosing . Args1: #1, Args2: #2, Args3: #3, }%
   \global\sum@debit\z@\relax \global\sum@credit\z@\relax
-  \csxdef{Account\PGL@tmp@AccTypeAccID
-          @Month\tmp@PGL@ClosingMonth @Balance}{\the\c@LedgerEntryBalance}%
-  \PGL@printline{}{}{\tmp@PGL@ClosingMonth 月決算}{}{}%
-     {\csuse{Account\PGL@tmp@AccTypeAccID
-             @Month\tmp@PGL@ClosingMonth @Debit}}%
-     {\csuse{Account\PGL@tmp@AccTypeAccID
-             @Month\tmp@PGL@ClosingMonth @Credit}}%
+  \Account@setpropertySmpl{#3}{Month#1@Balance}{\the\c@LedgerEntryBalance}%
+  \PGL@printline{}{}{#1月決算}{}{}%
+     {\Account@getpropertySmpl{#3}{Month#1@Debit}}%
+     {\Account@getpropertySmpl{#3}{Month#1@Credit}}%
      {}{}\hline
 }
 %    \end{macrocode}
@@ -2010,13 +2002,17 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {\cs{PGL@Terminate}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.04}{2025/12/22}
 %   {\cs{PGL@L@@p}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.19.08}{2025/12/23}%
+%   {\cs{PGL@MonthlyClosing}の引数の取り方を変更したのに合わせて修正．}^^A
 % ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
 % 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
 %    \begin{macrocode}
 \def\PGL@ACLoop@Table#1{%
+%<dbg>%\typeout{Startin: \noexpand\PGL@ACLoop@Table . Args1: #1}%
   \ifnum\c@Iterator@Account@LEID>\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
     \hline
+%<dbg>\typeout{Process: Terminate.}%
     \PGL@Terminate{#1}%
     \expandafter\@gobble
   \else
@@ -2024,16 +2020,24 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
       \hline
       \gdef\n@xt{\PGL@ACLoop}%
       \gdef\n@xtprev{\PGL@CarryPrev}%
+%<dbg>\typeout{Process: CarryForward.}%
       \PGL@CarryForward
       \expandafter\expandafter\expandafter\@gobble
     \else
       \gdef\n@xt{\PGL@L@@p{}{}}%
       \stepcounter{Iterator@Account@LEID}%
+%<dbg>\typeout{Status : Iterator@Account@LEID = \the\c@Iterator@Account@LEID .}%
       \ifnum\Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @AccountValue}=0\relax
         \stepcounter{tableLineCount}%
-        \PGL@MonthlyClosing%
+%<dbg>\typeout{Process: Monthly Closing.}%
+        \expandafter\PGL@MonthlyClosing\expanded{%
+          \Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @PartnerAccount};%
+          \the\c@Iterator@Account@LEID;%
+          #1;%
+        }%
       \else
         \stepcounter{tableLineCount}%
+%<dbg>\typeout{Process: Transaction.}%
         \PGL@Transaction{\the\c@Iterator@Account@LEID}%
           {\Account@getNameFromId{\PGL@tmp@AccType}{\the\c@Iterator@AccountID}}%
       \fi
