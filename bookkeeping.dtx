@@ -476,12 +476,26 @@
 % 勘定科目の種類の識別番号\meta{AccTypeID}から勘定科目の種類\meta{AccType}を得るために
 % \cmd{\AccType@getAccType}\marg{AccTypeID}を用意する．
 %
+% \begin{macro}{\AccType@setpropertySmpl}\marg{AccType}^^A
+%                         \marg{prop.}\marg{datum}\par
+% \changes{v1.1.2-alpha.21}{2025/12/25}
+%   {AccTypeへのセッタの新設．}^^A
+% \meta{AccType}および\meta{prop.}を指定して値\meta{datum}を設定する．
+%    \begin{macrocode}
+\def\AccType@setpropertySmpl#1#2#3{%
+  \csxdef{AccType#1@#2}{#3}%
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\BK@registerAccType}\marg{AccType}\marg{AccTypeName}\par
 % \changes{v1.1.0}{2023/04/26}
 %   {the name of registerAccType is changed to BK@registerAccType.}
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタ．}
 % \changes{v1.1.2-alpha.17}{2025/12/19}{不要なコメント行の削除．}%
+% \changes{v1.1.2-alpha.21}{2025/12/25}
+%   {各月ごとの勘定科目の種類の
+%    残高・借方合計・貸方合計の初期化マクロを呼び出す．}^^A
 % 勘定科目の種類\meta{AccType}を登録する．
 % カウンタを確保するので無意味に何度も呼び出さないこと．
 %    \begin{macrocode}
@@ -494,7 +508,32 @@
   \csgdef{AccType#1@Name}{#2}%
   \csxdef{revAccType\the\c@AccountTypeCount @AccType}{#1}%
   \csxdef{AccType#1@ID}{\theAccountTypeCount}%
+  \AccType@init@Month{0}{#2}%
   \newcounter{AccType#1@AccountCount}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@init@Month}\marg{init~month}\marg{AccType}\par
+% \changes{v1.1.2-alpha.21}{2025/12/25}
+%   {TBで定義していた各月ごとの勘定科目の種類の
+%    残高・借方合計・貸方合計の初期化マクロを新設．}^^A
+% 勘定科目の種類の月ごとの残高・借方合計・貸方合計の初期化．
+%    \begin{macrocode}
+\def\AccType@init@Month#1#2{%
+  \ifnum#1>\BK@closingmonth\relax
+%<dbg>\typeout{Process: End of init AccType[#2].Month}%
+    \expandafter\@gobble%
+  \else
+%<dbg>\typeout{Process: Init AccType[#2].Month[#1]}%
+    \AccType@setpropertySmpl{#2}{Month#1@Balance}{0}%
+    \AccType@setpropertySmpl{#2}{Month#1@Debit}{0}%
+    \AccType@setpropertySmpl{#2}{Month#1@Credit}{0}%
+    \expandafter\@firstofone%
+  \fi
+  {%
+    \expandafter\AccType@init@Month\expandafter
+      {\expanded{\the\numexpr#1+1\relax}}{#2}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
