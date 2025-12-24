@@ -706,7 +706,7 @@
 %   勘定科目名から\meta{AccType}\meta{AccID}を得る．
 % \end{description}
 \iffalse
-0月は開始仕訳用，13月は閉鎖用．
+  0月は開始仕訳用，13月は閉鎖用．
 \fi
 % \begin{macro}{\Account@setpropertySmpl}\jmarg{勘定科目名}^^A
 %                         \marg{prop.}\marg{datum}\par
@@ -1059,29 +1059,6 @@
 % 現時点では単一仕訳方式のみに対応しているが，
 % 頑張れば1:N複合仕訳方式には対応できそうである（N:Nは対応しないかも）．
 % ただし頑張るかは未定．
-\iffalse
-取引の仕訳．
-取引仕訳の総登録数はJECountカウンタで得られる．
-
-取引IDを<JEID>と表すことにすると
-* JE<JEID>@Month: 取引月
-* JE<JEID>@Day: 取引日
-* JE<JEID>@Debit: 借方
-  * Account: 勘定科目名
-  * Value: 取引額
-  * LEID: LEID
-* JE<JEID>@Credit: 貸方
-  * Account
-  * Value
-  * LEID
-* JE<JEID>@Description: 摘要
-* ifJE<JEID>@Description: 摘要の有無
-* \JE@IfExistDescription{<JEID>}{<true>}{<false>}: 摘要の有無 (true or false)で分岐するIf関数
-* JE<JEID>@Line: 仕訳帳での行数
-
-複合仕訳にするとなると科目の個数と各科目についてID割り振りが必要かなぁ……
-面倒なのでやらないと思う．
-\fi
 % \begin{macro}{\JE@getpropertySmpl}\marg{JEID}^^A
 %                                   \marg{prop.}\par
 % \changes{v1.1.2-alpha.04}{2025/12/14}
@@ -1264,27 +1241,6 @@
 % \meta{prop.}の種類は次の通り．
 % \ledgerdescription
 % 
-\iffalse
-総勘定元帳．
-勘定科目ID(AccID)および各勘定科目ごとの取引登録ID(AccLdgID)，
-それによって参照される要素を持つ．
-
-!externな内容
-* Account<AccType><AccID>@LedgerCount: 勘定科目に登録された取引登録数．
-                                        この数字でイテレータの分岐をさせる．
-!externな内容ここまで
-
-* Account<AccType><AccID>@Ledger<AccLdgID>@FullLEID: 描画用のLEID<AccType><AccID>-<AccLdgID>を得る．
-* Account<AccType><AccID>@Ledger<AccLdgID>@JEID: 登録された取引の取引ID．
-* Account<AccType><AccID>@Ledger<AccLdgID>@PartnerAccount: 登録された取引の相手勘定科目．
-* Account<AccType><AccID>@Ledger<AccLdgID>@JEDesc: 登録された取引の摘要．
-* Account<AccType><AccID>@Ledger<AccLdgID>@IsAccountDebit: 登録された取引での借貸がどちらだったか．
-* Account<AccType><AccID>@Ledger<AccLdgID>@AccountValue: 登録された取引での取引額．
-
-JEIDで取引の月日が分かるのでデータとして持つ必要はない．
-一方で相手科目は持たせた方が楽っぽい？
-必ずしも持たせる必要はないと思うけど処理がめんどいと思う．
-\fi
 % \begin{macro}{\Account@advanceLedgerCount}\jmarg{勘定科目名}\par
 % \changes{v1.1.2-alpha.03}{2025/12/13}
 %   {\cntname{LedgerCount}を1進めるためのマクロを定義．}^^A
