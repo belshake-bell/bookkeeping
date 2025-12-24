@@ -449,6 +449,17 @@
 %   勘定科目の種類の識別番号(ID)．
 % \item[\cntname{AccountCount}]
 %   勘定科目の種類に登録された勘定科目数のカウンタ．
+% \item[\cntname{Month}\meta{month}@\meta{month~prop.}]
+%   \meta{month}で指定した月ごとの各要素にアクセスする．
+%   \meta{month~prop.}の種類は次の通り．
+%   \begin{description}
+%   \item[\cntname{Balance}]
+%     月ごとの勘定科目の種類に登録された勘定科目の残高の合計．
+%   \item[\cntname{Debit}]
+%     月ごとの勘定科目の種類に登録された勘定科目の借方合計．
+%   \item[\cntname{Credit}]
+%     月ごとの勘定科目の種類に登録された勘定科目の貸方合計．
+%   \end{description}
 % \end{description}
 % \iffalse
 % \begin{itemize}
