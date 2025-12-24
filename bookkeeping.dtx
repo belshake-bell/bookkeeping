@@ -1629,6 +1629,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \changes{v1.1.2-alpha.16}{2025/12/19}{Fix Typo.}%
 % \changes{v1.1.2-alpha.17}{2025/12/19}
 %   {\cs{csuse}からGetterに変更．}^^A
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 取引IDが\meta{JEID}の取引を出力する．
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
@@ -1656,43 +1658,49 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % 摘要の行．
 %    \begin{macrocode}
   \JE@IfExistDescription{#1}{%
-    \PJ@printline*{}{}{\JE@getpropertySmpl{#1}{Description}}{}{}{}\hline
+    \PJ@printline*{}{}{\JE@getpropertySmpl{#1}{Description}}{}{}{}\BK@hline
   }{%
-    \hline
+    \BK@hline
   }%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@CarryPrev}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 前頁繰越の出力．
 % 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタ
 % および\cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@CarryPrev{\gdef\n@xtprev{}%
   \PJ@printline{}{}{前頁繰越}{}{}
-               {\the\sum@debit}{\the\sum@credit}\hline
+               {\the\sum@debit}{\the\sum@credit}\BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@CarryForward}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 次頁繰越の出力．
 % 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
 % \cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@CarryForward{%
   \PJ@printline{}{}{}{次頁繰越}{}
-               {\the\sum@debit}{\the\sum@credit}\hline
+               {\the\sum@debit}{\the\sum@credit}\BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@Terminate}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 仕訳帳を締め切った際の総計の出力．
 % 借方・貸方勘定はそれぞれ\cmd{\sum@debit}カウンタおよび
 % \cmd{\sum@credit}カウンタで管理している．
 %    \begin{macrocode}
 \def\PJ@Terminate{%
   \PJ@printline{}{}{}{総計}{}
-               {\the\sum@debit}{\the\sum@credit}\hline
+               {\the\sum@debit}{\the\sum@credit}\BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1760,6 +1768,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PJ@Loop}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 仕訳帳の表の外形を作る（内容は\cmd{\PJ@Loop@Table}で出力する）．
 %
 %    \begin{macrocode}
@@ -1773,7 +1783,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     & \makebox[10\zw][c]{要}%
     & \makebox[2\zw][c]{LEID}%
     & \makebox[5\zw][c]{借方}%
-    & \makebox[5\zw][c]{貸方} \\ \hline
+    & \makebox[5\zw][c]{貸方} \\ \BK@hline
 %    \end{macrocode}
 % 次頁繰越をしたときには\cmd{\n@xtprev}は前頁繰越の処理が定義されている；
 % それ以外の時には空．
@@ -1938,6 +1948,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \PGL@Transaction
 \fi
 % \begin{macro}{\PGL@CarryPrev}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 前頁繰越処理．
 %    \begin{macrocode}
 \def\PGL@CarryPrev{%
@@ -1945,7 +1957,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \PGL@printline
     {}{}{前頁繰越}{}{}%
     {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
-  \hline
+  \BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1958,6 +1970,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {イテレータ用カウンタの命名変更による修正．}^^A
 % \changes{v1.1.2-alpha.19.08}{2025/12/23}%
 %   {引数の設定．}^^A
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 月次締切処理．
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing#1;#2;#3;{%
@@ -1968,29 +1982,33 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \PGL@printline{}{}{#1月決算}{}{}%
      {\Account@getpropertySmpl{#3}{Month#1@Debit}}%
      {\Account@getpropertySmpl{#3}{Month#1@Credit}}%
-     {}{}\hline
+     {}{}\BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@CarryForward}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 次頁繰越処理．
 %    \begin{macrocode}
 \def\PGL@CarryForward{%
   \PGL@printline{}{}{\multicolumn{1}{r|}{次頁繰越}}{}{}%
                 {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
-  \hline
+  \BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@Terminate}\jmarg{勘定科目名}\par
 % \changes{v1.1.2-alpha.19.03}{2025/12/22}
 %   {最終的な借方・貸方残高および残高を表示するように変更．}^^A
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 締切処理．
 %    \begin{macrocode}
 \def\PGL@Terminate#1{%
   \PGL@printline{}{}{}{}{}%
     {\Account@getpropertySmpl{#1}{Debit}}%
-    {\Account@getpropertySmpl{#1}{Credit}}{}{}\hline\hline
+    {\Account@getpropertySmpl{#1}{Credit}}{}{}\BK@hline\BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2015,6 +2033,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 %   {引数の取り方を修正．}^^A
 % \changes{v1.1.2-alpha.19.10}{2025/12/23}
 %   {\cs{PGL@ACLoop}，\cs{PGL@L@@p}の引数へ値を渡して処理できるように．}^^A
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
 % 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
@@ -2022,13 +2042,13 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 \def\PGL@ACLoop@Table#1;{%
 %<dbg>%\typeout{Startin: \noexpand\PGL@ACLoop@Table . Args1: #1}%
   \ifnum\c@Iterator@Account@LEID>\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
-    \hline
+    \BK@hline
 %<dbg>\typeout{Process: Terminate.}%
     \PGL@Terminate{#1}%
     \expandafter\@gobble
   \else
     \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
-      \hline
+      \BK@hline
       \gdef\n@xt{\PGL@ACLoop#1;}%
       \gdef\n@xtprev{\PGL@CarryPrev}%
 %<dbg>\typeout{Process: CarryForward.}%
@@ -2063,6 +2083,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\PGL@tableHeader}\par
 % \changes{v1.1.2-alpha.19.05}{2025/12/22}
 %   {\cs{PGL@tableHeader}の新設．}^^A
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 勘定元帳の表のヘッダを出力する．
 % 
 %    \begin{macrocode}
@@ -2076,7 +2098,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     {\makebox[4\zw]{借方}}%
     {\makebox[4\zw]{貸方}}%
     {\makebox[2\zw]{借/貸}}%
-    {\makebox[4\zw]{残高}}\hline
+    {\makebox[4\zw]{残高}}\BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2221,7 +2243,7 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}%
 % \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
 % \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
-% \TB@printline{借方残高}{借方}{合計}{貸方}{貸方残高}\hline%
+% \TB@printline{借方残高}{借方}{合計}{貸方}{貸方残高}\BK@hline%
 % \end{tabular}\makeatother\par
 % \endgroup
 % 大体こんな感じ．
@@ -2449,6 +2471,8 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
 % \begin{macro}{\TB@printTableHeader}\par
 % \changes{v1.1.2-alpha.13}{2025/02/05}
 %   {残高試算表のヘッダをマクロ化．}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 残高試算表の表のヘッダを出力する．
 %    \begin{macrocode}
 \def\TB@printTableHeader{%
@@ -2459,13 +2483,15 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
     {\makebox[10\zw]{勘定科目}}%
     {\makebox[5\zw]{合計}}%
     {\makebox[5\zw]{残高}}%
-  \hline
+  \BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@printTable}\par
 % \changes{v1.1.0}{2025/02/05}
 %   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
 % 残高試算表の表を組み，\cmd{\TB@Loop}を再帰的に呼び出す．
 %    \begin{macrocode}
 \def\TB@printTable{%
@@ -2474,12 +2500,12 @@ JEIDで取引の月日が分かるのでデータとして持つ必要はない�
   \begin{tabular}{rrcrr}
     \TB@printTableHeader
     \TB@Table@Loop
-    \hline
+    \BK@hline
     \TB@printTable@sumAccType
-    \hline
+    \BK@hline
     \TB@printline{\the\BKtemp@countA}{\the\BKtemp@countB}%
                  {合計}%
-                 {\the\BKtemp@countC}{\the\BKtemp@countD}\hline%
+                 {\the\BKtemp@countC}{\the\BKtemp@countD}\BK@hline%
   \end{tabular}
   \end{table}
   \clearpage
