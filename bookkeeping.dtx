@@ -1310,7 +1310,13 @@
 %% #3: is account Debit? (boolean; D or C)
 %% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
 \def\ledger@entry#1#2#3#4{%
-%<dbg>\typeout{Start  :\noexpand\ledger@entry .}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\ledger@entry}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>          Args1: \unexpanded{#1},
+%<dbg>          Args2: \unexpanded{#2},
+%<dbg>          Args3: \unexpanded{#3},
+%<dbg>          Args3: \unexpanded{#4}}%
 %    \end{macrocode}
 % 事前準備．
 % 見通しを良くするために\meta{AccType}\meta{AccID}を\cmd{\LE@tmpA}に定義しておく．
@@ -1501,53 +1507,91 @@
 %    \end{macrocode}
 % \end{macro}
 % \subsubsection{月次締切}\label{ss:月次締切}%
+% \begin{macro}{\LMC@loop@Account}^^A
+%   \texttt{\marg{AccountID};\marg{AccType};\jmarg{締切月};}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
+% \changes{v1.1.2-alpha.11}{2025/12/17}
+%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
+% \changes{v1.1.2-alpha.23.01}{2025/12/27}
+%   {リネーム他いろいろ修正．}^^A
+% \meta{Account}を\cmd{\BKtemp@countC}でイテレーション．
+%    \begin{macrocode}
+\def\LMC@loop@Account#1;#2;#3;{% loop for each AccID
+%<dbg>\typeout{\@spaces\BK@dbg@Start\unexpanded
+%<dbg>          {\LMC@loop@Account}}%
+%<dbg>\typeout{\@spaces\BK@dbg@Status
+%<dbg>          Args1: \unexpanded{#1},
+%<dbg>          Args2: \unexpanded{#2},
+%<dbg>          Args3: \unexpanded{#3}}%
+  \ifnum#1>\value{AccType#2@AccountCount}%
+%<dbg>\typeout{\@spaces\BK@dbg@Process
+%<dbg>          End Loop for Account.}%
+    \expandafter\@gobble
+  \else
+    \expandafter\ledger@entry\expanded{%
+      {\Account@getNameFromId{#2}{#1}}%
+      {#3}%
+      {\unexpanded{\relax}}%
+      {0}%
+    }%
+    \expandafter\@firstofone
+  \fi{%
+%<dbg>\typeout{\@spaces\BK@dbg@Process
+%<dbg>          \unexpanded{\LMC@loop@Account} Recurse.}%
+    \expandafter\LMC@loop@Account\expanded
+      {\the\numexpr#1+1;#2;#3;}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\LMC@loop@AccType}^^A
+%   \texttt{\marg{AccTypeID};\jmarg{締切月};}\par
+% \changes{v1.1.0}{2024/02/27}
+%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
+% \changes{v1.1.2-alpha.23.01}{2025/12/27}
+%   {リネーム他いろいろ修正．}^^A
+% \meta{AccType}を\cmd{\BKtemp@countD}でイテレーション，\cmd{\BKtemp@countC}を
+% クリアして\cmd{\LMC@l@@p}を呼び出す．
+%    \begin{macrocode}
+\def\LMC@loop@AccType#1;#2;{% loop for each AccType
+%<dbg>\typeout{\space\space\BK@dbg@Start\unexpanded
+%<dbg>          {\LMC@loop@AccType}}%
+%<dbg>\typeout{\space\space\BK@dbg@Status
+%<dbg>          Args1: \unexpanded{#1},
+%<dbg>          Args2: \unexpanded{#2}}%
+  \ifnum#1>\value{AccountTypeCount}%
+%<dbg>\typeout{\@spaces\BK@dbg@Process
+%<dbg>          End Loop for Account.}%
+    \expandafter\@gobble
+  \else
+    \expandafter\@firstofone
+  \fi{%
+    \expandafter\LMC@loop@Account\expanded
+      {1;\AccType@getAccType{#1};#2;}%
+%<dbg>\typeout{\space\space\BK@dbg@Process
+%<dbg>          \unexpanded{\LMC@loop@AccType} Recurse.}%
+    \expandafter\LMC@loop@AccType\expanded
+      {\the\numexpr#1+1;#2;}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\ledgermonthlyclosing}\jmarg{締切月}\par
+% \changes{v1.1.2-alpha.23.01}{2025/12/27}
+%   {呼び出すマクロの名前変更に合わせた修正．}^^A
 % 月次締切用コマンド．
 % 各\meta{AccType}および各\meta{AccID}についてイテレータ
 % \cmd{\BKtemp@countD}および\cmd{\BKtemp@countC}を用いてループを回す．
 %    \begin{macrocode}
 \newcommand{\ledgermonthlyclosing}[1]{% #1: closing month
-  \BKtemp@countC\z@\relax
-  \BKtemp@countD\z@\relax
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\ledgermonthlyclosing}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>          Args1: \unexpanded{#1}}%
   \stepcounter{ClosingMonthCount}%
-  \gdef\LMC@month{#1}%
-  \LMC@loop
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\LMC@loop}\par
-% \changes{v1.1.0}{2024/02/27}
-%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
-% \meta{AccType}を\cmd{\BKtemp@countD}でイテレーション，\cmd{\BKtemp@countC}を
-% クリアして\cmd{\LMC@l@@p}を呼び出す．
-%    \begin{macrocode}
-\def\LMC@loop{% loop for each AccType
-  \ifnum\the\BKtemp@countD<\c@AccountTypeCount\relax
-    \global\advance\BKtemp@countD\@ne
-    \global\BKtemp@countC\z@\relax
-    \xdef\LMC@AccType{\AccType@getAccType{\the\BKtemp@countD}}%
-    % \LMC@AccType <- AccType
-    \expandafter\LMC@l@@p
-  \fi
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\LMC@l@@p}\par
-% \changes{v1.1.0}{2024/02/27}
-%   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のCSを変更．}
-% \changes{v1.1.2-alpha.11}{2025/12/17}
-%   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
-% \meta{Account}を\cmd{\BKtemp@countC}でイテレーション．
-%    \begin{macrocode}
-\def\LMC@l@@p{% loop for each AccID
-  \ifnum\BKtemp@countC<\csuse{c@AccType\LMC@AccType @AccountCount}%
-    \global\advance\BKtemp@countC\@ne
-    \xdef\reserved@a{\csuse{Account\LMC@AccType\the\BKtemp@countC @Name}}%
-    \expandafter\ledger@entry\expandafter{\reserved@a}{\LMC@month}{\relax}{0}%
-    \expandafter\LMC@l@@p
-  \else
-    \expandafter\LMC@loop
-  \fi
+  \expandafter\LMC@loop@AccType\expanded
+    {1;\the\numexpr#1;}%
 }
 %    \end{macrocode}
 % \end{macro}
