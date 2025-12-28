@@ -2305,12 +2305,15 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@Table@Acc@OneLine@BalanceDebt}%
+% \begin{macro}{\TB@Table@Acc@OneLine@BalanceDebt}^^A
+%   \jmarg{勘定科目名}\marg{AccType}\marg{month}\par
 % \changes{v1.1.0}{2025/02/05}
 %   {残高額を表示するかどうかも含めて別マクロに切り離す．}%
+% \changes{v1.1.2-alpha.23}{2025/12/27}
+%   {引数を取るように変更．}^^A
 % 合計残高試算表にて借方残高を表示するマクロ．
 %    \begin{macrocode}
-\def\TB@Table@Acc@OneLine@BalanceDebt{%
+\def\TB@Table@Acc@OneLine@BalanceDebt#1#2#3{%
   \if\Acc@LedgBalType D%
     \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
     \global\advance\BKtemp@countA
@@ -2334,12 +2337,15 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@Table@Acc@OneLine@BalanceCredit}%
+% \begin{macro}{\TB@Table@Acc@OneLine@BalanceCredit}^^A
+%   \jmarg{勘定科目名}\marg{AccType}\marg{month}\par
 % \changes{v1.1.0}{2025/02/05}
 %   {残高額を表示するかどうかも含めて別マクロに切り離す．}%
+% \changes{v1.1.2-alpha.23}{2025/12/27}
+%   {引数を取るように変更．}^^A
 % 合計残高試算表にて貸方残高を表示するマクロ．
 %    \begin{macrocode}
-\def\TB@Table@Acc@OneLine@BalanceCredit{%
+\def\TB@Table@Acc@OneLine@BalanceCredit#1#2#3{%
   \if\Acc@LedgBalType C%
     \csuse{\TB@tmp@AccTT@ThisMonth @Balance}%
     \global\advance\BKtemp@countD
@@ -2363,7 +2369,8 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@Table@Acc@OneLine}%
+% \begin{macro}{\TB@Table@Acc@OneLine}^^A
+%   \texttt{\jmeta{勘定科目名};\meta{AccType};\meta{month};}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}%
 % \changes{v1.1.0}{2025/02/05}
@@ -2375,6 +2382,8 @@
 %   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/27}
+%   {引数を取るように変更．}^^A
 % 合計残高試算表の1行出力．
 % 借方・貸方はそれぞれ\\
 % \cmd{\Account@getpropertySmpl}\jmarg{勘定科目名}^^A
@@ -2382,45 +2391,44 @@
 % \cmd{\Account@getpropertySmpl}\jmarg{勘定科目名}^^A
 % \marg{\cntname{Month}\meta{month}\cntname{@Credit}}でアクセスできる．
 %    \begin{macrocode}
-\def\TB@Table@Acc@OneLine{%
-%<dbg>\typeout{Start  : TB@Table@Acc@OneLine}%
-  \xdef\reserved@a{\TB@tmp@AccType\the\c@Iterator@AccountID}%
-  \xdef\TB@tmp@AccTT@ThisMonth{Account\reserved@a @Month\the\c@Iterator@Account@Month}%
-  \xdef\TB@tmp@AccT@ThisMonth{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month}%
-  \xdef\Acc@LedgBalType{%
-    \csuse{Account\reserved@a @LedgerBalanceType}}%
+\def\TB@Table@Acc@OneLine#1;#2;#3;{%
+%<dbg>\typeout{Start  : \unexpanded{TB@Table@Acc@OneLine}}%
   \TB@printline{% Debt balance
-    \TB@Table@Acc@OneLine@BalanceDebt
+    \TB@Table@Acc@OneLine@BalanceDebt{#1}{#2}{#3}%
   }{%
-    \csuse{\TB@tmp@AccTT@ThisMonth @Debit}%
+    \Account@getpropertySmpl{#1}{Month#3@Debit}%
     \global\advance\BKtemp@countB
-                   \csuse{\TB@tmp@AccTT@ThisMonth @Debit}\relax
-    \csxdef{\TB@tmp@AccT@ThisMonth @Debit}{%
-      \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @Debit}%
-      + \csuse{\TB@tmp@AccTT@ThisMonth @Debit}\relax
+                   \Account@getpropertySmpl{#1}{Month#3@Debit}\relax
+    \AccType@setpropertySmpl{#2}{Month#3@Debit}{%
+      \the\numexpr
+        \AccType@getpropertySmpl{#2}{Month#3@Debit}%
+      + \Account@getpropertySmpl{#1}{Month#3@Debit}\relax
     }%
   }{%
-    \csuse{Account\reserved@a @Name}%
+    \Account@getpropertySmpl{#1}{Name}%
   }{%
-    \csuse{\TB@tmp@AccTT@ThisMonth @Credit}%
+    \Account@getpropertySmpl{#1}{Credit}%
     \global\advance\BKtemp@countC
-                   \csuse{\TB@tmp@AccTT@ThisMonth @Credit}\relax
-    \csxdef{\TB@tmp@AccT@ThisMonth @Credit}{%
-      \the\numexpr\csuse{\TB@tmp@AccT@ThisMonth @Credit}%
-      + \csuse{\TB@tmp@AccTT@ThisMonth @Credit}\relax
+                   \Account@getpropertySmpl{#1}{Credit}\relax
+    \AccType@setpropertySmpl{#2}{Month#3@Credit}{%
+      \the\numexpr
+        \AccType@getpropertySmpl{#2}{Month#3@Credit}%
+      + \Account@getpropertySmpl{#1}{Month#3@Credit}\relax
     }%
   }{%
-    \TB@Table@Acc@OneLine@BalanceCredit
+    \TB@Table@Acc@OneLine@BalanceCredit{#1}{#2}{#3}%
   }%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@printTable@sumAccType}\par
+% \begin{macro}{\TB@printTable@sumAccType}\marg{month}\par
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/27}
+%   {引数を取るように変更．}^^A
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
-\def\TB@printTable@sumAccType{%
+\def\TB@printTable@sumAccType#1{%
   \TB@printline
     {\csuse{AccountA@Month\the\c@Iterator@Account@Month @sumDebit}}%
     {\csuse{AccountA@Month\the\c@Iterator@Account@Month @Debit}}%
@@ -2460,7 +2468,8 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@Table@L@@p}\par
+% \begin{macro}{\TB@Table@LoopAccount}^^A
+%   \texttt{\meta{AccountID};\meta{AccType};\meta{month};}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.0}{2024/02/27}
@@ -2469,46 +2478,61 @@
 %   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/27}
+%   {引数を取るように変更．}^^A
 % 各勘定科目についてイテレータを回し，\cmd{\TB@Table@Acc@OneLine}を呼び出し
-% \cmd{\TB@Table@L@@p}を再帰的に呼び出す処理をする．
+% \cmd{\TB@Table@LoopAccount}を再帰的に呼び出す処理をする．
 % その勘定科目の種類に属する勘定科目についてイテレータを回し終えたら
-% \cmd{\TB@Table@Loop}を呼び出す．
+% \cmd{\TB@Table@LoopAccType}を呼び出す．
 %    \begin{macrocode}
-\def\TB@Table@L@@p{%
-  \ifnum\c@Iterator@AccountID<\csuse{c@AccType\TB@tmp@AccType @AccountCount}%
-    \stepcounter{Iterator@AccountID}%
-%<dbg>\typeout{Start  : TB@Table@L@@p}%
-%<dbg>\typeout{Ire.   : Iterator.AccountID=\theIterator@AccountID .}%
-    \TB@Table@Acc@OneLine
-    \expandafter\TB@Table@L@@p
+\def\TB@Table@LoopAccount#1;#2;#3;{%
+  \ifnum#1>\value{AccType#2@AccountCount}%
+    \expandafter\@gobble
   \else
-    \TB@Table@Loop
-  \fi
+    \stepcounter{Iterator@AccountID}%
+%<dbg>\typeout{Start  : TB@Table@LoopAccount}%
+%<dbg>\typeout{Ire.   : Iterator.AccountID=\theIterator@AccountID .}%
+    \expandafter\@firstofone
+  \fi{%
+    \expandafter\TB@Table@Acc@OneLine\expanded
+      {\Account@getNameFromId{#2}{#1};#2;#3;}%
+    \expandafter\TB@Table@LoopAccount\expanded
+      {\the\numexpr#1+1;#2;#3;}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@Table@Loop}\par
+% \begin{macro}{\TB@Table@LoopAccType}\texttt{\meta{AccTypeID};\meta{month};}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.0}{2025/02/05}
 %   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
-% 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@L@@p}を呼び出す．
+% \changes{v1.1.2-alpha.23}{2025/12/26}
+%   {Setterを使用する．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/27}
+%   {引数を取るように変更．}^^A
+% 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@LoopAccount}を呼び出す．
 %    \begin{macrocode}
-\def\TB@Table@Loop{%
-  \ifnum\c@Iterator@AccTypeID<\c@AccountTypeCount\relax
-%<dbg>\typeout{Start  : TB@Table@Loop}%
+\def\TB@Table@LoopAccType#1;#2;{%
+  \ifnum#1>\value{AccountTypeCount}%
+    \expandafter\@gobble
+  \else
+%<dbg>\typeout{\@spaces\space\space\BK@dbg@Start\unexpanded{TB@Table@LoopAccType}}%
     \stepcounter{Iterator@AccTypeID}%
-%<dbg>\typeout{Ire.   : Iterator.AccTypeID=\theIterator@AccTypeID .}%
+%<dbg>\typeout{\@spaces\space\space Ire.   : Iterator.AccTypeID=\theIterator@AccTypeID .}%
     \xdef\TB@tmp@AccType{\AccType@getAccType{\the\c@Iterator@AccTypeID}}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @sumDebit}{0}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @Debit}{0}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @sumCredit}{0}%
-    \csxdef{Account\TB@tmp@AccType @Month\the\c@Iterator@Account@Month @Credit}{0}%
+    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@sumDebit}{0}%
+    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@Debit}{0}%
+    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@sumCredit}{0}%
+    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@Credit}{0}%
     \setcounter{Iterator@AccountID}{0}%
-    \expandafter\TB@Table@L@@p
-  \fi
+    \expandafter\@firstofone
+  \fi{%
+    \expandafter\TB@Table@LoopAccount\expanded{1;\AccType@getAccType{#1};#2;}%
+    \expandafter\TB@Table@LoopAccType\expanded{\the\numexpr#1+1;#2;}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2531,21 +2555,28 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@printTable}\par
+% \begin{macro}{\TB@printTable}\marg{month}\par
 % \changes{v1.1.0}{2025/02/05}
 %   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
-% 残高試算表の表を組み，\cmd{\TB@Loop}を再帰的に呼び出す．
+% \changes{v1.1.2-alpha.23}{2025/12/26}
+%   {引数を取るように変更．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/26}
+%   {\cs{TB@LoopMonth}，\cs{TB@printTable@sumAccType}が
+%    引数を取るように変更されたのでそれに合わせた修正．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/26}
+%   {再帰のマクロ呼び出しを\cs{TB@LoopMonth}に移設．}^^A
+% 残高試算表の表を組む．
 %    \begin{macrocode}
-\def\TB@printTable{%
-%<dbg>\typeout{Start  : TB@printTable}%
+\def\TB@printTable#1{%
+%<dbg>\typeout{\@spaces\BK@dbg@Start\unexpanded{\TB@printTable}}%
   \begin{table}[ht]\centering
   \begin{tabular}{rrcrr}
     \TB@printTableHeader
-    \TB@Table@Loop
+    \TB@Table@LoopAccType1;#1;%
     \BK@hline
-    \TB@printTable@sumAccType
+    \TB@printTable@sumAccType{#1}%
     \BK@hline
     \TB@printline{\the\BKtemp@countA}{\the\BKtemp@countB}%
                  {合計}%
@@ -2553,30 +2584,41 @@
   \end{tabular}
   \end{table}
   \clearpage
-  \TB@Loop
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\TB@Loop}\par
+% \begin{macro}{\TB@LoopMonth}\texttt{\meta{month};}\par
 % \changes{v1.1.0}{2025/04/07}
 %   {カウンタ条件式周りの調整（\cmd{\c@Iterator@Account@Month}を回して
 %    =14となるときを排除する）．}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
-% 月についてイテレータ\cmd{\c@Iterator@Account@Month}を回して，
-% 各月ごとの残高試算表の出力処理を行う．
+% \changes{v1.1.2-alpha.23}{2025/12/26}
+%   {引数を取るように変更，
+%    またマクロ名も月に対するループというのがわかるように変更．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/26}
+%   {\cs{TB@printTable}が引数を取るように変更されたのでそれに合わせた修正．}^^A
+% \changes{v1.1.2-alpha.23}{2025/12/26}
+%   {再帰のマクロ呼び出しを\cs{TB@printTable}から移設．}^^A
+% 月について引数を回して，
+% 各月ごとの残高試算表の出力処理を行い\cmd{\TB@LoopMonth}を再帰的に呼び出す．
 %    \begin{macrocode}
-\def\TB@Loop{%
-  \ifnum\c@Iterator@Account@Month<\numexpr\c@ClosingMonthCount-1\relax
-%<dbg>\typeout{Start  : TB@Loop}%
+\def\TB@LoopMonth#1;{%
+  \ifnum#1>\value{ClosingMonthCount}%
+    \expandafter\@gobble
+  \else
+%<dbg>\typeout{\space\space\BK@dbg@Start\unexpanded{\TB@LoopMonth}}%
     \stepcounter{Iterator@Account@Month}%
 %<dbg>\typeout{Ire.   : Iterator.Account.Month=\theIterator@Account@Month .}%
     \BKtemp@countA\z@ \BKtemp@countB\z@
     \BKtemp@countC\z@ \BKtemp@countD\z@
     \expandafter\subsection\expandafter{\the\c@Iterator@Account@Month 月}%
     \setcounter{Iterator@AccTypeID}{0}%
-    \expandafter\TB@printTable
-  \fi
+    \expandafter\@firstofone
+  \fi{%
+    \TB@printTable{#1}%
+    \expandafter\TB@LoopMonth\expanded{\numexpr#1+1};%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2587,11 +2629,11 @@
 % 実装としては初期化をして\cmd{\TB@Loop}呼び出す形．
 %    \begin{macrocode}
 \newcommand{\printmonthlytrialbalance}{%
-%<dbg>\typeout{Start  : printmonthlytrialbalance}%
+%<dbg>\typeout{\BK@dbg@Start \unexpanded{\printmonthlytrialbalance}}%
   \setcounter{Iterator@Account@Month}{0}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
-  \TB@Loop
+  \TB@LoopMonth0;%
 }
 %</style>
 %    \end{macrocode}
