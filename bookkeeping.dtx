@@ -1242,6 +1242,8 @@
 %   {renameの影響を受けマクロ名書き換え．}^^A
 % \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {JEのsetterを使用．}^^A
+% \changes{v1.1.2-alpha.23.04}{2025/12/29}
+%   {\cs{ledger@entry}の引数としてJEIDを渡すように変更．}^^A
 % 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
@@ -1261,8 +1263,8 @@
   \JE@setCredit{#5}{#4}%
   \JE@setDescription{#6}{\iftrue}%
   \JE@setpropertySmpl{\JE@currentJournalCount}{Line}{3}%
-  \ledger@entry{#3}{#5}{D}{#4}%
-  \ledger@entry{#5}{#3}{C}{#4}%
+  \expandafter\ledger@entry\expanded{{#3}{#5}{D}{#4}{\JE@currentJournalCount}}%
+  \expandafter\ledger@entry\expanded{{#5}{#3}{C}{#4}{\JE@currentJournalCount}}%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\journ@lentry}}%
 }
@@ -1277,6 +1279,8 @@
 %   {renameの影響を受けマクロ名書き換え．}^^A
 % \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {JEのsetterを使用．}^^A
+% \changes{v1.1.2-alpha.23.04}{2025/12/29}
+%   {\cs{ledger@entry}の引数としてJEIDを渡すように変更．}^^A
 % 摘要の省略された仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\sjourn@lentry}[5]{%
@@ -1295,8 +1299,8 @@
   \JE@setCredit{#5}{#4}%
   \JE@setDescription{}{\iffalse}%
   \JE@setpropertySmpl{\JE@currentJournalCount}{Line}{2}%
-  \ledger@entry{#3}{#5}{D}{#4}%
-  \ledger@entry{#5}{#3}{C}{#4}%
+  \expandafter\ledger@entry\expanded{{#3}{#5}{D}{#4}{\JE@currentJournalCount}}%
+  \expandafter\ledger@entry\expanded{{#5}{#3}{C}{#4}{\JE@currentJournalCount}}%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\sjourn@lentry}}%
 }
@@ -1363,10 +1367,14 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ledger@entry}\jmarg{勘定科目名}%
-%                             \jmarg{相手科目名}%
-%                             \jmarg{借（貸）方}%
-%                             \jmarg{取引額}\par
+% \begin{macro}{\ledger@entry}^^A
+%   \jmarg{勘定科目名}^^A
+%   \jmarg{相手科目名}^^A
+%   \jmarg{借（貸）方}^^A
+%   \jmarg{取引額}^^A
+%   \marg{JEID}\par
+% \changes{v1.1.2-alpha.23.04}{2025/12/29}
+%   {引数としてJEIDを受け取るように変更．}^^A
 % \cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Ledger\meta{AccLdgID}@\meta{prop.}}に
 % 各種値を代入していく．
 % そのほか\cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Month\meta{Month}@\meta{prop.}}に
@@ -1382,14 +1390,16 @@
 %% #2: Partner account name
 %% #3: is account Debit? (boolean; D or C)
 %% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
-\def\ledger@entry#1#2#3#4{%
+%% #5: JEID
+\def\ledger@entry#1#2#3#4#5{%
 %<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>          {\ledger@entry}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3: \unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args4: \unexpanded{#4}}%
+%<dbg>  Args1(勘定科目名)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(相手科目名)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(借（貸）方)=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4(取引額)=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5(JEID)=\unexpanded{#5}.}%
 %    \end{macrocode}
 % 事前準備．
 % 見通しを良くするために\meta{AccType}\meta{AccID}を\cmd{\LE@tmpA}に定義しておく．
@@ -1424,13 +1434,13 @@
     {\Account@getAccTypeAccID{#1}-\LE@currentLedgerCount}%
   \Account@setpropertySmpl{#1}%
     {Ledger\LE@currentLedgerCount @JEID}%
-    {\the\c@JECount}%
+    {#5}%
   \Account@setpropertySmpl{#1}%
     {Ledger\LE@currentLedgerCount @PartnerAccount}%
     {#2}%
   \Account@setpropertySmpl{#1}%
     {Ledger\LE@currentLedgerCount @JEDesc}%
-    {\JE@getpropertySmpl{\the\c@JECount}{Description}}%
+    {\JE@getpropertySmpl{#5}{Description}}%
   \Account@setpropertySmpl{#1}%
     {Ledger\LE@currentLedgerCount @IsAccountDebit}%
     {#3}%
@@ -1453,13 +1463,13 @@
   % Account balance, Debit and Credit in the month
   \if#3D%
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account.Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].Debit}%
+%<dbg>  Set Account.Month[\JE@getpropertySmpl{#5}{Month}].Debit}%
     \Account@setpropertySmpl{#1}%
-      {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}%
+      {Month\JE@getpropertySmpl{#5}{Month}@Debit}%
       {%
         \the\numexpr
           \Account@getpropertySmpl{#1}%
-            {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}%
+            {Month\JE@getpropertySmpl{#5}{Month}@Debit}%
           +
           \Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @AccountValue}\relax
@@ -1493,13 +1503,13 @@
 %    \begin{macrocode}
   \if#3C%
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account.Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].Credit}%
+%<dbg>  Set Account.Month[\JE@getpropertySmpl{#5}{Month}].Credit}%
     \Account@setpropertySmpl{#1}%
-      {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
+      {Month\JE@getpropertySmpl{#5}{Month}@Credit}%
       {%
         \the\numexpr
           \Account@getpropertySmpl{#1}%
-            {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
+            {Month\JE@getpropertySmpl{#5}{Month}@Credit}%
           +
           \Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @AccountValue}\relax
@@ -1534,17 +1544,17 @@
 % 
 %    \begin{macrocode}
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].%
+%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{#5}{Month}].%
 %<dbg>  Balance}%
   \Account@setpropertySmpl{#1}
-    {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Balance}
+    {Month\JE@getpropertySmpl{#5}{Month}@Balance}
     {%
       \the\numexpr
         \Account@getpropertySmpl{#1}
-          {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Debit}%
+          {Month\JE@getpropertySmpl{#5}{Month}@Debit}%
         -
         \Account@getpropertySmpl{#1}
-          {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@Credit}%
+          {Month\JE@getpropertySmpl{#5}{Month}@Credit}%
     \relax}%
 %    \end{macrocode}
 % \changes{v1.1.2-alpha.10}{2025/12/16}
@@ -1573,10 +1583,10 @@
       {Ledger\LE@currentLedgerCount @AccountBalance}}%
   \if#3\relax
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{\the\c@JECount}{Month}].%
+%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{#5}{Month}].%
 %<dbg>  ClosingBalance.}%
     \Account@setpropertySmpl{#1}%
-      {Month\JE@getpropertySmpl{\the\c@JECount}{Month}@ClosingBalance}%
+      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
       {\Account@getpropertySmpl{#1}{Balance}}%
   \fi
 }
@@ -1591,6 +1601,9 @@
 %   {\cs{csname}\cs{endcsname}から\cs{csuse}に変更．}^^A
 % \changes{v1.1.2-alpha.23.01}{2025/12/27}
 %   {リネーム他いろいろ修正．}^^A
+% \changes{v1.1.2-alpha.23.04}{2025/12/29}
+%   {\cs{ledger@entry}の引数としてJEIDを渡すように変更
+%    （とりあえず発行時の\cntname{JECount}を渡しておく？）．}^^A
 % \meta{AccountID}をイテレーションして\cmd{\ledger@entry}で月次締切の登録をする．
 %    \begin{macrocode}
 \def\LMC@loop@Account#1;#2;#3;{% loop for each AccID
@@ -1610,6 +1623,7 @@
       {#3}%
       {\unexpanded{\relax}}%
       {0}%
+      {\the\value{JECount}}%
     }%
     \expandafter\@firstofone
   \fi{%
