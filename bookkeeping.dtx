@@ -828,14 +828,14 @@
   \Account@setpropertySmpl{#3}{Balance}{0}%
   \Account@setpropertySmpl{#3}{Debit}{0}%
   \Account@setpropertySmpl{#3}{Credit}{0}%
-%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab AccType=#1}%
-%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab AccID\space\space=%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space AccType=#1}%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space AccID\space\space=%
 %<dbg>  \the\csuse{c@AccType#1@AccountCount}}%
-%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab Account["#3"].Name=%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space Account["#3"].Name=%
 %<dbg>  \Account@getpropertySmpl{#3}{Name}}%
-%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab Account["#3"].LedgerCount=%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space Account["#3"].LedgerCount=%
 %<dbg>  \Account@getpropertySmpl{#3}{LedgerCount}}%
-%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab Account["#3"].LedgerBalanceType=%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space Account["#3"].LedgerBalanceType=%
 %<dbg>  \Account@getpropertySmpl{#3}{LedgerBalanceType}}%
   \Account@init@Month{0}{#3}%
 %<dbg>\typeout{\BK@dbg@Finish
@@ -1463,7 +1463,7 @@
   % Account balance, Debit and Credit in the month
   \if#3D%
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account.Month[\JE@getpropertySmpl{#5}{Month}].Debit}%
+%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{#5}{Month}].Debit}%
     \Account@setpropertySmpl{#1}%
       {Month\JE@getpropertySmpl{#5}{Month}@Debit}%
       {%
@@ -1474,28 +1474,21 @@
           \Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @AccountValue}\relax
       }%
-%<dbg>\typeout{Procces: set JE.Debit.LEID}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Set JE[#5].Debit.LEID}%
     \csxdef{JE\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @JEID}@Debit@LEID}%
       {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account.Debit}%
+%<dbg>  Set Account["#1"].Debit}%
   \Account@setpropertySmpl{#1}{Debit}{%
     \the\numexpr
       \Account@getpropertySmpl{#1}{Debit}%
       +1*\Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @AccountValue}%
     \relax
   }%
-%<dbg>\message{%
-%<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
-%<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
-%<dbg>  .Debit.LEID=}%
-%<dbg>\message{\JE@getpropertySmpl{%
-%<dbg>    \Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @JEID}%
-%<dbg>  }{Debit@LEID}%
-%<dbg>}%
   \fi
 %    \end{macrocode}
 % 取引で貸方に来ているときには貸方残高に取引額を加算し，
@@ -1514,28 +1507,21 @@
           \Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @AccountValue}\relax
       }%
-%<dbg>\typeout{Procces: set JE.Credit.LEID}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Set JE[#5].Credit.LEID}%
     \csxdef{JE\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @JEID}@Credit@LEID}%
       {\Account@getpropertySmpl{#1}%
             {Ledger\LE@currentLedgerCount @FullLEID}%
       }%
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account.Credit}%
+%<dbg>  Set Account["#1"].Credit}%
     \Account@setpropertySmpl{#1}{Credit}{%
       \the\numexpr
         \Account@getpropertySmpl{#1}{Credit}%
         +1*\Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @AccountValue}%
       \relax
     }%
-%<dbg>\message{%
-%<dbg>  Results: JE[\Account@getpropertySmpl{#1}%
-%<dbg>                {Ledger\LE@currentLedgerCount @JEID}]%
-%<dbg>  .Credit.LEID=}%
-%<dbg>\message{\JE@getpropertySmpl{%
-%<dbg>    \Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @JEID}%
-%<dbg>  }{Credit@LEID}%
-%<dbg>}%
   \fi
 %    \end{macrocode}
 % \changes{v1.1.2-alpha.09}{2025/12/15}
