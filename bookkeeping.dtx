@@ -453,23 +453,35 @@
 %   {デバッグ用コマンド\cs{BK@dbg@Start}の新設}
 % 
 %    \begin{macrocode}
-\def\BK@dbg@Start{Start\space\space:}
+\def\BK@dbg@Start{Start\space\space: }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\BK@dbg@Process}^^A
 % \changes{v1.1.2-alpha.22}{2025/12/26}
 %   {デバッグ用コマンド\cs{BK@dbg@Process}の新設}
+% \changes{v1.1.2-alpha.23.03}{2025/12/29}
+%   {Tabbing.}
 % 
 %    \begin{macrocode}
-\def\BK@dbg@Process{Process:}
+\def\BK@dbg@Process{\BK@dbg@Tab Process: }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\BK@dbg@Status}^^A
 % \changes{v1.1.2-alpha.22}{2025/12/26}
 %   {デバッグ用コマンド\cs{BK@dbg@Status}の新設}
+% \changes{v1.1.2-alpha.23.03}{2025/12/29}
+%   {Tabbing.}
 % 
 %    \begin{macrocode}
-\def\BK@dbg@Status{Status\space:}
+\def\BK@dbg@Status{\BK@dbg@Tab Status\space: }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\BK@dbg@Finish}^^A
+% \changes{v1.1.2-alpha.23.03}{2025/12/29}
+%   {デバッグ用コマンド\cs{BK@dbg@Finish}の新設}
+% 
+%    \begin{macrocode}
+\def\BK@dbg@Finish{Finish\space: }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %</dbg>
@@ -546,6 +558,11 @@
 %% #1: AccType
 %% #2: AccTypeName
 \def\BK@registerAccType#1#2{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\BK@registerAccType}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2}.}%
   \stepcounter{AccountTypeCount}%
   \csgdef{AccType#1@Name}{#2}%
   \csxdef{revAccType\the\c@AccountTypeCount @AccType}{#1}%
@@ -562,11 +579,16 @@
 % 勘定科目の種類の月ごとの残高・借方合計・貸方合計の初期化．
 %    \begin{macrocode}
 \def\AccType@init@Month#1#2{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\AccType@init@Month}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2}.}%
   \ifnum#1>\BK@closingmonth\relax
-%<dbg>\typeout{Process: End of init AccType[#2].Month}%
+%<dbg>\typeout{\BK@dbg@Process End of init AccType[#2].Month}%
     \expandafter\@gobble%
   \else
-%<dbg>\typeout{Process: Init AccType[#2].Month[#1]}%
+%<dbg>\typeout{\BK@dbg@Process Init AccType[#2].Month[#1]}%
     \AccType@setpropertySmpl{#2}{Month#1@Balance}{0}%
     \AccType@setpropertySmpl{#2}{Month#1@Debit}{0}%
     \AccType@setpropertySmpl{#2}{Month#1@Credit}{0}%
@@ -790,6 +812,12 @@
 %% #2: Account Ledger Balance (Debit(D) or Credit(C) or Auto(A))
 %% #3: Account Name
 \newcommand{\registerAccountID}[3]{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\registerAccountID}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3=\unexpanded{#3}.}%
   \global\advance\csuse{c@AccType#1@AccountCount}\@ne\relax%
   \csgdef{revAccount#3@Type}{#1}% AccType <- Account Name
   \csxdef{revAccount#3@ID}%
@@ -800,17 +828,18 @@
   \Account@setpropertySmpl{#3}{Balance}{0}%
   \Account@setpropertySmpl{#3}{Debit}{0}%
   \Account@setpropertySmpl{#3}{Credit}{0}%
-%<dbg>\typeout{Start  : \unexpanded{\registerAccountID}.}%
-%<dbg>\typeout{AccType: #1}%
-%<dbg>\typeout{AccID  : \the\csuse{c@AccType#1@AccountCount}}%
-%<dbg>\typeout{Account[#3].Name: %
-%<dbg>         \Account@getpropertySmpl{#3}{Name}}%
-%<dbg>\typeout{Account[#3].LedgerCount: %
-%<dbg>         \Account@getpropertySmpl{#3}{LedgerCount}}%
-%<dbg>\typeout{Account[#3].LedgerBalanceType: %
-%<dbg>         \Account@getpropertySmpl{#3}{LedgerBalanceType}}%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab AccType=#1}%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab AccID\space\space=%
+%<dbg>  \the\csuse{c@AccType#1@AccountCount}}%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab Account["#3"].Name=%
+%<dbg>  \Account@getpropertySmpl{#3}{Name}}%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab Account["#3"].LedgerCount=%
+%<dbg>  \Account@getpropertySmpl{#3}{LedgerCount}}%
+%<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab Account["#3"].LedgerBalanceType=%
+%<dbg>  \Account@getpropertySmpl{#3}{LedgerBalanceType}}%
   \Account@init@Month{0}{#3}%
-%<dbg>\typeout{Finish : \unexpanded{\registerAccountID}.}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\registerAccountID}.}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -822,11 +851,18 @@
 % 勘定科目の月ごとの残高・借方合計・貸方合計の初期化．
 %    \begin{macrocode}
 \def\Account@init@Month#1#2{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\Account@init@Month}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2}.}%
   \ifnum#1>\BK@closingmonth\relax
-%<dbg>\typeout{Process: End of init Account[#2].Month}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  End of init Account[#2].Month}%
     \expandafter\@gobble%
   \else
-%<dbg>\typeout{Process: Init Account[#2].Month[#1]}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Init Account[#2].Month[#1]}%
     \Account@setpropertySmpl{#2}{Month#1@Balance}{0}%
     \Account@setpropertySmpl{#2}{Month#1@Debit}{0}%
     \Account@setpropertySmpl{#2}{Month#1@Credit}{0}%
@@ -1203,6 +1239,15 @@
 % 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\journ@lentry}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5=\unexpanded{#5},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args6=\unexpanded{#6}.}%
   \stepcounter{JECount}%
   \xdef\JE@currentJournalCount{\the\c@JECount}%
   \JE@setDate{#1}{#2}%
@@ -1212,6 +1257,8 @@
   \JE@setpropertySmpl{\JE@currentJournalCount}{Line}{3}%
   \ledger@entry{#3}{#5}{D}{#4}%
   \ledger@entry{#5}{#3}{C}{#4}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\journ@lentry}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1227,6 +1274,14 @@
 % 摘要の省略された仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\sjourn@lentry}[5]{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\sjourn@lentry}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5=\unexpanded{#5}.}%
   \stepcounter{JECount}%
   \xdef\JE@currentJournalCount{\the\c@JECount}%
   \JE@setDate{#1}{#2}%
@@ -1236,6 +1291,8 @@
   \JE@setpropertySmpl{\JE@currentJournalCount}{Line}{2}%
   \ledger@entry{#3}{#5}{D}{#4}%
   \ledger@entry{#5}{#3}{C}{#4}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\sjourn@lentry}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1323,10 +1380,10 @@
 %<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>          {\ledger@entry}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>          Args1: \unexpanded{#1},
-%<dbg>          Args2: \unexpanded{#2},
-%<dbg>          Args3: \unexpanded{#3},
-%<dbg>          Args3: \unexpanded{#4}}%
+%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3: \unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4: \unexpanded{#4}}%
 %    \end{macrocode}
 % 事前準備．
 % 見通しを良くするために\meta{AccType}\meta{AccID}を\cmd{\LE@tmpA}に定義しておく．
@@ -1345,9 +1402,8 @@
 % 現在の\cntname{LedgerCount}をマクロにしておく．
 %    \begin{macrocode}
   \xdef\LE@currentLedgerCount{\Account@getpropertySmpl{#1}{LedgerCount}}%
-%<dbg>\typeout{%
-%<dbg>  Account: #1,
-%<dbg>  LedgerCount: \Account@getpropertySmpl{#1}{LedgerCount}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  LedgerCount=\Account@getpropertySmpl{#1}{LedgerCount}}%
 %    \end{macrocode}
 % \end{macro}
 % この取引についての要素の登録．
@@ -1532,14 +1588,14 @@
 % \meta{AccountID}をイテレーションして\cmd{\ledger@entry}で月次締切の登録をする．
 %    \begin{macrocode}
 \def\LMC@loop@Account#1;#2;#3;{% loop for each AccID
-%<dbg>\typeout{\@spaces\BK@dbg@Start\unexpanded
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>          {\LMC@loop@Account}}%
-%<dbg>\typeout{\@spaces\BK@dbg@Status
-%<dbg>          Args1: \unexpanded{#1},
-%<dbg>          Args2: \unexpanded{#2},
-%<dbg>          Args3: \unexpanded{#3}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3: \unexpanded{#3}}%
   \ifnum#1>\value{AccType#2@AccountCount}%
-%<dbg>\typeout{\@spaces\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Process
 %<dbg>          End Loop for Account.}%
     \expandafter\@gobble
   \else
@@ -1551,7 +1607,7 @@
     }%
     \expandafter\@firstofone
   \fi{%
-%<dbg>\typeout{\@spaces\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Process
 %<dbg>          \unexpanded{\LMC@loop@Account} Recurse.}%
     \expandafter\LMC@loop@Account\expanded
       {\the\numexpr#1+1;#2;#3;}%
@@ -1568,21 +1624,21 @@
 % \meta{AccTypeID}をイテレーションして\cmd{\LMC@loop@Account}を呼び出す．
 %    \begin{macrocode}
 \def\LMC@loop@AccType#1;#2;{% loop for each AccType
-%<dbg>\typeout{\space\space\BK@dbg@Start\unexpanded
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>          {\LMC@loop@AccType}}%
-%<dbg>\typeout{\space\space\BK@dbg@Status
-%<dbg>          Args1: \unexpanded{#1},
-%<dbg>          Args2: \unexpanded{#2}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2: \unexpanded{#2}}%
   \ifnum#1>\value{AccountTypeCount}%
-%<dbg>\typeout{\@spaces\BK@dbg@Process
-%<dbg>          End Loop for Account.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>          End Loop for AccType.}%
     \expandafter\@gobble
   \else
     \expandafter\@firstofone
   \fi{%
     \expandafter\LMC@loop@Account\expanded
       {1;\AccType@getAccType{#1};#2;}%
-%<dbg>\typeout{\space\space\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Process
 %<dbg>          \unexpanded{\LMC@loop@AccType} Recurse.}%
     \expandafter\LMC@loop@AccType\expanded
       {\the\numexpr#1+1;#2;}%
@@ -1598,9 +1654,9 @@
 %    \begin{macrocode}
 \newcommand{\ledgermonthlyclosing}[1]{% #1: closing month
 %<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\ledgermonthlyclosing}}%
+%<dbg>  {\ledgermonthlyclosing}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>          Args1: \unexpanded{#1}}%
+%<dbg>  Args1: \unexpanded{#1}}%
   \stepcounter{ClosingMonthCount}%
   \expandafter\LMC@loop@AccType\expanded
     {1;\the\numexpr#1;}%
@@ -1735,8 +1791,10 @@
 % 取引IDが\meta{JEID}の取引を出力する．
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
-%<dbg>\typeout{Start  :\noexpand\PJ@Transaction .}%
-%<dbg>\typeout{Status :JEID=#1.}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>  {\PJ@Transaction}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1: \unexpanded{#1}}%
 %    \end{macrocode}
 % 借方の行．
 %    \begin{macrocode}
@@ -1811,15 +1869,18 @@
 % 仕訳帳の表の内容を出力する．
 %    \begin{macrocode}
 \def\PJ@Loop@Table{%
-%<dbg>\typeout{Start  :\noexpand\PJ@Loop@Table .}%
-%<dbg>\typeout{nest.if:\the\currentiflevel .}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>  {\PJ@Loop@Table}}%
+%<dbg>\typeout{\BK@dbg@Tab\space nest.if=\the\currentiflevel .}%
   \gdef\n@xt{}%
 %    \end{macrocode}
 % 取引をすべて出力したなら仕訳帳を締め切る処理をする．
 %    \begin{macrocode}
   \ifnum\c@Iterator@JEID>\numexpr\c@JECount-1\relax
-%<dbg>\typeout{Process:Terminate.}%
-%<dbg>\typeout{Status :cnt.Iterator@JEID=\theIterator@JEID .}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  End of Loop \unexpanded{\PJ@Loop@Table}.}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  cnt.Iterator@JEID=\theIterator@JEID}%
     \PJ@Terminate
 %    \end{macrocode}
 % 現在の仕訳帳の行数が1ページ当たりの最大行数
@@ -1828,7 +1889,8 @@
 %    \begin{macrocode}
   \else
     \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
-%<dbg>\typeout{Process:CarryForward.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Carry Forward (\unexpanded{\PJ@Loop@Table}).}%
       \gdef\n@xt{\PJ@Loop}%
       \gdef\n@xtprev{\PJ@CarryPrev}%
       \PJ@CarryForward
@@ -1849,7 +1911,8 @@
 %   {FIX: \cs{expandafter}と\cs{fi}の数の整合性．}^^A
 %    \begin{macrocode}
     \else
-%<dbg>\typeout{Process:Transaction.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Transaction (\unexpanded{\PJ@Loop@Table}).}%
       \refstepcounter{Iterator@JEID}%
       \global\advance\c@tableLineCount
         \JE@getpropertySmpl{\the\c@Iterator@JEID}{Line}\relax
@@ -1857,10 +1920,11 @@
         \JE@getpropertySmpl{\the\c@Iterator@JEID}{Debit@Value}\relax
       \global\advance\sum@credit
         \JE@getpropertySmpl{\the\c@Iterator@JEID}{Credit@Value}\relax
-%<dbg>\typeout{Status :cnt.Iterator@JEID=\theIterator@JEID .}%
-%<dbg>\typeout{Status :cnt.tableLineCount=\thetableLineCount .}%
-%<dbg>\typeout{Status :cnt.sum@debit=\the\sum@debit .}%
-%<dbg>\typeout{Status :cnt.sum@credit=\the\sum@credit .}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  cnt.Iterator@JEID=\theIterator@JEID,^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  cnt.tableLineCount=\thetableLineCount,^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  cnt.sum@debit=\the\sum@debit,^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  cnt.sum@credit=\the\sum@credit.}%
       \PJ@Transaction{\the\c@Iterator@JEID}%
       \expandafter\expandafter\expandafter\PJ@Loop@Table
     \fi
@@ -1875,7 +1939,8 @@
 %
 %    \begin{macrocode}
 \def\PJ@Loop{%
-%<dbg>\typeout{Start  :\noexpand\PJ@Loop .}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>  {\PJ@Loop}}%
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r|r}
     \makebox[2\zw]{ID}%
@@ -1915,7 +1980,8 @@
 % 再帰用マクロを空にして\cmd{\PJ@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printjournal}{%
-%<dbg>\typeout{Start  :\noexpand\printjournal .}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>  {\printjournal}}%
   \setcounter{Iterator@JEID}{0}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
@@ -1977,41 +2043,52 @@
 %% #1: ladger entry ID
 %% #2: Account Name
 \def\PGL@Transaction#1;#2;{%
-%<dbg>\typeout{Start  : \unexpanded{\PGL@Transaction}.
-%<dbg>         LEID=#1, Account Name #2.}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@Transaction}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1 (LEID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2 (AccountName)=\unexpanded{#2}.}%
   \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
-%<dbg>\typeout{Process: Account[Name].Ledger[LEID].FullLEID.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  get Account["#2"].Ledger[#1].FullLEID}%
     \Account@getpropertySmpl{#2}{Ledger#1@FullLEID}%
     \label{LEID:\Account@getpropertySmpl{#2}{Ledger#1@FullLEID}}%
   }{% Month/Day: JE.getDate(Account[Name].Ledger[LEID].JEID)
-%<dbg>\typeout{Process: Month/Day.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  get Month/Day}%
     \printJE@Date{\Account@getpropertySmpl{#2}{Ledger#1@JEID}}%
   }{% Partner Account title: Account[Name].Ledger[LEID].PartnerAccount
-%<dbg>\typeout{Process: Account[Name].Ledger[LEID].PartnerAccount.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  get Account["#2"].Ledger[#1].PartnerAccount}%
     \Account@getpropertySmpl{#2}{Ledger#1@PartnerAccount}%
   }{% Desc.: Account[Name].Ledger[LEID].JEDesc
-%<dbg>\typeout{Process: Account[Name].Ledger[LEID].JEDesc.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  get Account["#2"].Ledger[#1].JEDesc}%
     \Account@getpropertySmpl{#2}{Ledger#1@JEDesc}%
   }{% JEID: Account[Name].Ledger[LEID].JEID
-%<dbg>\typeout{Process: Account[Name].Ledger[LEID].JEID.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  get Account["#2"].Ledger[#1].JEID}%
     \hyperref[JEID:\Account@getpropertySmpl{#2}{Ledger#1@JEID}]%
       {\Account@getpropertySmpl{#2}{Ledger#1@JEID}}%
   }{% Debit: 条件分けして Account[Name].Ledger[LEID].AccountValue
-%<dbg>\typeout{Process: Debit; Account[Name].Ledger[LEID].AccountValue.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  get Account["#2"].Ledger[#1].AccountValue in Debit.}%
     \if\Account@getpropertySmpl{#2}{Ledger#1@IsAccountDebit}D\relax%
       \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@debit
                      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Credit: 条件分けして Account[Name].Ledger[LEID].AccountValue
-%<dbg>\typeout{Process: Credit; Account[Name].Ledger[LEID].AccountValue.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  get Account["#2"].Ledger[#1].AccountValue in Credit.}%
     \if\Account@getpropertySmpl{#2}{Ledger#1@IsAccountDebit}C\relax%
       \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@credit
                      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Balance type: Account[Name].LedgerBalanceTypeで条件分け
-%<dbg>\typeout{Process: Account[Name].LedgerBalanceType.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  switch Account["#2"].Ledger[#1].LedgerBalanceType.}%
     \Account@swBalanceType{#2}{%
       借
     }{%
@@ -2024,7 +2101,8 @@
       \fi
     }%
   }{% Balance: Account[Name].Balance
-%<dbg>\typeout{Process: Account[Name].Ledger[LEID].Balance.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  switch Account["#2"].Ledger[#1].Balance.}%
     \Account@getLedgerBalance{#2}{#1}%
   }%
 }
@@ -2076,8 +2154,12 @@
 % 月次締切処理．
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing#1;#2;#3;{%
-%<dbg>\typeout{Startin: \noexpand\PGL@MonthlyClosing.
-%<dbg>  Month: #1, LEID: #2, Account Name: #3, }%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\PGL@MonthlyClosing}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1 (Month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2 (LEID)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3 (Account Name)=\unexpanded{#3}.}%
   \global\sum@debit\z@\relax \global\sum@credit\z@\relax
   \Account@setpropertySmpl{#3}{Month#1@Balance}{\the\c@LedgerEntryBalance}%
   \PGL@printline{}{}{#1月決算}{}{}%
@@ -2144,7 +2226,8 @@
 %<dbg>%\typeout{Startin: \noexpand\PGL@ACLoop@Table . Args1: #1}%
   \ifnum\c@Iterator@Account@LEID>\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
     \BK@hline
-%<dbg>\typeout{Process: Terminate.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Terminate loop (\unexpanded{\PGL@ACLoop@Table}).}%
     \PGL@Terminate{#1}%
     \expandafter\@gobble
   \else
@@ -2152,24 +2235,28 @@
       \BK@hline
       \gdef\n@xt{\PGL@ACLoop#1;}%
       \gdef\n@xtprev{\PGL@CarryPrev}%
-%<dbg>\typeout{Process: CarryForward.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  CarryForward (\unexpanded{\PGL@ACLoop@Table}).}%
       \PGL@CarryForward
       \expandafter\expandafter\expandafter\@gobble
     \else
       \gdef\n@xt{\expandafter\PGL@L@@p\expanded{{\the\numexpr\Account@getAccID{#1}+1}{\Account@getAccType{#1}}}}%
       \stepcounter{tableLineCount}%
       \stepcounter{Iterator@Account@LEID}%
-%<dbg>\typeout{Status : tableLineCount = \the\c@tableLineCount .}%
-%<dbg>\typeout{Status : Iterator@Account@LEID = \the\c@Iterator@Account@LEID .}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  tableLineCount=\the\c@tableLineCount,^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Iterator@Account@LEID=\the\c@Iterator@Account@LEID}%
       \ifnum\Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @AccountValue}=0\relax
-%<dbg>\typeout{Process: Monthly Closing.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Monthly Closing (\unexpanded{\PGL@ACLoop@Table}).}%
         \expandafter\PGL@MonthlyClosing\expanded{%
           \Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @PartnerAccount};%
           \the\c@Iterator@Account@LEID;%
           #1;%
         }%
       \else
-%<dbg>\typeout{Process: Transaction.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Transaction (\unexpanded{\PGL@ACLoop@Table}).}%
         \expandafter\PGL@Transaction\expanded{%
           \the\c@Iterator@Account@LEID;%
           #1;%
@@ -2224,7 +2311,10 @@
 % 
 %    \begin{macrocode}
 \def\PGL@ACLoop#1;{%
-%<dbg>\typeout{Start: \unexpanded{\PGL@ACLoop}, 勘定科目名=#1.}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\PGL@ACLoop}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1 (勘定科目名): \unexpanded{#1}.}
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
     \PGL@tableHeader
@@ -2265,11 +2355,16 @@
 % 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p#1#2{%
-%<dbg>\typeout{Start: \unexpanded{\PGL@L@@p}, AccountID=#1, AccType=#2.}%
-%<dbg>\typeout{Status : AccType[#2].AccountCount =
-%<dbg>  \the\value{AccType#2@AccountCount}.}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\PGL@L@@p}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1 (AccountID): \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2 (AccType): \unexpanded{#2}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  AccType[#2].AccountCount=\the\value{AccType#2@AccountCount}.}%
   \ifnum#1>\value{AccType#2@AccountCount}%
-%<dbg>\typeout{Process: Go to \unexpanded{\PGL@Loop}.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Go to \unexpanded{\PGL@Loop}.}%
     \expandafter\@secondoftwo
   \else
     \expandafter\subsection\expandafter%
@@ -2306,8 +2401,13 @@
 % 各勘定科目の種類について\cmd{\PLG@L@@p}を呼び出す．
 %    \begin{macrocode}
 \def\PGL@Loop#1{%
-%<dbg>\typeout{Start: \unexpanded{\PGL@Loop}, AccTypeID=#1.}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\PGL@Loop}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1 (AccTypeID): \unexpanded{#1}.}%
   \ifnum#1>\value{AccountTypeCount}\relax
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  End loop in \unexpanded{\PGL@Loop}.}%
     \expandafter\@gobble
   \else
     \expandafter\@firstofone
@@ -2328,7 +2428,8 @@
 % いくつかのパラメタを初期化して\cmd{\PLG@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printgeneralledger}{%
-%<dbg>\typeout{Start: \unexpanded{\printgeneralledger}.}%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>  {\printgeneralledger}}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
   \PGL@Loop{1}%
@@ -2373,12 +2474,12 @@
 % 合計残高試算表にて借方残高を表示するマクロ．
 %    \begin{macrocode}
 \def\TB@Table@Acc@OneLine@BalanceDebt#1#2#3{%
-%<dbg>\typeout{\@spaces\space\space\BK@dbg@Start\unexpanded
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>  {\TB@Table@Acc@OneLine@BalanceDebt}}%
-%<dbg>\typeout{\@spaces\space\space\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},
-%<dbg>  Args2=\unexpanded{#2},
-%<dbg>  Args3=\unexpanded{#3}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3=\unexpanded{#3}.}%
   \Account@swBalanceType{#1}%
   {% Debit
     \expandafter\BK@printMinusBalance\expanded{%
@@ -2403,12 +2504,12 @@
 % 合計残高試算表にて貸方残高を表示するマクロ．
 %    \begin{macrocode}
 \def\TB@Table@Acc@OneLine@BalanceCredit#1#2#3{%
-%<dbg>\typeout{\@spaces\@spaces\space\space\BK@dbg@Start\unexpanded
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>  {\TB@Table@Acc@OneLine@BalanceCredit}}%
-%<dbg>\typeout{\@spaces\@spaces\space\space\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},
-%<dbg>  Args2=\unexpanded{#2},
-%<dbg>  Args3=\unexpanded{#3}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3=\unexpanded{#3}.}%
   \Account@swBalanceType{#1}%
   {% Debit
   }{% Credit
@@ -2451,12 +2552,12 @@
 % \marg{\cntname{Month}\meta{month}\cntname{@Credit}}でアクセスできる．
 %    \begin{macrocode}
 \def\TB@Table@Acc@OneLine#1;#2;#3;{%
-%<dbg>\typeout{\@spaces\@spaces\space\space\BK@dbg@Start\unexpanded
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>  {\TB@Table@Acc@OneLine}}%
-%<dbg>\typeout{\@spaces\@spaces\space\space\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},
-%<dbg>  Args2=\unexpanded{#2},
-%<dbg>  Args3=\unexpanded{#3}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3=\unexpanded{#3}.}%
   \TB@printline{% Debt balance
     \TB@Table@Acc@OneLine@BalanceDebt{#1}{#2}{#3}%
   }{%
@@ -2550,14 +2651,14 @@
 % \cmd{\TB@Table@LoopAccType}を呼び出す．
 %    \begin{macrocode}
 \def\TB@Table@LoopAccount#1;#2;#3;{%
-%<dbg>\typeout{\@spaces\@spaces\BK@dbg@Start\unexpanded{%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
 %<dbg>  \TB@Table@LoopAccount}}%
-%<dbg>\typeout{\@spaces\@spaces\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1},
-%<dbg>  Args2: \unexpanded{#2},
-%<dbg>  Args3: \unexpanded{#3}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3: \unexpanded{#3}.}%
   \ifnum#1>\value{AccType#2@AccountCount}%
-%<dbg>\typeout{\@spaces\@spaces\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Process
 %<dbg>  End Loop for Account.}%
     \expandafter\@gobble
   \else
@@ -2586,13 +2687,13 @@
 % 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@LoopAccount}を呼び出す．
 %    \begin{macrocode}
 \def\TB@Table@LoopAccType#1;#2;{%
-%<dbg>\typeout{\@spaces\space\space\BK@dbg@Start\unexpanded{%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
 %<dbg>  \TB@Table@LoopAccType}}%
-%<dbg>\typeout{\@spaces\space\space\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1},
-%<dbg>  Args2: \unexpanded{#2}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2: \unexpanded{#2}.}%
   \ifnum#1>\value{AccountTypeCount}%
-%<dbg>\typeout{\@spaces\space\space\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Process
 %<dbg>  End Loop for AccType.}%
     \expandafter\@gobble
   \else
@@ -2647,9 +2748,9 @@
 % 残高試算表の表を組む．
 %    \begin{macrocode}
 \def\TB@printTable#1{%
-%<dbg>\typeout{\@spaces\BK@dbg@Start\unexpanded{%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
 %<dbg>  \TB@printTable}}%
-%<dbg>\typeout{\@spaces\BK@dbg@Status
+%<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1: \unexpanded{#1}}%
   \begingroup\centering
   \begin{tabular}{rrcrr}
@@ -2689,12 +2790,12 @@
 % 各月ごとの残高試算表の出力処理を行い\cmd{\TB@LoopMonth}を再帰的に呼び出す．
 %    \begin{macrocode}
 \def\TB@LoopMonth#1;{%
-%<dbg>\typeout{\space\space\BK@dbg@Start\unexpanded{%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
 %<dbg>  \TB@LoopMonth}}%
-%<dbg>\typeout{\space\space\BK@dbg@Status
+%<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1: \unexpanded{#1}}%
   \ifnum\the\numexpr#1+1\relax>\value{ClosingMonthCount}%
-%<dbg>\typeout{\space\space\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Process
 %<dbg>  End Loop for Month.}%
     \expandafter\@gobble
   \else
@@ -2720,7 +2821,7 @@
 \newcommand{\printmonthlytrialbalance}{%
 %<dbg>\typeout{\BK@dbg@Start\unexpanded
 %<dbg>          {\printmonthlytrialbalance}}%
-%<dbg>\typeout{\space\space\BK@dbg@Status
+%<dbg>\typeout{\BK@dbg@Status
 %<dbg>  ClosingMonthCount= \the\value{ClosingMonthCount}}%
   \setcounter{Iterator@Account@Month}{0}%
   \gdef\n@xtprev{}%
