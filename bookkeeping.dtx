@@ -500,6 +500,8 @@
 % \subsubsection{勘定科目の種類}
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタ}
+% \changes{v1.1.2-alpha.24}{2025/12/30}
+%   {勘定科目の種類の\meta{prop.}に\cntname{BalanceType}を追加．}
 % 勘定科目の種類が\meta{AccType}である勘定科目の種類について、
 % 勘定科目の各要素には\cntname{\cmd{\AccType}\meta{AccType}@\meta{prop.}}で
 % アクセスできる．
@@ -511,6 +513,8 @@
 %   勘定科目の種類の識別番号(ID)．
 % \item[\cntname{AccountCount}]
 %   勘定科目の種類に登録された勘定科目数のカウンタ．
+% \item[\cntname{BalanceType}]
+%   勘定科目の種類が借方残高(D)か貸方残高(C)かその他(A)か．
 % \item[\cntname{Month}\meta{month}@\meta{month~prop.}]
 %   \meta{month}で指定した月ごとの各要素にアクセスする．
 %   \meta{month~prop.}の種類は次の通り．
@@ -554,7 +558,8 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\BK@registerAccType}\marg{AccType}\marg{AccTypeName}\par
+% \begin{macro}{\BK@registerAccType}^^A
+%   \marg{AccType}\marg{AccTypeName}\marg{BalanceType}\par
 % \changes{v1.1.0}{2023/04/26}
 %   {the name of registerAccType is changed to BK@registerAccType.}
 % \changes{v1.1.0}{2024/02/21}
@@ -565,6 +570,8 @@
 %    残高・借方合計・貸方合計の初期化マクロを呼び出す．}^^A
 % \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {\cs{AccType@init@Month}に渡す引数が誤っていたのを修正．}^^A
+% \changes{v1.1.2-alpha.24}{2025/12/30}
+%   {勘定科目の種類の\meta{prop.}に\cntname{BalanceType}を追加．}
 % 勘定科目の種類\meta{AccType}を登録する．
 % カウンタを確保するので無意味に何度も呼び出さないこと．
 %    \begin{macrocode}
@@ -572,18 +579,23 @@
 %% registerAccType: 勘定科目の種類の登録
 %% #1: AccType
 %% #2: AccTypeName
-\def\BK@registerAccType#1#2{%
+%% #3: BalanceType
+\def\BK@registerAccType#1#2#3{%
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\BK@registerAccType}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2}.}%
+%<dbg>  Args1(AccType)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccTypeName)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(BalanceType)=\unexpanded{#3}.}%
   \stepcounter{AccountTypeCount}%
   \csgdef{AccType#1@Name}{#2}%
   \csxdef{revAccType\the\c@AccountTypeCount @AccType}{#1}%
   \csxdef{AccType#1@ID}{\theAccountTypeCount}%
+  \AccType@setpropertySmpl{#1}{BalanceType}{#3}%
   \AccType@init@Month{0}{#1}%
   \newcounter{AccType#1@AccountCount}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\BK@registerAccType}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -620,12 +632,12 @@
 %    \end{macrocode}
 % \end{macro}
 %    \begin{macrocode}
-\BK@registerAccType{A}{資産}% 資産 (Asset)
-\BK@registerAccType{L}{負債}% 負債 (Liability)
-\BK@registerAccType{N}{総資産}% 総資産 (Net asset)
-\BK@registerAccType{R}{収益}% 収益 (Revenue)
-\BK@registerAccType{E}{費用}% 費用 (Expence)
-\BK@registerAccType{M}{その他}% その他 (Misc.)
+\BK@registerAccType{A}{資産}{D}% 資産 (Asset)
+\BK@registerAccType{L}{負債}{C}% 負債 (Liability)
+\BK@registerAccType{N}{総資産}{C}% 総資産 (Net asset)
+\BK@registerAccType{R}{収益}{C}% 収益 (Revenue)
+\BK@registerAccType{E}{費用}{D}% 費用 (Expence)
+\BK@registerAccType{M}{その他}{A}% その他 (Misc.)
 
 %    \end{macrocode}
 % \begin{macro}{\AccType@getpropertySmpl}^^A
