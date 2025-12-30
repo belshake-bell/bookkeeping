@@ -424,6 +424,14 @@
 }
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\BK@TwoDigits}
+% \changes{v1.1.2-alpha.23.05}{2025/12/30}
+%   {月・日の出力用に2桁出力マクロを新設．}
+% 月・日の出力用の2桁出力マクロ．
+%    \begin{macrocode}
+\def\BK@TwoDigits#1{\ifnum#1<10 0\fi\number#1}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\BK@hline}
 % \changes{v1.1.2-alpha.14}{2025/12/18}
 %   {垂直方向のスキップを発生させない（正確には打ち消す）\cs{hline}．}
@@ -1740,10 +1748,14 @@
 % 各\meta{JEID}について書き出していくだけだが，
 % 次ページ・前ページ繰り越しのために\cmd{\sum@debit}および\cmd{\sum@credit}の加算も行っている．
 % \begin{macro}{\printJE@Date}\jmarg{仕訳月}\jmarg{仕訳日}\par
+% \changes{v1.1.2-alpha.23.05}{2025/12/30}
+%   {月・日の出力用の2桁出力マクロを使用する．
+%     ついでにGetterを使用するように変更．}
 % 仕訳帳の月日表示を出力する．
 %    \begin{macrocode}
 \def\printJE@Date#1{%
-  \csuse{JE#1@Month}/\csuse{JE#1@Day}%
+  \BK@TwoDigits{\JE@getpropertySmpl{#1}{Month}}%
+  /\BK@TwoDigits{\JE@getpropertySmpl{#1}{Day}}%
 }
 %    \end{macrocode}
 % \end{macro}
