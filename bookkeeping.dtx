@@ -631,7 +631,7 @@
 % \begin{macro}{\AccType@getpropertySmpl}^^A
 %   \jmarg{勘定科目の種類}\marg{prop.}\par
 % \changes{v1.1.2-alpha.17}{2025/12/19}{Getterの新設．}%
-% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目の種類と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
@@ -652,7 +652,7 @@
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを設置．}
 % \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
-% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目の種類IDから勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
@@ -964,7 +964,7 @@
 %                                        \marg{prop.}\par
 % \changes{v1.1.2-alpha.03}{2025/12/14}
 %   {\cs{Account@getproperty}のシンプル版．}^^A
-% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
@@ -986,7 +986,7 @@
 % \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}^^A
 % \changes{v1.1.2-alpha.02}{2025/12/13}
 %   {Grand parent management.}^^A
-% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %
@@ -1206,7 +1206,7 @@
 %                       \marg{prop.}\marg{datum}\par
 % \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {JEのsetterの新設．}^^A
-% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  \meta{JEID}と設定する\meta{prop.}を指定して\meta{datum}を設定する．
 %    \begin{macrocode}
@@ -1618,7 +1618,7 @@
 %<dbg>      {\Account@getAccType{#1}}%
 %<dbg>      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}}}%
     \AccType@setpropertySmpl{\Account@getAccType{#1}}%
-      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}}%
+      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
       {%
         \the\numexpr
           \expandafter\AccType@getpropertySmpl\expanded{%
