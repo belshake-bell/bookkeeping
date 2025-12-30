@@ -280,7 +280,8 @@
 %<*style>
 \NeedsTeXFormat{pLaTeX2e}
 \ProvidesPackage{bookkeeping}%
-  [2023/02/05 v1.1.0 bookkeeping macros]
+  [2023/02/05 v1.1.2.alpha.25 bookkeeping macros]
+% [2023/02/05 v1.1.0 bookkeeping macros]
 \RequirePackage[colorlinks=true]{hyperref}
 \RequirePackage{pxjahyper}
 \RequirePackage{etoolbox}
@@ -890,6 +891,8 @@
 %   {Accountのsetterを使用．}^^A
 % \changes{v1.1.2-alpha.17}{2025/12/19}
 %   {Rename from \cs{register@Acc@Mon@Bal}．}^^A
+% \changes{v1.1.2-alpha.25.01}{2025/12/31}
+%   {ClosingBalanceの初期化忘れを修正．}^^A
 % 勘定科目の月ごとの残高・借方合計・貸方合計の初期化．
 %    \begin{macrocode}
 \def\Account@init@Month#1#2{%
@@ -905,6 +908,7 @@
   \else
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  Init Account[#2].Month[#1]}%
+    \Account@setpropertySmpl{#2}{Month#1@ClosingBalance}{0}%
     \Account@setpropertySmpl{#2}{Month#1@Balance}{0}%
     \Account@setpropertySmpl{#2}{Month#1@Debit}{0}%
     \Account@setpropertySmpl{#2}{Month#1@Credit}{0}%
