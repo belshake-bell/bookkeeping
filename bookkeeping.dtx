@@ -515,6 +515,8 @@
 %   \meta{month}で指定した月ごとの各要素にアクセスする．
 %   \meta{month~prop.}の種類は次の通り．
 %   \begin{description}
+%   \item[\cntname{ClosingBalance}]
+%     月ごとの勘定科目の種類に登録された勘定科目の残高の合計．
 %   \item[\cntname{Balance}]
 %     月ごとの勘定科目の種類に登録された勘定科目の残高の合計．
 %   \item[\cntname{Debit}]
@@ -545,6 +547,9 @@
 % \meta{AccType}および\meta{prop.}を指定して値\meta{datum}を設定する．
 %    \begin{macrocode}
 \def\AccType@setpropertySmpl#1#2#3{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\AccType@setpropertySmpl}^^J\BK@dbg@Tab\space%
+%<dbg>  Define \unexpanded{\AccType#1@#2}.}%
   \csxdef{AccType#1@#2}{#3}%
 }
 %    \end{macrocode}
@@ -558,6 +563,8 @@
 % \changes{v1.1.2-alpha.21}{2025/12/25}
 %   {各月ごとの勘定科目の種類の
 %    残高・借方合計・貸方合計の初期化マクロを呼び出す．}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
+%   {\cs{AccType@init@Month}に渡す引数が誤っていたのを修正．}^^A
 % 勘定科目の種類\meta{AccType}を登録する．
 % カウンタを確保するので無意味に何度も呼び出さないこと．
 %    \begin{macrocode}
@@ -575,7 +582,7 @@
   \csgdef{AccType#1@Name}{#2}%
   \csxdef{revAccType\the\c@AccountTypeCount @AccType}{#1}%
   \csxdef{AccType#1@ID}{\theAccountTypeCount}%
-  \AccType@init@Month{0}{#2}%
+  \AccType@init@Month{0}{#1}%
   \newcounter{AccType#1@AccountCount}%
 }
 %    \end{macrocode}
@@ -584,6 +591,8 @@
 % \changes{v1.1.2-alpha.21}{2025/12/25}
 %   {TBで定義していた各月ごとの勘定科目の種類の
 %    残高・借方合計・貸方合計の初期化マクロを新設．}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
+%   {PropにClosingBalanceを追加．}^^A
 % 勘定科目の種類の月ごとの残高・借方合計・貸方合計の初期化．
 %    \begin{macrocode}
 \def\AccType@init@Month#1#2{%
@@ -597,6 +606,7 @@
     \expandafter\@gobble%
   \else
 %<dbg>\typeout{\BK@dbg@Process Init AccType[#2].Month[#1]}%
+    \AccType@setpropertySmpl{#2}{Month#1@ClosingBalance}{0}%
     \AccType@setpropertySmpl{#2}{Month#1@Balance}{0}%
     \AccType@setpropertySmpl{#2}{Month#1@Debit}{0}%
     \AccType@setpropertySmpl{#2}{Month#1@Credit}{0}%
@@ -621,15 +631,17 @@
 % \begin{macro}{\AccType@getpropertySmpl}^^A
 %   \jmarg{勘定科目の種類}\marg{prop.}\par
 % \changes{v1.1.2-alpha.17}{2025/12/19}{Getterの新設．}%
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目の種類と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
 \def\AccType@getpropertySmpl#1#2{%
-  \@ifundefined{AccType#1@#2}{%
+  \@ifundefined{AccType#1@#2}{\unexpanded{%
     \PackageError{bookkeeping}{%
       The property "#2" is not defined in AccType.\MessageBreak
     }{%
       please tell package author.\MessageBreak
-    }%
+    }}%
   }{%
     \csuse{AccType#1@#2}%
   }%
@@ -640,17 +652,19 @@
 % \changes{v1.1.0}{2024/02/21}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを設置．}
 % \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目の種類IDから勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
 \def\AccType@getAccType#1{%
-  \@ifundefined{revAccType#1@AccType}{%
+  \@ifundefined{revAccType#1@AccType}{\unexpanded{%
     \PackageError{bookkeeping}{%
       The Account Type "#1" is not defined.\MessageBreak
       You MUST define account\MessageBreak
       by using \protect\registerAccountID .
     }{%
       Check the account type registration.
-    }%
+    }}%
   }{%
     \csuse{revAccType#1@AccType}%
   }%
@@ -950,15 +964,17 @@
 %                                        \marg{prop.}\par
 % \changes{v1.1.2-alpha.03}{2025/12/14}
 %   {\cs{Account@getproperty}のシンプル版．}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
 \def\Account@getpropertySmpl#1#2{%
-  \@ifundefined{Account\Account@getAccTypeAccID{#1}@#2}{%
+  \@ifundefined{Account\Account@getAccTypeAccID{#1}@#2}{\unexpanded{%
     \PackageError{bookkeeping}{%
       The property "#2" is not defined.\MessageBreak
     }{%
       please tell package author.\MessageBreak
-    }%
+    }}%
   }{%
     \csuse{Account\Account@getAccTypeAccID{#1}@#2}%
   }%
@@ -970,6 +986,8 @@
 % \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}^^A
 % \changes{v1.1.2-alpha.02}{2025/12/13}
 %   {Grand parent management.}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %
 %  オプションで\meta{parent~prop.}に\meta{prop.}の親を指定できる．
@@ -1166,17 +1184,17 @@
 \def\JE@getpropertySmpl#1#2{%
   \@ifundefined{JE#1@#2}{%
     \ifnum #1>\c@JECount
-      \PackageError{bookkeeping}{%
+      \unexpanded{\PackageError{bookkeeping}{%
         The JEID "#1" is over the number registered.
       }{%
         please tell package author.\MessageBreak
-      }%
+      }}%
     \else
-      \PackageError{bookkeeping}{%
+      \unexpanded{\PackageError{bookkeeping}{%
         The property "#2" is not defined.
       }{%
         please tell package author.\MessageBreak
-      }%
+      }}%
     \fi
   }{%
     \csuse{JE#1@#2}%
@@ -1188,6 +1206,8 @@
 %                       \marg{prop.}\marg{datum}\par
 % \changes{v1.1.2-alpha.07}{2025/12/15}
 %   {JEのsetterの新設．}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}^^A
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
 %  \meta{JEID}と設定する\meta{prop.}を指定して\meta{datum}を設定する．
 %    \begin{macrocode}
 \def\JE@setpropertySmpl#1#2#3{%
@@ -1556,6 +1576,8 @@
 %    \cntname{Account.Ledger[LEID].AccountBalance}の更新の実装．}^^A
 % \changes{v1.1.2-alpha.23.02}{2025/12/28}
 %   {\cntname{Account.Month[Month].ClosingBalance}の更新の実装．}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
+%   {\cntname{Acctype.Month[Month].ClosingBalance}の更新の実装．}^^A
 % 取引後残高を求める．
 %    \begin{macrocode}
 %<dbg>\typeout{\BK@dbg@Process
@@ -1577,12 +1599,39 @@
       {Ledger\LE@currentLedgerCount @AccountBalance}}%
   \if#3\relax
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{#5}{Month}].%
-%<dbg>  ClosingBalance.}%
+%<dbg>  Monthly closing;^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Set Account["#1"]%
+%<dbg>    .Month[\JE@getpropertySmpl{#5}{Month}]%
+%<dbg>    .ClosingBalance.}%
     \Account@setpropertySmpl{#1}%
       {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
       {\Account@getpropertySmpl{#1}{Balance}}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Set AccType["\Account@getAccType{#1}"]%
+%<dbg>    .Month[\JE@getpropertySmpl{#5}{Month}]%
+%<dbg>    .ClosingBalance.}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  AccType["\Account@getAccType{#1}"]%
+%<dbg>    .Month[\JE@getpropertySmpl{#5}{Month}]%
+%<dbg>    .ClosingBalance=%
+%<dbg>    \expandafter\AccType@getpropertySmpl\expanded{%
+%<dbg>      {\Account@getAccType{#1}}%
+%<dbg>      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}}}%
+    \AccType@setpropertySmpl{\Account@getAccType{#1}}%
+      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}}%
+      {%
+        \the\numexpr
+          \expandafter\AccType@getpropertySmpl\expanded{%
+            {\Account@getAccType{#1}}%
+            {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
+          }%
+          +
+          \Account@getpropertySmpl{#1}%
+            {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
+        \relax}%
   \fi
+%<dbg>\typeout{\BK@dbg@Finish\unexpanded
+%<dbg>          {\ledger@entry}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2465,8 +2514,15 @@
 % \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}%
 % \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
 % \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
+% \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}%
+% \BK@hline
+% \TB@printline{借方残高}{借方}{勘定科目の種類名}{貸方}{貸方残高}%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
+% \TB@printline{借方残高}{借方}{勘定科目の種類名}{貸方}{貸方残高}%
+% \BK@hline
 % \TB@printline{借方残高}{借方}{合計}{貸方}{貸方残高}\BK@hline%
-% \end{tabular}\makeatother\par
+% \end{tabular}\makeatother\par\vspace{1\Cvs}%
 % \endgroup
 % 大体こんな感じ．
 % \begin{macro}{\TB@printline}%
@@ -2611,45 +2667,47 @@
 %   {イテレータ用カウンタの命名変更による修正．}^^A
 % \changes{v1.1.2-alpha.23}{2025/12/27}
 %   {引数を取るように変更．}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
+%   {Getterを使用する(incomplete)．}^^A
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printTable@sumAccType#1{%
   \TB@printline
-    {\csuse{AccountA@Month\the\c@Iterator@Account@Month @sumDebit}}%
-    {\csuse{AccountA@Month\the\c@Iterator@Account@Month @Debit}}%
-    {資産}%
-    {\csuse{AccountA@Month\the\c@Iterator@Account@Month @Credit}}%
+    {\AccType@getpropertySmpl{A}{Month#1@ClosingBalance}}%
+    {\AccType@getpropertySmpl{A}{Month#1@Debit}}%
+    {\AccType@getpropertySmpl{A}{Name}}%
+    {\AccType@getpropertySmpl{A}{Month#1@Credit}}%
     {}%
   \TB@printline
     {}%
-    {\csuse{AccountL@Month\the\c@Iterator@Account@Month @Debit}}%
-    {負債}%
-    {\csuse{AccountL@Month\the\c@Iterator@Account@Month @Credit}}%
-    {\csuse{AccountL@Month\the\c@Iterator@Account@Month @sumCredit}}%
+    {\AccType@getpropertySmpl{L}{Month#1@Debit}}%
+    {\AccType@getpropertySmpl{L}{Name}}%
+    {\AccType@getpropertySmpl{L}{Month#1@Credit}}%
+    {\AccType@getpropertySmpl{L}{Month#1@ClosingBalance}}%
   \TB@printline
     {}%
-    {\csuse{AccountN@Month\the\c@Iterator@Account@Month @Debit}}%
-    {総資産}%
-    {\csuse{AccountN@Month\the\c@Iterator@Account@Month @Credit}}%
-    {\csuse{AccountN@Month\the\c@Iterator@Account@Month @sumCredit}}%
+    {\AccType@getpropertySmpl{N}{Month#1@Debit}}%
+    {\AccType@getpropertySmpl{N}{Name}}%
+    {\AccType@getpropertySmpl{N}{Month#1@Credit}}%
+    {\AccType@getpropertySmpl{N}{Month#1@ClosingBalance}}%
   \TB@printline
     {}%
-    {\csuse{AccountR@Month\the\c@Iterator@Account@Month @Debit}}%
-    {収益}%
-    {\csuse{AccountR@Month\the\c@Iterator@Account@Month @Credit}}%
-    {\csuse{AccountR@Month\the\c@Iterator@Account@Month @sumCredit}}%
+    {\AccType@getpropertySmpl{R}{Month#1@Debit}}%
+    {\AccType@getpropertySmpl{R}{Name}}%
+    {\AccType@getpropertySmpl{R}{Month#1@Credit}}%
+    {\AccType@getpropertySmpl{R}{Month#1@ClosingBalance}}%
   \TB@printline
-    {\csuse{AccountE@Month\the\c@Iterator@Account@Month @sumDebit}}%
-    {\csuse{AccountE@Month\the\c@Iterator@Account@Month @Debit}}%
-    {費用}%
-    {\csuse{AccountE@Month\the\c@Iterator@Account@Month @Credit}}%
+    {\AccType@getpropertySmpl{E}{Month#1@ClosingBalance}}%
+    {\AccType@getpropertySmpl{E}{Month#1@Debit}}%
+    {\AccType@getpropertySmpl{E}{Name}}%
+    {\AccType@getpropertySmpl{E}{Month#1@Credit}}%
     {}%
   \TB@printline
-    {\csuse{AccountM@Month\the\c@Iterator@Account@Month @sumDebit}}%
-    {\csuse{AccountM@Month\the\c@Iterator@Account@Month @Debit}}%
-    {その他}%
-    {\csuse{AccountM@Month\the\c@Iterator@Account@Month @Credit}}%
-    {\csuse{AccountM@Month\the\c@Iterator@Account@Month @sumCredit}}%
+    {\AccType@getpropertySmpl{M}{Month#1@ClosingBalance}}%
+    {\AccType@getpropertySmpl{M}{Month#1@Debit}}%
+    {\AccType@getpropertySmpl{M}{Name}}%
+    {\AccType@getpropertySmpl{M}{Month#1@Credit}}%
+    {\AccType@getpropertySmpl{M}{Month#1@ClosingBalance}}%
 }
 %    \end{macrocode}
 % \end{macro}
