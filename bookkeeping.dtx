@@ -490,6 +490,14 @@
 % 
 %    \begin{macrocode}
 \def\BK@dbg@Finish{Finish\space: }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\BK@dbg@Results}^^A
+% \changes{v1.1.2-alpha.25}{2025/12/30}
+%   {デバッグ用コマンド\cs{BK@dbg@Results}の新設}
+% 
+%    \begin{macrocode}
+\def\BK@dbg@Results{Results: }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %</dbg>
@@ -1487,7 +1495,75 @@
   \Account@setpropertySmpl{#1}%
     {Ledger\LE@currentLedgerCount @AccountValue}%
     {#4}%
+  \expandafter\LE@setMonthProperty\expanded{%
+     {#1}{#3}{#4}{\LE@currentLedgerCount}{#5}{\JE@getpropertySmpl{#5}{Month}}%
+  }%
+%<dbg>\typeout{\BK@dbg@Finish\unexpanded
+%<dbg>          {\ledger@entry}}%
+}
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\LE@setMonthDrCr}^^A
+%   \jmarg{勘定科目名}^^A
+%   \marg{LEID}^^A
+%   \marg{JEID}^^A
+%   \marg{Month}^^A
+%   \marg{prop.(\texttt{Debit} or \texttt{Credit})}\par
+% \changes{v1.1.2-alpha.25}{2025/12/30}
+%   {勘定科目の月ごとの要素のうちデビクレの処理部分を分離．}^^A
+% 勘定科目の月ごとの要素のうちデビクレの処理部分．
+%
+% 借方・貸方を\meta{prop.}で指定する．
+% 指定した方の残高に取引額を加算し，
+% 仕訳の借方・貸方の指定した方の科目の要素に\meta{LEID}を登録する．
+%    \begin{macrocode}
+\def\LE@setMonthDrCr#1#2#3#4#5{%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\LE@setMonthDrCr}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1(勘定科目名)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(LEID)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(JEID)=\unexpanded{#3}^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4(Month)=\unexpanded{#4}^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5(Prop.)=\unexpanded{#5}.}%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Set Account["#1"].Month[#4].#5}%
+  \Account@setpropertySmpl{#1}%
+    {Month#4@#5}%
+    {%
+      \the\numexpr
+        \Account@getpropertySmpl{#1}%
+          {Month#4@#5}%
+        +
+        \Account@getpropertySmpl{#1}%
+          {Ledger#2@AccountValue}\relax
+    }%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Set JE[#3].#5.LEID}%
+  \csxdef{JE#3@#5@LEID}{%
+    \Account@getpropertySmpl{#1}%
+          {Ledger#2@FullLEID}%
+  }%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Set Account["#1"].#5}%
+  \Account@setpropertySmpl{#1}{#5}{%
+    \the\numexpr
+      \Account@getpropertySmpl{#1}{#5}%
+      +1*\Account@getpropertySmpl{#1}{Ledger#2@AccountValue}%
+    \relax
+  }%
+%<dbg>\typeout{\BK@dbg@Finish\unexpanded
+%<dbg>          {\LE@setMonthDrCr}}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\LE@setMonthProperty}^^A
+%   \jmarg{勘定科目名}^^A
+%   \jmarg{借（貸）方}^^A
+%   \jmarg{取引額}^^A
+%   \marg{LEID}^^A
+%   \marg{JEID}^^A
+%   \marg{Month}\par
 % 勘定科目の月ごとの要素を更新する．
 % \changes{v1.1.2-alpha.05}{2025/12/15}
 %   {setterを使うように変更．}^^A
@@ -1496,154 +1572,109 @@
 % \changes{v1.1.2-alpha.19.02}{2025/12/22}
 %   {\cntname{Account}に借方残高\cntname{Debit}および
 %    貸方残高\cntname{Credit}を新設．}^^A
-%
-% 取引で借方に来ているときには借方残高に取引額を加算し，
-% 仕訳の借方科目の要素に\meta{LEID}を登録する．
+% \changes{v1.1.2-alpha.25}{2025/12/30}
+%   {勘定科目の月ごとの要素を更新するマクロを新設して分離．}^^A
 %    \begin{macrocode}
+\def\LE@setMonthProperty#1#2#3#4#5#6{%
+%<dbg>\typeout{\BK@dbg@Start\unexpanded
+%<dbg>          {\LE@setMonthProperty}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1(勘定科目名)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(借（貸）方)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(取引額)=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4(LEID)=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5(JEID)=\unexpanded{#5}^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args6(Month)=\unexpanded{#6}.}%
   % Account balance, Debit and Credit in the month
-  \if#3D%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{#5}{Month}].Debit}%
-    \Account@setpropertySmpl{#1}%
-      {Month\JE@getpropertySmpl{#5}{Month}@Debit}%
-      {%
-        \the\numexpr
-          \Account@getpropertySmpl{#1}%
-            {Month\JE@getpropertySmpl{#5}{Month}@Debit}%
-          +
-          \Account@getpropertySmpl{#1}%
-            {Ledger\LE@currentLedgerCount @AccountValue}\relax
-      }%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set JE[#5].Debit.LEID}%
-    \csxdef{JE\Account@getpropertySmpl{#1}%
-            {Ledger\LE@currentLedgerCount @JEID}@Debit@LEID}%
-      {\Account@getpropertySmpl{#1}%
-            {Ledger\LE@currentLedgerCount @FullLEID}%
-      }%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Debit}%
-  \Account@setpropertySmpl{#1}{Debit}{%
-    \the\numexpr
-      \Account@getpropertySmpl{#1}{Debit}%
-      +1*\Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @AccountValue}%
-    \relax
-  }%
+  \if#2D%
+    \LE@setMonthDrCr{#1}{#4}{#5}{#6}{Debit}%
   \fi
-%    \end{macrocode}
-% 取引で貸方に来ているときには貸方残高に取引額を加算し，
-% 仕訳の貸方科目の要素に\meta{LEID}を登録する．
-%    \begin{macrocode}
-  \if#3C%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account.Month[\JE@getpropertySmpl{#5}{Month}].Credit}%
-    \Account@setpropertySmpl{#1}%
-      {Month\JE@getpropertySmpl{#5}{Month}@Credit}%
-      {%
-        \the\numexpr
-          \Account@getpropertySmpl{#1}%
-            {Month\JE@getpropertySmpl{#5}{Month}@Credit}%
-          +
-          \Account@getpropertySmpl{#1}%
-            {Ledger\LE@currentLedgerCount @AccountValue}\relax
-      }%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set JE[#5].Credit.LEID}%
-    \csxdef{JE\Account@getpropertySmpl{#1}%
-            {Ledger\LE@currentLedgerCount @JEID}@Credit@LEID}%
-      {\Account@getpropertySmpl{#1}%
-            {Ledger\LE@currentLedgerCount @FullLEID}%
-      }%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Credit}%
-    \Account@setpropertySmpl{#1}{Credit}{%
-      \the\numexpr
-        \Account@getpropertySmpl{#1}{Credit}%
-        +1*\Account@getpropertySmpl{#1}{Ledger\LE@currentLedgerCount @AccountValue}%
-      \relax
-    }%
+  \if#2C%
+    \LE@setMonthDrCr{#1}{#4}{#5}{#6}{Credit}%
   \fi
 %    \end{macrocode}
 % \changes{v1.1.2-alpha.09}{2025/12/15}
 %   {Ledger Entryの残高処理．}^^A
-% 最後に残高．
+% 残高関係の処理．
 % 
+% まず\cntname{Account.Month.Balance}の更新．
+% これは単純に\cntname{Account.Month.Debit}$-$\cntname{Account.Month.Credit}．
 %    \begin{macrocode}
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Month[\JE@getpropertySmpl{#5}{Month}].%
+%<dbg>  Set Account["#1"].Month[#6].%
 %<dbg>  Balance}%
   \Account@setpropertySmpl{#1}
-    {Month\JE@getpropertySmpl{#5}{Month}@Balance}
+    {Month#6@Balance}
     {%
       \the\numexpr
         \Account@getpropertySmpl{#1}
-          {Month\JE@getpropertySmpl{#5}{Month}@Debit}%
+          {Month#6@Debit}%
         -
         \Account@getpropertySmpl{#1}
-          {Month\JE@getpropertySmpl{#5}{Month}@Credit}%
+          {Month#6@Credit}%
     \relax}%
 %    \end{macrocode}
 % \changes{v1.1.2-alpha.10}{2025/12/16}
 %   {\cntname{Account.Balance}，
 %    \cntname{Account.Ledger[LEID].AccountBalance}の更新の実装．}^^A
-% \changes{v1.1.2-alpha.23.02}{2025/12/28}
-%   {\cntname{Account.Month[Month].ClosingBalance}の更新の実装．}^^A
-% \changes{v1.1.2-alpha.23.06}{2025/12/30}
-%   {\cntname{Acctype.Month[Month].ClosingBalance}の更新の実装．}^^A
-% 取引後残高を求める．
+% 取引後残高\cntname{Account.Ledger.AccountBalance}を求める．
 %    \begin{macrocode}
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Set Account["#1"].Ledger[\LE@currentLedgerCount].AccountBalance}%
+%<dbg>  Set Account["#1"].Ledger[#4].AccountBalance}%
   \Account@setpropertySmpl{#1}
-    {Ledger\LE@currentLedgerCount @AccountBalance}
+    {Ledger#4@AccountBalance}
     {%
       \the\numexpr
         \Account@getpropertySmpl{#1}
           {Balance}%
-        \if#3D+\else-\fi
+        \if#2D+\else-\fi
           \Account@getpropertySmpl{#1}
-            {Ledger\LE@currentLedgerCount @AccountValue}%
+            {Ledger#4@AccountValue}%
     \relax}%
+%    \end{macrocode}
+% \cntname{Account.Balance}を求める．
+%    \begin{macrocode}
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  Set Account.Balance}%
   \Account@setpropertySmpl{#1}{Balance}{%
     \Account@getpropertySmpl{#1}
-      {Ledger\LE@currentLedgerCount @AccountBalance}}%
-  \if#3\relax
+      {Ledger#4@AccountBalance}}%
+%    \end{macrocode}
+% \changes{v1.1.2-alpha.23.02}{2025/12/28}
+%   {\cntname{Account.Month[Month].ClosingBalance}の更新の実装．}^^A
+% \changes{v1.1.2-alpha.23.06}{2025/12/30}
+%   {\cntname{Acctype.Month[Month].ClosingBalance}の更新の実装．}^^A
+% 月次締切で呼び出されたときは\cntname{Account.Month.ClosingBalance}^^A
+% および\cntname{AccType.Month.ClosingBalance}を求める．
+%    \begin{macrocode}
+  \if#2\relax
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  Monthly closing;^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Set Account["#1"]%
-%<dbg>    .Month[\JE@getpropertySmpl{#5}{Month}]%
+%<dbg>    .Month[#6]%
 %<dbg>    .ClosingBalance.}%
     \Account@setpropertySmpl{#1}%
-      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
+      {Month#6@ClosingBalance}%
       {\Account@getpropertySmpl{#1}{Balance}}%
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  Set AccType["\Account@getAccType{#1}"]%
-%<dbg>    .Month[\JE@getpropertySmpl{#5}{Month}]%
+%<dbg>    .Month[#6]%
 %<dbg>    .ClosingBalance.}%
-%<dbg>\typeout{\BK@dbg@Status
-%<dbg>  AccType["\Account@getAccType{#1}"]%
-%<dbg>    .Month[\JE@getpropertySmpl{#5}{Month}]%
-%<dbg>    .ClosingBalance=%
-%<dbg>    \expandafter\AccType@getpropertySmpl\expanded{%
-%<dbg>      {\Account@getAccType{#1}}%
-%<dbg>      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}}}%
     \AccType@setpropertySmpl{\Account@getAccType{#1}}%
-      {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
+      {Month#6@ClosingBalance}%
       {%
         \the\numexpr
           \expandafter\AccType@getpropertySmpl\expanded{%
             {\Account@getAccType{#1}}%
-            {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
+            {Month#6@ClosingBalance}%
           }%
           +
           \Account@getpropertySmpl{#1}%
-            {Month\JE@getpropertySmpl{#5}{Month}@ClosingBalance}%
+            {Month#6@ClosingBalance}%
         \relax}%
   \fi
 %<dbg>\typeout{\BK@dbg@Finish\unexpanded
-%<dbg>          {\ledger@entry}}%
+%<dbg>          {\LE@setMonthProperty}}%
 }
 %    \end{macrocode}
 % \end{macro}
