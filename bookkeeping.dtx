@@ -716,24 +716,15 @@
 %   {\cs{AccType@getBalanceSum}を追加．}%
 % \changes{v1.1.2-alpha.15.01}{2025/12/19}%
 %   {条件を満たすとき・debug時も内部値表現となるよう修正．}%
+% \changes{v1.1.2-alpha.27}{2026/01/01}%
+%   {初期値判定についてシンプル化．}%
 % 勘定科目の種類名から
 % その勘定科目の種類に属する勘定科目の残高の総和を得る．
 % 
-% \NOTE{初期値判定も\cs{AccType@getBalanceSum@base}に回すことはできるけど
-% 不必要にif判定を毎度回すのはなぁ……ということで
-% DRY原則には反するけど見送り．}
-% 
 %    \begin{macrocode}
 \def\AccType@getBalanceSum#1{%
-  \ifnum1>\value{AccType#1@AccountCount}%
-    \numexpr0\relax\expandafter\@gobble
-  \else
-    \numexpr\csuse{Account#11@Balance}%
-    \expandafter\@firstofone
-  \fi{%
-    \expandafter\AccType@getBalanceSum@base\expandafter
-      {\the\numexpr1+1\relax}{#1}%
-  }%
+  \the\numexpr0%
+  \AccType@getBalanceSum@base{1}{#1}%
 }
 
 %    \end{macrocode}
