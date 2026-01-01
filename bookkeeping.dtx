@@ -698,11 +698,13 @@
 % \begin{macro}{\AccType@getBalanceSum@base}\marg{AccountID}\jmarg{勘定科目の種類}\par
 % \changes{v1.1.2-alpha.15}{2025/12/19}%
 %   {\cs{AccType@getBalanceSum@base}を追加．}%
+% \changes{v1.1.2-alpha.28}{2026/01/02}
+%   {\cntname{AccountCount}についてGetterで取り出す．}
 % 勘定科目の種類名から
 % その勘定科目の種類に属する勘定科目の残高の総和を得る．
 %    \begin{macrocode}
 \def\AccType@getBalanceSum@base#1#2{%
-  \ifnum#1>\value{AccType#2@AccountCount}%
+  \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}%
     \relax\expandafter\@gobble
   \else
     +\csuse{Account#2#1@Balance}%
@@ -841,6 +843,8 @@
 % \changes{v1.1.2-alpha.19.02}{2025/12/22}
 %   {\cntname{Account}に借方残高\cntname{Debit}および
 %    貸方残高\cntname{Credit}を新設．}^^A
+% \changes{v1.1.2-alpha.28}{2026/01/02}
+%   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % 勘定科目を登録する．
 % \TODO{\cmd{\registerAccount}で良くない？}
 %    \begin{macrocode}
@@ -855,10 +859,10 @@
 %<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args3=\unexpanded{#3}.}%
-  \global\advance\csuse{c@AccType#1@AccountCount}\@ne\relax%
+  \stepcounter{AccType#1@AccountCount}%
   \csgdef{revAccount#3@Type}{#1}% AccType <- Account Name
   \csxdef{revAccount#3@ID}%
-    {\the\csuse{c@AccType#1@AccountCount}}% ID <- Account Name
+    {\AccType@getpropertySmpl{#1}{AccountCount}}% ID <- Account Name
   \Account@setpropertySmpl{#3}{Name}{#3}%
   \Account@setpropertySmpl{#3}{LedgerCount}{0}%
   \Account@setpropertySmpl{#3}{LedgerBalanceType}{#2}%
@@ -867,7 +871,7 @@
   \Account@setpropertySmpl{#3}{Credit}{0}%
 %<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space AccType=#1}%
 %<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space AccID\space\space=%
-%<dbg>  \the\csuse{c@AccType#1@AccountCount}}%
+%<dbg>  \AccType@getpropertySmpl{#1}{AccountCount}}%
 %<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space Account["#3"].Name=%
 %<dbg>  \Account@getpropertySmpl{#3}{Name}}%
 %<dbg>\typeout{\BK@dbg@Tab\BK@dbg@Tab\space Account["#3"].LedgerCount=%
@@ -1688,6 +1692,8 @@
 % \changes{v1.1.2-alpha.23.04}{2025/12/29}
 %   {\cs{ledger@entry}の引数としてJEIDを渡すように変更
 %    （とりあえず発行時の\cntname{JECount}を渡しておく？）．}^^A
+% \changes{v1.1.2-alpha.28}{2026/01/02}
+%   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % \meta{AccountID}をイテレーションして\cmd{\ledger@entry}で月次締切の登録をする．
 %    \begin{macrocode}
 \def\LMC@loop@Account#1;#2;#3;{% loop for each AccID
@@ -1697,7 +1703,7 @@
 %<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args3: \unexpanded{#3}}%
-  \ifnum#1>\value{AccType#2@AccountCount}%
+  \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}%
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>          End Loop for Account.}%
     \expandafter\@gobble
@@ -1805,10 +1811,12 @@
 %   {ADD：損益振替仕訳の準備}%
 % \changes{v1.1.2-alpha.12}{2025/12/18}
 %   {イテレータ用カウンタの命名変更による修正．}^^A
+% \changes{v1.1.2-alpha.28}{2026/01/02}
+%   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % 指定した勘定科目の種類に属する勘定科目について処理をする．
 %    \begin{macrocode}
 \newcommand{\JE@PLtransfar@LoopAccType}[1]{%
-  \ifnum\c@Iterator@AccountID<\csuse{c@AccType#1@AccountCount}%
+  \ifnum\c@Iterator@AccountID<\AccType@getpropertySmpl{#1}{AccountCount}%
     \stepcounter{Iterator@AccountID}%
     \xdef\JE@PLT@Account{\csuse{Account#1\the\c@Iterator@AccountID@Name}}%
     \JE@PLtransfar@register
@@ -2461,6 +2469,8 @@
 %   {\cs{PGL@Loop}の引数へ値を渡して処理できるように．}^^A
 % \changes{v1.1.2-alpha.19.10}{2025/12/23}
 %   {大小判定を逆に変更．}^^A
+% \changes{v1.1.2-alpha.28}{2026/01/02}
+%   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
 % 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
@@ -2471,8 +2481,8 @@
 %<dbg>  Args1 (AccountID): \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2 (AccType): \unexpanded{#2}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  AccType[#2].AccountCount=\the\value{AccType#2@AccountCount}.}%
-  \ifnum#1>\value{AccType#2@AccountCount}%
+%<dbg>  AccType[#2].AccountCount=\AccType@getpropertySmpl{#2}{AccountCount}.}%
+  \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}%
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  Go to \unexpanded{\PGL@Loop}.}%
     \expandafter\@secondoftwo
@@ -2810,6 +2820,8 @@
 %   {イテレータ用カウンタの命名変更による修正．}^^A
 % \changes{v1.1.2-alpha.23}{2025/12/27}
 %   {引数を取るように変更．}^^A
+% \changes{v1.1.2-alpha.28}{2026/01/02}
+%   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % 各勘定科目についてイテレータを回し，\cmd{\TB@Table@Acc@OneLine}を呼び出し
 % \cmd{\TB@Table@LoopAccount}を再帰的に呼び出す処理をする．
 % その勘定科目の種類に属する勘定科目についてイテレータを回し終えたら
@@ -2822,7 +2834,7 @@
 %<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args3: \unexpanded{#3}.}%
-  \ifnum#1>\value{AccType#2@AccountCount}%
+  \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}%
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  End Loop for Account.}%
     \expandafter\@gobble
