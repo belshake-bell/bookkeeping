@@ -2713,6 +2713,8 @@
 %   \marg{AccType}\marg{month}\marg{isDebit}\par
 % \changes{v1.1.2-alpha.24}{2025/12/30}
 %   {New: \cs{TB@printClosingBalance}．}
+% \changes{v1.1.2-alpha.26}{2026/01/01}
+%   {\meta{isDebit}によって値を出力するかの判定を追加．}
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printClosingBalance#1#2#3{%
@@ -2722,22 +2724,38 @@
 %<dbg>  Args1(AccType)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(month)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args3(isDebit)=\unexpanded{#3}.}%
-  \expandafter\BK@printMinusBalance\expandafter{%
-    \the\numexpr
-      \if\AccType@getpropertySmpl{#1}{BalanceType}D%
-      \else
-        \if\AccType@getpropertySmpl{#1}{BalanceType}C%
-          -1*
+  \ifnum0%
+    \if#3\AccType@getpropertySmpl{#1}{BalanceType}1\fi
+    \if A\AccType@getpropertySmpl{#1}{BalanceType}%
+      \if#3D%
+        \ifnum\AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}<\z@
+        \else1%
+        \fi
+      \fi
+      \if#3C%
+        \ifnum\AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}>\z@
+        \else1%
+        \fi
+      \fi
+    \fi
+    >\z@
+    \expandafter\BK@printMinusBalance\expandafter{%
+      \the\numexpr
+        \if\AccType@getpropertySmpl{#1}{BalanceType}D%
         \else
-          \if\AccType@getpropertySmpl{#1}{BalanceType}A%
-            \ifnum\AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}<\z@
-              -1*
+          \if\AccType@getpropertySmpl{#1}{BalanceType}C%
+            -1*
+          \else
+            \if\AccType@getpropertySmpl{#1}{BalanceType}A%
+              \ifnum\AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}<\z@
+                -1*
+              \fi
             \fi
           \fi
         \fi
-      \fi
-    \AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}\relax%
-  }%
+      \AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}\relax%
+    }%
+  \fi
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2768,6 +2786,8 @@
 %   {引数を取るように変更．}^^A
 % \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Getterを使用する(incomplete)．}^^A
+% \changes{v1.1.2-alpha.26}{2026/01/01}
+%   {\cs{TB@printlineAccType}を使用するように変更．}
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printTable@sumAccType#1{%
@@ -2775,42 +2795,12 @@
 %<dbg>  {\TB@printTable@sumAccType}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(Month)=\unexpanded{#1}.}%
-  \TB@printline
-    {\AccType@getpropertySmpl{A}{Month#1@ClosingBalance}}%
-    {\AccType@getpropertySmpl{A}{Month#1@Debit}}%
-    {\AccType@getpropertySmpl{A}{Name}}%
-    {\AccType@getpropertySmpl{A}{Month#1@Credit}}%
-    {}%
-  \TB@printline
-    {}%
-    {\AccType@getpropertySmpl{L}{Month#1@Debit}}%
-    {\AccType@getpropertySmpl{L}{Name}}%
-    {\AccType@getpropertySmpl{L}{Month#1@Credit}}%
-    {\AccType@getpropertySmpl{L}{Month#1@ClosingBalance}}%
-  \TB@printline
-    {}%
-    {\AccType@getpropertySmpl{N}{Month#1@Debit}}%
-    {\AccType@getpropertySmpl{N}{Name}}%
-    {\AccType@getpropertySmpl{N}{Month#1@Credit}}%
-    {\AccType@getpropertySmpl{N}{Month#1@ClosingBalance}}%
-  \TB@printline
-    {}%
-    {\AccType@getpropertySmpl{R}{Month#1@Debit}}%
-    {\AccType@getpropertySmpl{R}{Name}}%
-    {\AccType@getpropertySmpl{R}{Month#1@Credit}}%
-    {\AccType@getpropertySmpl{R}{Month#1@ClosingBalance}}%
-  \TB@printline
-    {\AccType@getpropertySmpl{E}{Month#1@ClosingBalance}}%
-    {\AccType@getpropertySmpl{E}{Month#1@Debit}}%
-    {\AccType@getpropertySmpl{E}{Name}}%
-    {\AccType@getpropertySmpl{E}{Month#1@Credit}}%
-    {}%
-  \TB@printline
-    {\AccType@getpropertySmpl{M}{Month#1@ClosingBalance}}%
-    {\AccType@getpropertySmpl{M}{Month#1@Debit}}%
-    {\AccType@getpropertySmpl{M}{Name}}%
-    {\AccType@getpropertySmpl{M}{Month#1@Credit}}%
-    {\AccType@getpropertySmpl{M}{Month#1@ClosingBalance}}%
+  \TB@printlineAccType{A}{#1}%
+  \TB@printlineAccType{L}{#1}%
+  \TB@printlineAccType{N}{#1}%
+  \TB@printlineAccType{R}{#1}%
+  \TB@printlineAccType{E}{#1}%
+  \TB@printlineAccType{M}{#1}%
 }
 %    \end{macrocode}
 % \end{macro}
