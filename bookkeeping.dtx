@@ -581,6 +581,8 @@
 %   {\cs{AccType@init@Month}に渡す引数が誤っていたのを修正．}^^A
 % \changes{v1.1.2-alpha.24}{2025/12/30}
 %   {勘定科目の種類の\meta{prop.}に\cntname{BalanceType}を追加．}
+% \changes{v1.1.2-alpha.28}{2026/01/02}
+%   {\cntname{AccountCount}についてGetterで取り出せるようにマクロを設定．}
 % 勘定科目の種類\meta{AccType}を登録する．
 % カウンタを確保するので無意味に何度も呼び出さないこと．
 %    \begin{macrocode}
@@ -603,6 +605,7 @@
   \AccType@setpropertySmpl{#1}{BalanceType}{#3}%
   \AccType@init@Month{0}{#1}%
   \newcounter{AccType#1@AccountCount}%
+  \csgdef{AccType#1@AccountCount}{\the\value{AccType#1@AccountCount}}%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\BK@registerAccType}}%
 }
