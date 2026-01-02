@@ -561,9 +561,14 @@
 %    \begin{macrocode}
 \def\AccType@setpropertySmpl#1#2#3{%
 %<dbg>\typeout{\BK@dbg@Start
-%<dbg>  \unexpanded{\AccType@setpropertySmpl}^^J\BK@dbg@Tab\space%
-%<dbg>  Define \unexpanded{\AccType#1@#2}.}%
+%<dbg>  \unexpanded{\AccType@setpropertySmpl}.}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1(AccType)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(prop.)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(datum)=\unexpanded{#3}.}%
   \csxdef{AccType#1@#2}{#3}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\AccType@setpropertySmpl}.}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -626,7 +631,9 @@
 %<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2=\unexpanded{#2}.}%
   \ifnum#1>\BK@closingmonth\relax
-%<dbg>\typeout{\BK@dbg@Process End of init AccType[#2].Month}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\AccType@setpropertySmpl}.^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  End of init AccType[#2].Month}%
     \expandafter\@gobble%
   \else
 %<dbg>\typeout{\BK@dbg@Process Init AccType[#2].Month[#1]}%
@@ -906,7 +913,8 @@
 %<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2=\unexpanded{#2}.}%
   \ifnum#1>\BK@closingmonth\relax
-%<dbg>\typeout{\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\Account@init@Month}.^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  End of init Account[#2].Month}%
     \expandafter\@gobble%
   \else
@@ -1539,6 +1547,8 @@
 %   \marg{prop.(\texttt{Debit} or \texttt{Credit})}\par
 % \changes{v1.1.2-alpha.25}{2025/12/30}
 %   {勘定科目の月ごとの要素のうちデビクレの処理部分を分離．}^^A
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {AccType.Month.DrCrの処理をTBから移設．}^^A
 % 勘定科目の月ごとの要素のうちデビクレの処理部分．
 %
 % 借方・貸方を\meta{prop.}で指定する．
@@ -1566,6 +1576,17 @@
         \Account@getpropertySmpl{#1}%
           {Ledger#2@AccountValue}\relax
     }%
+%<dbg>\typeout{\BK@dbg@Process
+%<dbg>  Set AccType["\Account@getAccType{#1}"].Month[#4].#5}%
+    \expandafter\AccType@setpropertySmpl\expanded{%
+        {\Account@getAccType{#1}}%
+        {Month#4@#5}%
+        {%
+          \the\numexpr
+            \AccType@getpropertySmpl{\Account@getAccType{#1}}{Month#4@#5}%
+            + \Account@getpropertySmpl{#1}{Ledger#2@AccountValue}\relax
+        }%
+      }%
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  Set JE[#3].#5.LEID}%
   \csxdef{JE#3@#5@LEID}{%
@@ -1730,8 +1751,9 @@
 %<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args3: \unexpanded{#3}}%
   \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>          End Loop for Account.}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\LMC@loop@Account}^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  End Loop for Account.}%
     \expandafter\@gobble
   \else
     \expandafter\ledger@entry\expanded{%
@@ -1766,8 +1788,9 @@
 %<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2: \unexpanded{#2}}%
   \ifnum#1>\value{AccountTypeCount}%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>          End Loop for AccType.}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\LMC@loop@AccType}^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  End Loop for AccType.}%
     \expandafter\@gobble
   \else
     \expandafter\@firstofone
@@ -1796,6 +1819,8 @@
   \stepcounter{ClosingMonthCount}%
   \expandafter\LMC@loop@AccType\expanded
     {1;\the\numexpr#1;}%
+%<dbg>\typeout{\BK@dbg@Finish\unexpanded
+%<dbg>  {\ledgermonthlyclosing}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1963,6 +1988,8 @@
   }{%
     \BK@hline
   }%
+%<dbg>\typeout{\BK@dbg@Finish\unexpanded
+%<dbg>  {\PJ@Transaction}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2193,46 +2220,30 @@
 %<dbg>  Args1 (LEID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2 (AccountName)=\unexpanded{#2}.}%
   \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  get Account["#2"].Ledger[#1].FullLEID}%
     \Account@getpropertySmpl{#2}{Ledger#1@FullLEID}%
     \label{LEID:\Account@getpropertySmpl{#2}{Ledger#1@FullLEID}}%
   }{% Month/Day: JE.getDate(Account[Name].Ledger[LEID].JEID)
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  get Month/Day}%
     \printJE@Date{\Account@getpropertySmpl{#2}{Ledger#1@JEID}}%
   }{% Partner Account title: Account[Name].Ledger[LEID].PartnerAccount
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  get Account["#2"].Ledger[#1].PartnerAccount}%
     \Account@getpropertySmpl{#2}{Ledger#1@PartnerAccount}%
   }{% Desc.: Account[Name].Ledger[LEID].JEDesc
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  get Account["#2"].Ledger[#1].JEDesc}%
     \Account@getpropertySmpl{#2}{Ledger#1@JEDesc}%
   }{% JEID: Account[Name].Ledger[LEID].JEID
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  get Account["#2"].Ledger[#1].JEID}%
     \hyperref[JEID:\Account@getpropertySmpl{#2}{Ledger#1@JEID}]%
       {\Account@getpropertySmpl{#2}{Ledger#1@JEID}}%
   }{% Debit: 条件分けして Account[Name].Ledger[LEID].AccountValue
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  get Account["#2"].Ledger[#1].AccountValue in Debit.}%
     \if\Account@getpropertySmpl{#2}{Ledger#1@IsAccountDebit}D\relax%
       \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@debit
                      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Credit: 条件分けして Account[Name].Ledger[LEID].AccountValue
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  get Account["#2"].Ledger[#1].AccountValue in Credit.}%
     \if\Account@getpropertySmpl{#2}{Ledger#1@IsAccountDebit}C\relax%
       \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}%
       \global\advance\sum@credit
                      \Account@getpropertySmpl{#2}{Ledger#1@AccountValue}\relax
     \fi
   }{% Balance type: Account[Name].LedgerBalanceTypeで条件分け
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  switch Account["#2"].Ledger[#1].LedgerBalanceType.}%
     \Account@swBalanceType{#2}{%
       借
     }{%
@@ -2245,8 +2256,6 @@
       \fi
     }%
   }{% Balance: Account[Name].Balance
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  switch Account["#2"].Ledger[#1].Balance.}%
     \Account@getLedgerBalance{#2}{#1}%
   }%
 }
@@ -2298,8 +2307,8 @@
 % 月次締切処理．
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing#1;#2;#3;{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\PGL@MonthlyClosing}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@MonthlyClosing}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1 (Month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2 (LEID)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -2501,15 +2510,16 @@
 % 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
 %    \begin{macrocode}
 \def\PGL@L@@p#1#2{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\PGL@L@@p}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@L@@p}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1 (AccountID): \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2 (AccType): \unexpanded{#2}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  AccType[#2].AccountCount=\AccType@getpropertySmpl{#2}{AccountCount}.}%
   \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}%
-%<dbg>\typeout{\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@L@@p}^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Go to \unexpanded{\PGL@Loop}.}%
     \expandafter\@secondoftwo
   \else
@@ -2697,6 +2707,8 @@
 %   {引数を取るように変更．}^^A
 % \changes{v1.1.2-alpha.23.02}{2025/12/28}
 %   {貸方出力の修正．}^^A
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {AccType.Month.DrCrの処理をTBから移設．}^^A
 % 合計残高試算表の1行出力．
 % 借方・貸方はそれぞれ\\
 % \cmd{\Account@getpropertySmpl}\jmarg{勘定科目名}^^A
@@ -2717,22 +2729,12 @@
     \Account@getpropertySmpl{#1}{Month#3@Debit}%
     \global\advance\BKtemp@countB
                    \Account@getpropertySmpl{#1}{Month#3@Debit}\relax
-    \AccType@setpropertySmpl{#2}{Month#3@Debit}{%
-      \the\numexpr
-        \AccType@getpropertySmpl{#2}{Month#3@Debit}%
-      + \Account@getpropertySmpl{#1}{Month#3@Debit}\relax
-    }%
   }{%
     \Account@getpropertySmpl{#1}{Name}%
   }{%
     \Account@getpropertySmpl{#1}{Month#3@Credit}%
     \global\advance\BKtemp@countC
                    \Account@getpropertySmpl{#1}{Month#3@Credit}\relax
-    \AccType@setpropertySmpl{#2}{Month#3@Credit}{%
-      \the\numexpr
-        \AccType@getpropertySmpl{#2}{Month#3@Credit}%
-      + \Account@getpropertySmpl{#1}{Month#3@Credit}\relax
-    }%
   }{%
     \TB@Table@Acc@OneLine@BalanceCredit{#1}{#2}{#3}%
   }%
