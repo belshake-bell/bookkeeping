@@ -436,13 +436,26 @@
 % \begin{macro}{\BK@hline}
 % \changes{v1.1.2-alpha.14}{2025/12/18}
 %   {垂直方向のスキップを発生させない（正確には打ち消す）\cs{hline}．}
+% \changes{v1.1.2-alpha.30}{2026/01/02}
+%   {\cs{@xhline}ではなく\cs{BK@xhline}を使用する．}
 % 垂直方向のスキップを発生させない（正確には打ち消す）\cmd{\hline}．
 %    \begin{macrocode}
 \def\BK@hline{%
   \noalign{\ifnum0=`}\fi
     \hrule \@height \arrayrulewidth
     \vskip-\arrayrulewidth \futurelet
-    \reserved@a\@xhline}
+    \reserved@a\BK@xhline}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\BK@hline}
+% \changes{v1.1.2-alpha.30}{2026/01/02}
+%   {New: \cs{BK@xhline}．}
+%    \begin{macrocode}
+\def\BK@xhline{\ifx\reserved@a\BK@hline
+               \vskip\doublerulesep
+               \vskip-\arrayrulewidth
+             \fi
+      \ifnum0=`{\fi}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %</style>
