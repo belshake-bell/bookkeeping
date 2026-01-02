@@ -654,18 +654,22 @@
 %    \end{macrocode}
 % \begin{macro}{\AccType@getpropertySmpl}^^A
 %   \jmarg{勘定科目の種類}\marg{prop.}\par
-% \changes{v1.1.2-alpha.17}{2025/12/19}{Getterの新設．}%
+% \changes{v1.1.2-alpha.17}{2025/12/19}{Getterの新設．}^^A
 % \changes{v1.1.2-alpha.23.06}{2025/12/30}
-%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}^^A
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Error文面の調整．}^^A
 %  勘定科目の種類と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
 \def\AccType@getpropertySmpl#1#2{%
-  \@ifundefined{AccType#1@#2}{\unexpanded{%
-    \PackageError{bookkeeping}{%
-      The property "#2" is not defined in AccType.\MessageBreak
-    }{%
-      please tell package author.\MessageBreak
-    }}%
+  \@ifundefined{AccType#1@#2}{%
+    \unexpanded{%
+      \PackageError{bookkeeping}{%
+        The property "#2" is not defined in AccType "#1".
+      }{%
+        please tell package author.\MessageBreak
+      }%
+    }%
   }{%
     \csuse{AccType#1@#2}%
   }%
@@ -678,17 +682,19 @@
 % \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
 % \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Error文面の調整．}^^A
 %  勘定科目の種類IDから勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
 \def\AccType@getAccType#1{%
-  \@ifundefined{revAccType#1@AccType}{\unexpanded{%
-    \PackageError{bookkeeping}{%
-      The Account Type "#1" is not defined.\MessageBreak
-      You MUST define account\MessageBreak
-      by using \protect\registerAccountID .
-    }{%
-      Check the account type registration.
-    }}%
+  \@ifundefined{revAccType#1@AccType}{%
+    \unexpanded{%
+      \PackageError{bookkeeping}{%
+        The Account Type "#1" is not defined.
+      }{%
+        Check the account type registration.
+      }%
+    }%
   }{%
     \csuse{revAccType#1@AccType}%
   }%
@@ -921,16 +927,20 @@
 % \end{macro}
 % \begin{macro}{\Account@getAccID}\jmarg{勘定科目名}\par
 % \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}^^A
 %  勘定科目名から勘定科目ID\meta{AccID}を得る．
 %    \begin{macrocode}
 \def\Account@getAccID#1{%
   \@ifundefined{revAccount#1@ID}{%
-    \PackageError{bookkeeping}{%
-      The Account "#1" is not defined.\MessageBreak
-      You MUST define account\MessageBreak
-      by using \protect\registerAccountID .
-    }{%
-      Check the account registration.
+    \unexpanded{%
+      \PackageError{bookkeeping}{%
+        The Account "#1" is not defined.\MessageBreak
+        You MUST define account\MessageBreak
+        by using \protect\registerAccountID .
+      }{%
+        Check the account registration.
+      }%
     }%
   }{%
     \csuse{revAccount#1@ID}%
@@ -940,16 +950,20 @@
 % \end{macro}
 % \begin{macro}{\Account@getAccType}\jmarg{勘定科目名}\par
 % \changes{v1.1.2-alpha.01}{2025/12/12}{Error handling.}%
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}^^A
 %  勘定科目名から勘定科目の種類\meta{AccType}を得る．
 %    \begin{macrocode}
 \def\Account@getAccType#1{%
   \@ifundefined{revAccount#1@Type}{%
-    \PackageError{bookkeeping}{%
-      The Account "#1" is not defined.\MessageBreak
-      You MUST define account\MessageBreak
-      by using \protect\registerAccountID .
-    }{%
-      Check the account registration.
+    \unexpanded{%
+      \PackageError{bookkeeping}{%
+        The Account "#1" is not defined.\MessageBreak
+        You MUST define account\MessageBreak
+        by using \protect\registerAccountID .
+      }{%
+        Check the account registration.
+      }%
     }%
   }{%
     \csuse{revAccount#1@Type}%
@@ -967,14 +981,18 @@
 %                                      \marg{AccID}\par
 % \changes{v1.1.2-alpha.18}{2025/12/19}
 %   {AccTypeとAccIDから勘定科目名を得るマクロ\cs{Account@getNameFromId}の新設．}^^A
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}^^A
 % AccTypeとAccIDから勘定科目名を得る．
 %    \begin{macrocode}
 \def\Account@getNameFromId#1#2{%
   \@ifundefined{Account#1#2@Name}{%
-    \PackageError{bookkeeping}{%
-      The AccType-AccID "#1#2" is not defined.\MessageBreak
-    }{%
-      please tell package author.\MessageBreak
+    \unexpanded{%
+      \PackageError{bookkeeping}{%
+        The AccType-AccID "#1#2" is not defined.\MessageBreak
+      }{%
+        please tell package author.\MessageBreak
+      }%
     }%
   }{%
     \csuse{Account#1#2@Name}%
@@ -988,15 +1006,19 @@
 %   {\cs{Account@getproperty}のシンプル版．}^^A
 % \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Error文面の調整．}^^A
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
 \def\Account@getpropertySmpl#1#2{%
-  \@ifundefined{Account\Account@getAccTypeAccID{#1}@#2}{\unexpanded{%
-    \PackageError{bookkeeping}{%
-      The property "#2" is not defined.\MessageBreak
-    }{%
-      please tell package author.\MessageBreak
-    }}%
+  \@ifundefined{Account\Account@getAccTypeAccID{#1}@#2}{%
+    \unexpanded{%
+      \PackageError{bookkeeping}{%
+        The property "#2" is not defined in Account "#1".
+      }{%
+        please tell package author.\MessageBreak
+      }%
+    }%
   }{%
     \csuse{Account\Account@getAccTypeAccID{#1}@#2}%
   }%
@@ -1010,6 +1032,8 @@
 %   {Grand parent management.}^^A
 % \changes{v1.1.2-alpha.23.06}{2025/12/30}
 %   {Errorハンドリング部分を\cs{unexpanded}で囲んでみる．}%
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Error文面の調整．}^^A
 %  勘定科目名と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %
 %  オプションで\meta{parent~prop.}に\meta{prop.}の親を指定できる．
@@ -1017,7 +1041,7 @@
 \def\Account@getpropertybase#1[#2]#3{%
   \@ifundefined{Account\Account@getAccTypeAccID{#1}#2@#3}{%
     \PackageError{bookkeeping}{%
-      The property "#2@#3" is not defined.\MessageBreak
+      The property "#2@#3" is not defined in Account "#1".
     }{%
       please tell package author.\MessageBreak
     }%
@@ -1201,6 +1225,8 @@
 %                                   \marg{prop.}\par
 % \changes{v1.1.2-alpha.04}{2025/12/14}
 %   {JEのgetterの新設．}^^A
+% \changes{v1.1.2-alpha.29}{2026/01/02}
+%   {Error文面の調整．}^^A
 %  \meta{JEID}と欲しい\meta{prop.}から\meta{prop.}の値を得る．
 %    \begin{macrocode}
 \def\JE@getpropertySmpl#1#2{%
@@ -1213,7 +1239,7 @@
       }}%
     \else
       \unexpanded{\PackageError{bookkeeping}{%
-        The property "#2" is not defined.
+        The property "#2" is not defined in JEID "#1".
       }{%
         please tell package author.\MessageBreak
       }}%
