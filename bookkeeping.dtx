@@ -250,7 +250,7 @@
 % \item 開始仕訳はそれ用に勘定科目を設定して行ってください．
 % \end{itemize}
 % 月替わりには\cmd{\ledgermonthlyclosing}\marg{closing month}を入れます．
-% 
+%
 % \subsection{調簿の出力}
 % 全部終わったら
 %   \cmd{\printjournal}で仕訳帳を，
@@ -273,7 +273,7 @@
 %   \item 当期純利益または純損失を資本金勘定へ振替
 %   \item 資産，負債および総資産を閉鎖残高勘定へ振替
 % \end{itemize}
-% 
+%
 % \section{実装}
 % \subsection{初期設定}
 %    \begin{macrocode}
@@ -473,7 +473,7 @@
 % \begin{macro}{\BK@dbg@Start}^^A
 % \changes{v1.1.2-alpha.22}{2025/12/26}
 %   {デバッグ用コマンド\cs{BK@dbg@Start}の新設}
-% 
+%
 %    \begin{macrocode}
 \def\BK@dbg@Start{Start\space\space: }
 %    \end{macrocode}
@@ -483,7 +483,7 @@
 %   {デバッグ用コマンド\cs{BK@dbg@Process}の新設}
 % \changes{v1.1.2-alpha.23.03}{2025/12/29}
 %   {Tabbing.}
-% 
+%
 %    \begin{macrocode}
 \def\BK@dbg@Process{\BK@dbg@Tab Process: }
 %    \end{macrocode}
@@ -493,7 +493,7 @@
 %   {デバッグ用コマンド\cs{BK@dbg@Status}の新設}
 % \changes{v1.1.2-alpha.23.03}{2025/12/29}
 %   {Tabbing.}
-% 
+%
 %    \begin{macrocode}
 \def\BK@dbg@Status{\BK@dbg@Tab Status\space: }
 %    \end{macrocode}
@@ -501,7 +501,7 @@
 % \begin{macro}{\BK@dbg@Finish}^^A
 % \changes{v1.1.2-alpha.23.03}{2025/12/29}
 %   {デバッグ用コマンド\cs{BK@dbg@Finish}の新設}
-% 
+%
 %    \begin{macrocode}
 \def\BK@dbg@Finish{Finish\space: }
 %    \end{macrocode}
@@ -509,7 +509,7 @@
 % \begin{macro}{\BK@dbg@Results}^^A
 % \changes{v1.1.2-alpha.25}{2025/12/30}
 %   {デバッグ用コマンド\cs{BK@dbg@Results}の新設}
-% 
+%
 %    \begin{macrocode}
 \def\BK@dbg@Results{Results: }
 
@@ -753,11 +753,62 @@
 %   {初期値判定についてシンプル化．}%
 % 勘定科目の種類名から
 % その勘定科目の種類に属する勘定科目の残高の総和を得る．
-% 
+%
 %    \begin{macrocode}
 \def\AccType@getBalanceSum#1{%
   \the\numexpr0%
   \AccType@getBalanceSum@base{1}{#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@getMonthPropSum@base}^^A
+%   \marg{AccType}\marg{Month}\marg{prop.}\par
+% \changes{v1.1.2-alpha.32}{2026/01/03}%
+%   {\cs{AccType@getMonthPropSum@base}を追加．}%
+%
+%    \begin{macrocode}
+\def\AccType@getMonthPropSum@base#1#2#3{%
+  +(\AccType@getpropertySmpl{#1}{Month#2@#3})%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@getMonthPropSum@Loop}^^A
+%   \marg{AccTypeID}\marg{Month}\marg{prop.}\par
+% \changes{v1.1.2-alpha.32}{2026/01/03}%
+%   {\cs{AccType@getDebitSum}を追加．}%
+%
+%    \begin{macrocode}
+\def\AccType@getMonthPropSum@Loop#1#2#3{%
+  \ifnum#1>\value{AccountTypeCount}%
+    \relax
+    \expandafter\@gobble
+  \else
+    \expandafter\@firstofone
+  \fi
+  {%
+    \expandafter\AccType@getMonthPropSum@base\expanded{%
+      {\AccType@getAccType{#1}}%
+      {#2}%
+      {#3}%
+    }%
+    \expandafter\AccType@getMonthPropSum@Loop\expanded{%
+      {\the\numexpr#1+1}%
+      {#2}%
+      {#3}%
+    }%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@getMonthPropSum}^^A
+%   \marg{Month}\marg{prop.}\par
+% \changes{v1.1.2-alpha.32}{2026/01/03}%
+%   {\cs{AccType@getMonthPropSum}を追加．}%
+%
+%    \begin{macrocode}
+\def\AccType@getMonthPropSum#1#2{%
+  \the\numexpr0%
+  \AccType@getMonthPropSum@Loop{1}{#1}{#2}%
 }
 
 %    \end{macrocode}
@@ -831,7 +882,7 @@
 %     登録された取引による取引後残高を得る．
 %   \end{description}}\ledgerdescription
 % \end{description}
-% 
+%
 % 勘定科目名\meta{AccName}から\meta{AccType}および\meta{AccID}を得るために
 % 次のマクロが用意されている．
 % \begin{description}
@@ -1446,7 +1497,7 @@
 % \end{macro}
 % \subsubsection{総勘定元帳への転記登録}\label{ss:総勘定元帳への転記登録}%
 % 仕訳の登録と同時に総勘定元帳への登録も行う．
-% 
+%
 % 勘定科目のIDを\meta{AccType}\meta{AccID}，
 % 各勘定科目ごとの取引登録IDを\meta{AccLdgID}で表すこととする．
 % 各勘定科目ごとの取引の各要素には
@@ -1454,7 +1505,7 @@
 % アクセスできる（\ref{ss:勘定科目}）．
 % \meta{prop.}の種類は次の通り．
 % \ledgerdescription
-% 
+%
 % \begin{macro}{\Account@advanceLedgerCount}\jmarg{勘定科目名}\par
 % \changes{v1.1.2-alpha.03}{2025/12/13}
 %   {\cntname{LedgerCount}を1進めるためのマクロを定義．}^^A
@@ -1660,7 +1711,7 @@
 % \changes{v1.1.2-alpha.09}{2025/12/15}
 %   {Ledger Entryの残高処理．}^^A
 % 残高関係の処理．
-% 
+%
 % まず\cntname{Account.Month.Balance}の更新．
 % これは単純に\cntname{Account.Month.Debit}$-$\cntname{Account.Month.Credit}．
 %    \begin{macrocode}
@@ -2446,7 +2497,7 @@
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
 % 勘定元帳の表のヘッダを出力する．
-% 
+%
 %    \begin{macrocode}
 \def\PGL@tableHeader{%
   \PGL@printline
@@ -2480,7 +2531,7 @@
 % \cmd{\n@xt}を呼び出す：これは改ページが
 % 1ページ当たりの行数を超えたことに因るときには\cmd{\PGL@ACLoop}，
 % 勘定科目の仕訳を全て出力したことに因るときには\cmd{\PGL@L@@p}である．
-% 
+%
 %    \begin{macrocode}
 \def\PGL@ACLoop#1;{%
 %<dbg>\typeout{\BK@dbg@Start\unexpanded
@@ -2912,6 +2963,8 @@
 %   {Setterを使用する．}^^A
 % \changes{v1.1.2-alpha.23}{2025/12/27}
 %   {引数を取るように変更．}^^A
+% \changes{v1.1.2-alpha.32}{2026/01/03}
+%   {不要な部分の削除．}^^A
 % 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@LoopAccount}を呼び出す．
 %    \begin{macrocode}
 \def\TB@Table@LoopAccType#1;#2;{%
@@ -2927,10 +2980,6 @@
   \else
     \stepcounter{Iterator@AccTypeID}%
     \xdef\TB@tmp@AccType{\AccType@getAccType{\the\c@Iterator@AccTypeID}}%
-    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@sumDebit}{0}%
-    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@Debit}{0}%
-    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@sumCredit}{0}%
-    \AccType@setpropertySmpl{\TB@tmp@AccType}{Month#2@Credit}{0}%
     \setcounter{Iterator@AccountID}{0}%
     \expandafter\@firstofone
   \fi{%
@@ -2959,6 +3008,22 @@
 }
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\TB@printSummation}\marg{month}\par
+% \changes{v1.1.2-alpha.32}{2026/01/03}
+%   {New: \cs{TB@printSummation}．}^^A
+% 残高試算表の表のヘッダを出力する．
+%    \begin{macrocode}
+\def\TB@printSummation#1{%
+  \TB@printline
+    {}%
+    {\AccType@getMonthPropSum{#1}{Debit}}%
+    {合計}%
+    {\AccType@getMonthPropSum{#1}{Credit}}%
+    {}%
+  \BK@hline
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\TB@printTable}\marg{month}\par
 % \changes{v1.1.0}{2025/02/05}
 %   {合計残高試算表の各マクロ名をもう少し分かりやすく変更．}%
@@ -2973,6 +3038,10 @@
 %   {再帰のマクロ呼び出しを\cs{TB@LoopMonth}に移設．}^^A
 % \changes{v1.1.2-alpha.23.02}{2025/12/28}
 %   {Float環境にする必要がないのでとりあえずグループ化だけにするように変更．}^^A
+% \changes{v1.1.2-alpha.32}{2026/01/03}
+%   {\cs{TB@printSummation}を使用する．}^^A
+% \changes{v1.1.2-alpha.32}{2026/01/03}
+%   {非デバッグ時にコンパイルが通らないので応急処置．}^^A
 % 残高試算表の表を組む．
 %    \begin{macrocode}
 \def\TB@printTable#1{%
@@ -2984,13 +3053,11 @@
   \begin{tabular}{rrcrr}
     \TB@printTableHeader
     \TB@Table@LoopAccType1;#1;%
-%<dbg>    \\[-\Cvs]%
+%<dbg|!dbg>    \\[-\Cvs]%
     \BK@hline
     \TB@printTable@sumAccType{#1}%
     \BK@hline
-    \TB@printline{\the\BKtemp@countA}{\the\BKtemp@countB}%
-                 {合計}%
-                 {\the\BKtemp@countC}{\the\BKtemp@countD}\BK@hline%
+    \TB@printSummation{#1}%
   \end{tabular}\par
   \endgroup
   \clearpage
