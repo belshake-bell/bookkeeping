@@ -414,10 +414,10 @@
 % 負数を▲表記に直すマクロ．
 %    \begin{macrocode}
 \def\BK@printMinusBalance#1{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\BK@printMinusBalance}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\BK@printMinusBalance}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>          Args1: \unexpanded{#1}}%
+%<dbg>  Args1: \unexpanded{#1}}%
   \ifnum#1<0%
     ▲\the\numexpr -1*#1\relax
   \else#1%
@@ -935,9 +935,9 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\registerAccountID}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3=\unexpanded{#3}.}%
+%<dbg>  Args1(AccType)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(LedgerBalanceType)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(Name)=\unexpanded{#3}.}%
   \stepcounter{AccType#1@AccountCount}%
   \csgdef{revAccount#3@Type}{#1}% AccType <- Account Name
   \csxdef{revAccount#3@ID}%
@@ -976,8 +976,8 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\Account@init@Month}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2}.}%
+%<dbg>  Args1(init month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(Name)=\unexpanded{#2}.}%
   \ifnum#1>\BK@closingmonth\relax
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\Account@init@Month}.^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -1400,12 +1400,12 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\journ@lentry}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args4=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args5=\unexpanded{#5},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args6=\unexpanded{#6}.}%
+%<dbg>  Args1(Month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(Day)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(DrAccount)=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4(Value)=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5(CrAccount)=\unexpanded{#5},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args6(Desc.)=\unexpanded{#6}.}%
   \stepcounter{JECount}%
   \xdef\JE@currentJournalCount{\the\c@JECount}%
   \JE@setDate{#1}{#2}%
@@ -1437,11 +1437,11 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\sjourn@lentry}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args4=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args5=\unexpanded{#5}.}%
+%<dbg>  Args1(Month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(Day)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(DrAccount)=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args4(Value)=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5(CrAccount)=\unexpanded{#5}.}%
   \stepcounter{JECount}%
   \xdef\JE@currentJournalCount{\the\c@JECount}%
   \JE@setDate{#1}{#2}%
@@ -1542,8 +1542,8 @@
 %% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
 %% #5: JEID
 \def\ledger@entry#1#2#3#4#5{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\ledger@entry}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\ledger@entry}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(勘定科目名)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(相手科目名)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -1622,8 +1622,8 @@
 % 仕訳の借方・貸方の指定した方の科目の要素に\meta{LEID}を登録する．
 %    \begin{macrocode}
 \def\LE@setMonthDrCr#1#2#3#4#5{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\LE@setMonthDrCr}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\LE@setMonthDrCr}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(勘定科目名)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(LEID)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -1691,8 +1691,8 @@
 %   {勘定科目の月ごとの要素を更新するマクロを新設して分離．}^^A
 %    \begin{macrocode}
 \def\LE@setMonthProperty#1#2#3#4#5#6{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\LE@setMonthProperty}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\LE@setMonthProperty}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(勘定科目名)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(借（貸）方)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -1812,12 +1812,12 @@
 % \meta{AccountID}をイテレーションして\cmd{\ledger@entry}で月次締切の登録をする．
 %    \begin{macrocode}
 \def\LMC@loop@Account#1;#2;#3;{% loop for each AccID
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\LMC@loop@Account}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\LMC@loop@Account}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3: \unexpanded{#3}}%
+%<dbg>  Args1(AccountID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccType)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(Closing Month)=\unexpanded{#3}}%
   \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}\relax%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\LMC@loop@Account}^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -1850,11 +1850,11 @@
 % \meta{AccTypeID}をイテレーションして\cmd{\LMC@loop@Account}を呼び出す．
 %    \begin{macrocode}
 \def\LMC@loop@AccType#1;#2;{% loop for each AccType
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\LMC@loop@AccType}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\LMC@loop@AccType}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2: \unexpanded{#2}}%
+%<dbg>  Args1(AccTypeID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(Closing Month)=\unexpanded{#2}}%
   \ifnum#1>\value{AccountTypeCount}%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\LMC@loop@AccType}^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -1880,10 +1880,10 @@
 % \cntname{ClosingMonthCount}を進めて\cmd{\LMC@loop@Account}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\ledgermonthlyclosing}[1]{% #1: closing month
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\ledgermonthlyclosing}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\ledgermonthlyclosing}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1}}%
+%<dbg>  Args1(Closing Month)=\unexpanded{#1}}%
   \stepcounter{ClosingMonthCount}%
   \expandafter\LMC@loop@AccType\expanded
     {1;\the\numexpr#1;}%
@@ -2028,10 +2028,10 @@
 % 取引IDが\meta{JEID}の取引を出力する．
 %    \begin{macrocode}
 \def\PJ@Transaction#1{% #1: journal entry ID
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\PJ@Transaction}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PJ@Transaction}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1}}%
+%<dbg>  Args1(JEID)=\unexpanded{#1}}%
 %    \end{macrocode}
 % 借方の行．
 %    \begin{macrocode}
@@ -2110,8 +2110,8 @@
 % 仕訳帳の表の内容を出力する．
 %    \begin{macrocode}
 \def\PJ@Loop@Table{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\PJ@Loop@Table}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PJ@Loop@Table}}%
 %<dbg>\typeout{\BK@dbg@Tab\space nest.if=\the\currentiflevel .}%
   \gdef\n@xt{}%
 %    \end{macrocode}
@@ -2180,8 +2180,8 @@
 %
 %    \begin{macrocode}
 \def\PJ@Loop{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\PJ@Loop}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PJ@Loop}}%
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|lr|r|r|r}
     \makebox[2\zw]{ID}%
@@ -2221,8 +2221,8 @@
 % 再帰用マクロを空にして\cmd{\PJ@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printjournal}{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\printjournal}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\printjournal}}%
   \setcounter{Iterator@JEID}{0}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
@@ -2287,8 +2287,8 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@Transaction}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1 (LEID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2 (AccountName)=\unexpanded{#2}.}%
+%<dbg>  Args1(LEID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccountName)=\unexpanded{#2}.}%
   \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
     \Account@getpropertySmpl{#2}{Ledger#1@FullLEID}%
     \label{LEID:\Account@getpropertySmpl{#2}{Ledger#1@FullLEID}}%
@@ -2380,9 +2380,9 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@MonthlyClosing}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1 (Month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2 (LEID)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3 (Account Name)=\unexpanded{#3}.}%
+%<dbg>  Args1(Month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(LEID)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(Account Name)=\unexpanded{#3}.}%
   \global\sum@debit\z@\relax \global\sum@credit\z@\relax
   \Account@setpropertySmpl{#3}{Month#1@Balance}{\the\c@LedgerEntryBalance}%
   \PGL@printline{}{}{#1月決算}{}{}%
@@ -2534,10 +2534,10 @@
 %
 %    \begin{macrocode}
 \def\PGL@ACLoop#1;{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\PGL@ACLoop}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@ACLoop}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1 (勘定科目名): \unexpanded{#1}.}
+%<dbg>  Args1(Account)=\unexpanded{#1}.}
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
     \PGL@tableHeader
@@ -2585,8 +2585,8 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@L@@p}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1 (AccountID): \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2 (AccType): \unexpanded{#2}}%
+%<dbg>  Args1(AccountID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccType)=\unexpanded{#2}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  AccType[#2].AccountCount=\AccType@getpropertySmpl{#2}{AccountCount}.}%
   \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}\relax%
@@ -2629,10 +2629,10 @@
 % 各勘定科目の種類について\cmd{\PLG@L@@p}を呼び出す．
 %    \begin{macrocode}
 \def\PGL@Loop#1{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\PGL@Loop}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@Loop}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1 (AccTypeID): \unexpanded{#1}.}%
+%<dbg>  Args1(AccTypeID)=\unexpanded{#1}.}%
   \ifnum#1>\value{AccountTypeCount}\relax
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  End loop in \unexpanded{\PGL@Loop}.}%
@@ -2656,8 +2656,8 @@
 % いくつかのパラメタを初期化して\cmd{\PLG@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printgeneralledger}{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\printgeneralledger}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\printgeneralledger}}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
   \PGL@Loop{1}%
@@ -2669,18 +2669,18 @@
 % \subsection{合計残高試算表}
 % \begingroup\centering\makeatletter
 % \begin{tabular}{rrcrr}
-% \TB@printTableHeader
-% \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}%
-% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
-% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
-% \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}%
+% \TB@printTableHeader\\ \BK@hline
+% \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}\\%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}\\%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}\\%
+% \TB@printline{借方残高}{借方}{勘定科目名}{貸方}{貸方残高}\\%
 % \BK@hline
-% \TB@printline{借方残高}{借方}{勘定科目の種類名}{貸方}{貸方残高}%
-% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
-% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}%
-% \TB@printline{借方残高}{借方}{勘定科目の種類名}{貸方}{貸方残高}%
+% \TB@printline{借方残高}{借方}{勘定科目の種類名}{貸方}{貸方残高}\\%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}\\%
+% \TB@printline{\@empty}{\@empty}{：}{\@empty}{\@empty}\\%
+% \TB@printline{借方残高}{借方}{勘定科目の種類名}{貸方}{貸方残高}\\%
 % \BK@hline
-% \TB@printline{借方残高}{借方}{合計}{貸方}{貸方残高}\BK@hline%
+% \TB@printline{借方残高}{借方}{合計}{貸方}{貸方残高}\\\BK@hline%
 % \end{tabular}\makeatother\par\vspace{1\Cvs}%
 % \endgroup
 % 大体こんな感じ．
@@ -2690,11 +2690,13 @@
 %   \jmarg{勘定科目名}%
 %   \jmarg{貸方}%
 %   \jmarg{貸方残高}\par
+% \changes{v1.1.2-alpha.33}{2026/01/03}
+%   {\cs{cr}をここに入れると面倒なので綺麗じゃないけど外す．}^^A
 % 合計残高試算表の1行出力の中身．
 %    \begin{macrocode}
 % Trial balance (TB)
 \def\TB@printline#1#2#3#4#5{%
-  #1&#2&#3&#4&#5\\%
+  #1&#2&#3&#4&#5%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2709,12 +2711,12 @@
 % 合計残高試算表にて借方残高を表示するマクロ．
 %    \begin{macrocode}
 \def\TB@Table@Acc@OneLine@BalanceDebt#1#2#3{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\TB@Table@Acc@OneLine@BalanceDebt}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@Table@Acc@OneLine@BalanceDebt}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3=\unexpanded{#3}.}%
+%<dbg>  Args1(Account)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccType)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(month)=\unexpanded{#3}.}%
   \Account@swBalanceType{#1}%
   {% Debit
     \expandafter\BK@printMinusBalance\expanded{%
@@ -2739,12 +2741,12 @@
 % 合計残高試算表にて貸方残高を表示するマクロ．
 %    \begin{macrocode}
 \def\TB@Table@Acc@OneLine@BalanceCredit#1#2#3{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\TB@Table@Acc@OneLine@BalanceCredit}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@Table@Acc@OneLine@BalanceCredit}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3=\unexpanded{#3}.}%
+%<dbg>  Args1(Account)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccType)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(month)=\unexpanded{#3}.}%
   \Account@swBalanceType{#1}%
   {% Debit
   }{% Credit
@@ -2789,12 +2791,12 @@
 % \marg{\cntname{Month}\meta{month}\cntname{@Credit}}でアクセスできる．
 %    \begin{macrocode}
 \def\TB@Table@Acc@OneLine#1;#2;#3;{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\TB@Table@Acc@OneLine}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@Table@Acc@OneLine}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3=\unexpanded{#3}.}%
+%<dbg>  Args1(Account)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccType)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(month)=\unexpanded{#3}.}%
   \TB@printline{% Debt balance
     \TB@Table@Acc@OneLine@BalanceDebt{#1}{#2}{#3}%
   }{%
@@ -2822,8 +2824,8 @@
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printClosingBalance#1#2#3{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\TB@Table@Acc@OneLine}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@Table@Acc@OneLine}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(AccType)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(month)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
@@ -2869,8 +2871,8 @@
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printlineAccType#1#2{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\TB@Table@Acc@OneLine}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@Table@Acc@OneLine}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(AccType)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(month)=\unexpanded{#2}.}%
@@ -2892,18 +2894,20 @@
 %   {Getterを使用する(incomplete)．}^^A
 % \changes{v1.1.2-alpha.26}{2026/01/01}
 %   {\cs{TB@printlineAccType}を使用するように変更．}
+% \changes{v1.1.2-alpha.33}{2026/01/03}
+%   {\cs{TB@printline}の変更に合わせた修正．}^^A
 % 勘定科目の種類についての合計残高試算を表示する．
 %    \begin{macrocode}
 \def\TB@printTable@sumAccType#1{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>  {\TB@printTable@sumAccType}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@printTable@sumAccType}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1(Month)=\unexpanded{#1}.}%
-  \TB@printlineAccType{A}{#1}%
-  \TB@printlineAccType{L}{#1}%
-  \TB@printlineAccType{N}{#1}%
-  \TB@printlineAccType{R}{#1}%
-  \TB@printlineAccType{E}{#1}%
+%<dbg>  Args1(month)=\unexpanded{#1}.}%
+  \TB@printlineAccType{A}{#1}\\%
+  \TB@printlineAccType{L}{#1}\\%
+  \TB@printlineAccType{N}{#1}\\%
+  \TB@printlineAccType{R}{#1}\\%
+  \TB@printlineAccType{E}{#1}\\%
   \TB@printlineAccType{M}{#1}%
 }
 %    \end{macrocode}
@@ -2924,18 +2928,20 @@
 %   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % \changes{v1.1.2-alpha.31}{2026/01/03}
 %   {数値表現の終端処理．}^^A
+% \changes{v1.1.2-alpha.33}{2026/01/03}
+%   {\cs{TB@printline}の変更に合わせた修正．}^^A
 % 各勘定科目についてイテレータを回し，\cmd{\TB@Table@Acc@OneLine}を呼び出し
 % \cmd{\TB@Table@LoopAccount}を再帰的に呼び出す処理をする．
 % その勘定科目の種類に属する勘定科目についてイテレータを回し終えたら
 % \cmd{\TB@Table@LoopAccType}を呼び出す．
 %    \begin{macrocode}
 \def\TB@Table@LoopAccount#1;#2;#3;{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
-%<dbg>  \TB@Table@LoopAccount}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@Table@LoopAccount}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2: \unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args3: \unexpanded{#3}.}%
+%<dbg>  Args1(AccountID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(AccType)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args3(month)=\unexpanded{#3}.}%
   \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}\relax%
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  End Loop for Account.}%
@@ -2944,6 +2950,16 @@
     \stepcounter{Iterator@AccountID}%
     \expandafter\@firstofone
   \fi{%
+    \ifnum\AccType@getpropertySmpl{#2}{ID}=\@ne\relax
+      \ifnum#1=\@ne\relax
+        \expandafter\expandafter\expandafter\@firstoftwo
+      \else
+        \expandafter\expandafter\expandafter\@secondoftwo
+      \fi
+    \else
+      \expandafter\@secondoftwo
+    \fi
+    {\\ \BK@hline}{\\}%
     \expandafter\TB@Table@Acc@OneLine\expanded
       {\Account@getNameFromId{#2}{#1};#2;#3;}%
     \expandafter\TB@Table@LoopAccount\expanded
@@ -2968,11 +2984,11 @@
 % 各勘定科目の種類についてイテレータを回して\cmd{\TB@Table@LoopAccount}を呼び出す．
 %    \begin{macrocode}
 \def\TB@Table@LoopAccType#1;#2;{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
-%<dbg>  \TB@Table@LoopAccType}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@Table@LoopAccType}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args2: \unexpanded{#2}.}%
+%<dbg>  Args1(AccTypeID)= \unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args2(month)=\unexpanded{#2}.}%
   \ifnum#1>\value{AccountTypeCount}%
 %<dbg>\typeout{\BK@dbg@Process
 %<dbg>  End Loop for AccType.}%
@@ -2994,6 +3010,8 @@
 %   {残高試算表のヘッダをマクロ化．}%
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
+% \changes{v1.1.2-alpha.33}{2026/01/03}
+%   {\cs{BK@hline}を\cs{TB@printTable}に移設．}^^A
 % 残高試算表の表のヘッダを出力する．
 %    \begin{macrocode}
 \def\TB@printTableHeader{%
@@ -3004,13 +3022,14 @@
     {\makebox[10\zw]{勘定科目}}%
     {\makebox[5\zw]{合計}}%
     {\makebox[5\zw]{残高}}%
-  \BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\TB@printSummation}\marg{month}\par
 % \changes{v1.1.2-alpha.32}{2026/01/03}
 %   {New: \cs{TB@printSummation}．}^^A
+% \changes{v1.1.2-alpha.33}{2026/01/03}
+%   {\cs{BK@hline}を\cs{TB@printTable}に移設．}^^A
 % 残高試算表の表のヘッダを出力する．
 %    \begin{macrocode}
 \def\TB@printSummation#1{%
@@ -3020,7 +3039,6 @@
     {合計}%
     {\AccType@getMonthPropSum{#1}{Credit}}%
     {}%
-  \BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
@@ -3042,22 +3060,24 @@
 %   {\cs{TB@printSummation}を使用する．}^^A
 % \changes{v1.1.2-alpha.32}{2026/01/03}
 %   {非デバッグ時にコンパイルが通らないので応急処置．}^^A
+% \changes{v1.1.2-alpha.33}{2026/01/03}
+%   {\cs{TB@printline}の変更に合わせた修正．}^^A
 % 残高試算表の表を組む．
 %    \begin{macrocode}
 \def\TB@printTable#1{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
-%<dbg>  \TB@printTable}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@printTable}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1}}%
+%<dbg>  Args1(month)=\unexpanded{#1}}%
   \begingroup\centering
   \begin{tabular}{rrcrr}
     \TB@printTableHeader
     \TB@Table@LoopAccType1;#1;%
-%<dbg|!dbg>    \\[-\Cvs]%
-    \BK@hline
+    \\ \BK@hline
     \TB@printTable@sumAccType{#1}%
-    \BK@hline
+    \\ \BK@hline
     \TB@printSummation{#1}%
+    \\ \BK@hline
   \end{tabular}\par
   \endgroup
   \clearpage
@@ -3085,12 +3105,13 @@
 % 各月ごとの残高試算表の出力処理を行い\cmd{\TB@LoopMonth}を再帰的に呼び出す．
 %    \begin{macrocode}
 \def\TB@LoopMonth#1;{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded{%
-%<dbg>  \TB@LoopMonth}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@LoopMonth}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1: \unexpanded{#1}}%
+%<dbg>  Args1(month)=\unexpanded{#1}}%
   \ifnum\the\numexpr#1+1\relax>\value{ClosingMonthCount}%
-%<dbg>\typeout{\BK@dbg@Process
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\TB@LoopMonth}^^J\BK@dbg@Tab\space
 %<dbg>  End Loop for Month.}%
     \expandafter\@gobble
   \else
@@ -3114,14 +3135,16 @@
 % 実装としては初期化をして\cmd{\TB@Loop}呼び出す形．
 %    \begin{macrocode}
 \newcommand{\printmonthlytrialbalance}{%
-%<dbg>\typeout{\BK@dbg@Start\unexpanded
-%<dbg>          {\printmonthlytrialbalance}}%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\printmonthlytrialbalance}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  ClosingMonthCount= \the\value{ClosingMonthCount}}%
+%<dbg>  ClosingMonthCount=\the\value{ClosingMonthCount}}%
   \setcounter{Iterator@Account@Month}{0}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
   \TB@LoopMonth0;%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\printmonthlytrialbalance}}%
 }
 %</style>
 %    \end{macrocode}
