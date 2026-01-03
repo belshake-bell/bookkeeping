@@ -810,6 +810,79 @@
   \the\numexpr0%
   \AccType@getMonthPropSum@Loop{1}{#1}{#2}%
 }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@getClosingBalanceSum@base}^^A
+%   \marg{AccType}\marg{Month}\marg{prop.}\par
+% \changes{v1.1.2-alpha.34}{2026/01/04}
+%   {\cs{AccType@getClosingBalanceSum@base}を追加．}^^A
+%
+%    \begin{macrocode}
+\def\AccType@getClosingBalanceSum@base#1#2#3{%
+  \ifnum0%
+    \if#3\AccType@getpropertySmpl{#1}{BalanceType}1\fi
+    \if A\AccType@getpropertySmpl{#1}{BalanceType}%
+      \if#3D%
+        \ifnum\AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}<\z@
+        \else1%
+        \fi
+      \fi
+      \if#3C%
+        \ifnum\AccType@getpropertySmpl{#1}{Month#2@ClosingBalance}>\z@
+        \else1%
+        \fi
+      \fi
+    \fi
+    >\z@
+    \expandafter\@firstofone
+  \else
+    \expandafter\@gobble
+  \fi
+  {+(\AccType@getpropertySmpl{#1}{Month#2@ClosingBalance})}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@getClosingBalanceSum@Loop}^^A
+%   \marg{AccTypeID}\marg{Month}\marg{prop.}\par
+% \changes{v1.1.2-alpha.34}{2026/01/04}
+%   {\cs{AccType@getClosingBalanceSum@Loop}を追加．}^^A
+%
+%    \begin{macrocode}
+\def\AccType@getClosingBalanceSum@Loop#1#2#3{%
+  \ifnum#1>\value{AccountTypeCount}%
+    \expandafter\@gobble
+  \else
+    \expandafter\@firstofone
+  \fi
+  {%
+    \expandafter\AccType@getClosingBalanceSum@base\expanded{%
+      {\AccType@getAccType{#1}}%
+      {#2}%
+      {#3}%
+    }%
+    \expandafter\AccType@getClosingBalanceSum@Loop\expanded{%
+      {\the\numexpr#1+1}%
+      {#2}%
+      {#3}%
+    }%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\AccType@getClosingBalanceSum}^^A
+%   \marg{Month}\marg{prop.}\par
+% \changes{v1.1.2-alpha.34}{2026/01/04}
+%   {\cs{AccType@getClosingBalanceSum}を追加．}^^A
+%
+%    \begin{macrocode}
+\def\AccType@getClosingBalanceSum#1#2{%
+  \the\numexpr
+    \if#2C-1*\else1*\fi
+    (0%
+    \AccType@getClosingBalanceSum@Loop{1}{#1}{#2}%
+    )%
+  \relax
+}
 
 %    \end{macrocode}
 % \end{macro}
@@ -3030,15 +3103,21 @@
 %   {New: \cs{TB@printSummation}．}^^A
 % \changes{v1.1.2-alpha.33}{2026/01/03}
 %   {\cs{BK@hline}を\cs{TB@printTable}に移設．}^^A
+% \changes{v1.1.2-alpha.34}{2026/01/04}
+%   {\cs{AccType@getClosingBalanceSum}を使用する．}^^A
 % 残高試算表の表のヘッダを出力する．
 %    \begin{macrocode}
 \def\TB@printSummation#1{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\TB@printTable}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1(month)=\unexpanded{#1}}%
   \TB@printline
-    {}%
+    {\AccType@getClosingBalanceSum{#1}{D}}%
     {\AccType@getMonthPropSum{#1}{Debit}}%
     {合計}%
     {\AccType@getMonthPropSum{#1}{Credit}}%
-    {}%
+    {\AccType@getClosingBalanceSum{#1}{C}}%
 }
 %    \end{macrocode}
 % \end{macro}
