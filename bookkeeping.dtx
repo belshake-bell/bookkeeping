@@ -2316,6 +2316,8 @@
 %   \jmarg{貸方}^^A
 %   \jmarg{残高賃借}^^A
 %   \jmarg{残高}\par
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {\cs{cr}をここに入れると面倒なので綺麗じゃないけど外す．}%
 % 総勘定元帳での各取引の出力用．
 %    \begin{macrocode}
 % #1: LEID
@@ -2328,7 +2330,7 @@
 % #8: Balance type
 % #9: Balance
 \def\PGL@printline#1#2#3#4#5#6#7#8#9{%
-  #1&#2&#3&#4&#5&#6&#7&#8&#9\\%
+  #1&#2&#3&#4&#5&#6&#7&#8&#9%
 }
 
 %    \end{macrocode}
@@ -2350,9 +2352,9 @@
 %   {マクロのシンプル化．}^^A
 % \changes{v1.1.2-alpha.19.10}{2025/12/23}%
 %   {引数の取り方を変更．}^^A
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {\cs{PGL@printline}の変更に合わせた修正．}^^A
 % 勘定科目名が\meta{Account~Name}の\meta{AccLdgID}の取引を出力する．
-% \TODO{長いし分割した方がいい．}
-% \TODO{2番目の引数を使うように変更する．}
 %    \begin{macrocode}
 %% #1: ladger entry ID
 %% #2: Account Name
@@ -2362,6 +2364,7 @@
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(LEID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(AccountName)=\unexpanded{#2}.}%
+  \gdef\n@xtcrhline{\\}%
   \PGL@printline{% FullLEID: Account[Name].Ledger[LEID].FullLEID
     \Account@getpropertySmpl{#2}{Ledger#1@FullLEID}%
     \label{LEID:\Account@getpropertySmpl{#2}{Ledger#1@FullLEID}}%
@@ -2401,38 +2404,29 @@
   }{% Balance: Account[Name].Balance
     \Account@getLedgerBalance{#2}{#1}%
   }%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@Transaction}}%
 }
 %    \end{macrocode}
 % \end{macro}
-\iffalse
-  \printgeneralledger
-  v
-  \PGL@Loop -> exit loop
-  v Internal processing...
-  v
-  \PGL@L@@p -> \PGL@Loop
-  v Internal processing...
-  v
-  \PGL@ACLoop
-  v
-  v
-  \PGL@ACLoop@Table -> \PGL@Terminate    -> \PGL@L@@p
-  v ^
-  v ^               \> \PGL@CarryForward -> \PGL@ACLoop
-  v ^
-  \PGL@Transaction
-\fi
 % \begin{macro}{\PGL@CarryPrev}%
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {\cs{PGL@printline}の変更に合わせた修正．}^^A
 % 前頁繰越処理．
 %    \begin{macrocode}
 \def\PGL@CarryPrev{%
+  \\\BK@hline
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@CarryPrev}}%
   \gdef\n@xtprev{}%
+  \gdef\n@xtcrhline{\\\BK@hline}%
   \PGL@printline
     {}{}{前頁繰越}{}{}%
     {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
-  \BK@hline
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@CarryPrev}}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2447,6 +2441,8 @@
 %   {引数の設定．}^^A
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {\cs{PGL@printline}の変更に合わせた修正．}^^A
 % 月次締切処理．
 %    \begin{macrocode}
 \def\PGL@MonthlyClosing#1;#2;#3;{%
@@ -2456,42 +2452,37 @@
 %<dbg>  Args1(Month)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(LEID)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args3(Account Name)=\unexpanded{#3}.}%
+  \gdef\n@xtcrhline{\\\BK@hline}%
   \global\sum@debit\z@\relax \global\sum@credit\z@\relax
-  \Account@setpropertySmpl{#3}{Month#1@Balance}{\the\c@LedgerEntryBalance}%
   \PGL@printline{}{}{#1月決算}{}{}%
      {\Account@getpropertySmpl{#3}{Month#1@Debit}}%
      {\Account@getpropertySmpl{#3}{Month#1@Credit}}%
-     {}{}\BK@hline
+     {}{}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@MonthlyClosing}}%
 }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\PGL@CarryForward}%
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {\cs{PGL@printline}の変更に合わせた修正．}^^A
 % 次頁繰越処理．
 %    \begin{macrocode}
 \def\PGL@CarryForward{%
+  \\\BK@hline
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@CarryForward}}%
   \PGL@printline{}{}{\multicolumn{1}{r|}{次頁繰越}}{}{}%
                 {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
-  \BK@hline
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@CarryForward}}%
+  \\\BK@hline
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@Terminate}\jmarg{勘定科目名}\par
-% \changes{v1.1.2-alpha.19.03}{2025/12/22}
-%   {最終的な借方・貸方残高および残高を表示するように変更．}^^A
-% \changes{v1.1.2-alpha.20}{2025/12/24}
-%   {\cs{hline}を\cs{BK@hline}に．}
-% 締切処理．
-%    \begin{macrocode}
-\def\PGL@Terminate#1{%
-  \PGL@printline{}{}{}{}{}%
-    {\Account@getpropertySmpl{#1}{Debit}}%
-    {\Account@getpropertySmpl{#1}{Credit}}{}{}\BK@hline\BK@hline
-}
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\PGL@ACLoop@Table}\jmarg{勘定科目名}\cntname{;}\par
+% \begin{macro}{\PGL@TableCount@Loop}\jmarg{勘定科目名}\cntname{;}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.2-alpha.12}{2025/12/18}
@@ -2500,8 +2491,6 @@
 %   {\cs{PGL@Transaction}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.01}{2025/12/21}
 %   {引数で勘定科目名を取るように変更．}^^A
-% \changes{v1.1.2-alpha.19.03}{2025/12/22}
-%   {\cs{PGL@Terminate}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.04}{2025/12/22}
 %   {\cs{PGL@L@@p}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.08}{2025/12/23}%
@@ -2514,53 +2503,112 @@
 %   {\cs{PGL@ACLoop}，\cs{PGL@L@@p}の引数へ値を渡して処理できるように．}^^A
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {マクロを分離．}^^A
 % ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
-% 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
 % その他改ページ処理など．
 %    \begin{macrocode}
-\def\PGL@ACLoop@Table#1;{%
-%<dbg>%\typeout{Startin: \noexpand\PGL@ACLoop@Table . Args1: #1}%
-  \ifnum\c@Iterator@Account@LEID>\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
-    \BK@hline
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Terminate loop (\unexpanded{\PGL@ACLoop@Table}).}%
-    \PGL@Terminate{#1}%
+\def\PGL@TableCount@Loop#1;{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@TableCount@Loop}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1(Account)=\unexpanded{#1}.}
+  \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
+    \gdef\n@xt{\PGL@printTable#1;}%
+    \gdef\n@xtprev{\PGL@CarryPrev}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@TableCount@Loop}^^J\BK@dbg@Tab\space
+%<dbg>  CarryForward (\unexpanded{\PGL@TableCount@Loop}).}%
+    \PGL@CarryForward
     \expandafter\@gobble
   \else
-    \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
-      \BK@hline
-      \gdef\n@xt{\PGL@ACLoop#1;}%
-      \gdef\n@xtprev{\PGL@CarryPrev}%
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  CarryForward (\unexpanded{\PGL@ACLoop@Table}).}%
-      \PGL@CarryForward
-      \expandafter\expandafter\expandafter\@gobble
-    \else
-      \gdef\n@xt{\expandafter\PGL@L@@p\expanded{{\the\numexpr\Account@getAccID{#1}+1}{\Account@getAccType{#1}}}}%
-      \stepcounter{tableLineCount}%
-      \stepcounter{Iterator@Account@LEID}%
+    \expandafter\@firstofone
+  \fi{%
+    \stepcounter{tableLineCount}%
+    \stepcounter{Iterator@Account@LEID}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  tableLineCount=\the\c@tableLineCount,^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Iterator@Account@LEID=\the\c@Iterator@Account@LEID}%
-      \ifnum\Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @AccountValue}=0\relax
+    \n@xtcrhline
+    \ifnum
+         \Account@getpropertySmpl
+           {#1}%
+           {Ledger\the\c@Iterator@Account@LEID @AccountValue}%
+         =0\relax
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Monthly Closing (\unexpanded{\PGL@ACLoop@Table}).}%
-        \expandafter\PGL@MonthlyClosing\expanded{%
-          \Account@getpropertySmpl{#1}{Ledger\the\c@Iterator@Account@LEID @PartnerAccount};%
-          \the\c@Iterator@Account@LEID;%
-          #1;%
-        }%
-      \else
+%<dbg>  Monthly Closing (\unexpanded{\PGL@TableCount@Loop}).}%
+      \expandafter\PGL@MonthlyClosing\expanded{%
+        \Account@getpropertySmpl
+          {#1}%
+          {Ledger\the\c@Iterator@Account@LEID @PartnerAccount};%
+        \the\c@Iterator@Account@LEID;%
+        #1;%
+      }%
+    \else
 %<dbg>\typeout{\BK@dbg@Process
-%<dbg>  Transaction (\unexpanded{\PGL@ACLoop@Table}).}%
-        \expandafter\PGL@Transaction\expanded{%
-          \the\c@Iterator@Account@LEID;%
-          #1;%
-        }%
-      \fi
-      \expandafter\expandafter\expandafter\@firstofone
+%<dbg>  Transaction (\unexpanded{\PGL@TableCount@Loop}).}%
+      \expandafter\PGL@Transaction\expanded{%
+        \the\c@Iterator@Account@LEID;%
+        #1;%
+      }%
     \fi
-  \fi{\expandafter\PGL@ACLoop@Table\expanded{#1;}}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@TableCount@Loop}^^J\BK@dbg@Tab\space
+%<dbg>  Call \unexpanded{\PGL@LEID@Loop}.}%
+    \expandafter\PGL@LEID@Loop\expanded{#1;}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@Terminate}\jmarg{勘定科目名}\par
+% \changes{v1.1.2-alpha.19.03}{2025/12/22}
+%   {最終的な借方・貸方残高および残高を表示するように変更．}^^A
+% \changes{v1.1.2-alpha.20}{2025/12/24}
+%   {\cs{hline}を\cs{BK@hline}に．}
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {\cs{PGL@printline}の変更に合わせた修正．}^^A
+% 締切処理．
+%    \begin{macrocode}
+\def\PGL@Terminate#1{%
+  \\\BK@hline
+  \PGL@printline{}{}{}{}{}%
+    {\Account@getpropertySmpl{#1}{Debit}}%
+    {\Account@getpropertySmpl{#1}{Credit}}{}{}\\\BK@hline\BK@hline
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\PGL@LEID@Loop}\jmarg{勘定科目名}\cntname{;}\par
+% \changes{v1.1.2-alpha.19.01}{2025/12/21}
+%   {引数で勘定科目名を取るように変更．}^^A
+% \changes{v1.1.2-alpha.19.03}{2025/12/22}
+%   {\cs{PGL@Terminate}の引数の取り方を変更したのに合わせて修正．}^^A
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {マクロを分離．}^^A
+% 全ての仕訳を出力したら\cmd{\PGL@Terminate}を呼び出す．
+% それ以外の時は\cmd{\PGL@TableCount@Loop}を呼び出す．
+%    \begin{macrocode}
+\def\PGL@LEID@Loop#1;{%
+%<dbg>\typeout{\BK@dbg@Start
+%<dbg>  \unexpanded{\PGL@LEID@Loop}}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1(Account)=\unexpanded{#1}.}
+  \ifnum\c@Iterator@Account@LEID
+      >\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@LEID@Loop}^^J\BK@dbg@Tab\space
+%<dbg>  Terminate loop (\unexpanded{\PGL@LEID@Loop}).}%
+    \gdef\n@xt{}%
+    \PGL@Terminate{#1}%
+    \expandafter\@gobble
+  \else
+    \expandafter\@firstofone
+  \fi
+  {%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@LEID@Loop}^^J\BK@dbg@Tab\space
+%<dbg>  Call \unexpanded{\PGL@TableCount@Loop}.}%
+    \expandafter\PGL@TableCount@Loop\expanded{#1;}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2569,10 +2617,13 @@
 %   {\cs{PGL@tableHeader}の新設．}^^A
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {\cs{PGL@printline}の変更に合わせた修正．}^^A
 % 勘定元帳の表のヘッダを出力する．
 %
 %    \begin{macrocode}
 \def\PGL@tableHeader{%
+  \gdef\n@xtcrhline{\\\BK@hline}%
   \PGL@printline
     {\makebox[4\zw]{LEID}}%
     {\multicolumn{1}{c|}{\makebox[3\zw]{date}}}%
@@ -2582,11 +2633,11 @@
     {\makebox[4\zw]{借方}}%
     {\makebox[4\zw]{貸方}}%
     {\makebox[2\zw]{借/貸}}%
-    {\makebox[4\zw]{残高}}\BK@hline
+    {\makebox[4\zw]{残高}}%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@ACLoop}\jmarg{勘定科目名}\cntname{;}\par
+% \begin{macro}{\PGL@printTable}\jmarg{勘定科目名}\cntname{;}\par
 % \changes{v1.1.2-alpha.19.01}{2025/12/21}
 %   {\cs{PGL@ACLoop@Table}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.05}{2025/12/22}
@@ -2597,25 +2648,28 @@
 %   {引数の取り方を変更．}^^A
 % \changes{v1.1.2-alpha.19.10}{2025/12/23}
 %   {\cs{PGL@ACLoop@Table}の引数へ引数の値を渡して処理できるように．}^^A
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {Rename: \cs{PLG@ACLoop} to \cs{PGL@printTable}，
+%            \cs{PGL@ACLoop@Table} to \cs{PGL@LEID@Loop}．}^^A
 % 勘定元帳の表を作り，（改ページが
 % 1ページ当たりの行数を超えたことに因るときには前頁繰越をして）
-% \cmd{\PLG@ACLoop@Table}を呼び出す．
-% その処理が終わった後改ページをして\cmd{\PLG@ACLoop@Table}内で設定した
+% \cmd{\PLG@LEID@Loop}を呼び出す．
+% その処理が終わった後改ページをして
 % \cmd{\n@xt}を呼び出す：これは改ページが
-% 1ページ当たりの行数を超えたことに因るときには\cmd{\PGL@ACLoop}，
-% 勘定科目の仕訳を全て出力したことに因るときには\cmd{\PGL@L@@p}である．
+% 1ページ当たりの行数を超えたことに因るときには\cmd{\PGL@printTable}，
+% それ以外の時――勘定科目の仕訳を全て出力したことに因るときには空である．
 %
 %    \begin{macrocode}
-\def\PGL@ACLoop#1;{%
+\def\PGL@printTable#1;{%
 %<dbg>\typeout{\BK@dbg@Start
-%<dbg>  \unexpanded{\PGL@ACLoop}}%
+%<dbg>  \unexpanded{\PGL@printTable}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(Account)=\unexpanded{#1}.}
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
     \PGL@tableHeader
     \n@xtprev
-    \PGL@ACLoop@Table#1;
+    \PGL@LEID@Loop#1;
   \end{tabular}
   \end{table}
   \clearpage
@@ -2624,7 +2678,7 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@L@@p}\marg{AccountID}\marg{AccType}\par
+% \begin{macro}{\PGL@Account@Loop}\marg{AccountID}\marg{AccType}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {Account Typeを一時的に保持するマクロの名前をよりユニークな名前に変更．}
 % \changes{v1.1.0}{2024/02/27}
@@ -2651,12 +2705,14 @@
 %   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % \changes{v1.1.2-alpha.31}{2026/01/03}
 %   {数値表現の終端処理．}^^A
-% ある勘定科目の種類に属する各勘定科目について\cmd{\PLG@ACLoop}を呼び出す．
-% 全ての勘定科目について呼び出したら\cmd{\PLG@Loop}に処理を戻す．
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {Rename: \cs{PLG@L@@p} to \cs{PGL@Account@Loop}，
+%            \cs{PLG@ACLoop} to \cs{PGL@printTable}．}^^A
+% ある勘定科目の種類に属する各勘定科目について\cmd{\PGL@printTable}を呼び出す．
 %    \begin{macrocode}
-\def\PGL@L@@p#1#2{%
+\def\PGL@Account@Loop#1#2{%
 %<dbg>\typeout{\BK@dbg@Start
-%<dbg>  \unexpanded{\PGL@L@@p}}%
+%<dbg>  \unexpanded{\PGL@Account@Loop}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(AccountID)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args2(AccType)=\unexpanded{#2}}%
@@ -2664,27 +2720,31 @@
 %<dbg>  AccType[#2].AccountCount=\AccType@getpropertySmpl{#2}{AccountCount}.}%
   \ifnum#1>\AccType@getpropertySmpl{#2}{AccountCount}\relax%
 %<dbg>\typeout{\BK@dbg@Finish
-%<dbg>  \unexpanded{\PGL@L@@p}^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Go to \unexpanded{\PGL@Loop}.}%
-    \expandafter\@secondoftwo
+%<dbg>  \unexpanded{\PGL@Account@Loop}^^J\BK@dbg@Tab\space
+%<dbg>  End loop in \unexpanded{\PGL@Account@Loop}.}%
+    \expandafter\@gobble
   \else
+    \expandafter\@firstofone
+  \fi
+  {%
     \expandafter\subsection\expandafter%
       {\Account@getNameFromId{#2}{#1}}%
     \setcounter{Iterator@Account@LEID}{0}%
     \setcounter{LedgerEntryBalance}{0}%
-    \global\sum@debit\z@\relax\global\sum@credit\z@\relax
-    \expandafter\@firstoftwo
-  \fi
-  {\expandafter\PGL@ACLoop\expanded{%
-    \Account@getNameFromId{#2}{#1};%
-  }}%
-  {\expandafter\PGL@Loop\expanded{%
-    {\the\numexpr\AccType@getpropertySmpl{#2}{ID}+1}}%
+    \global\sum@debit\z@
+    \global\sum@credit\z@
+    \expandafter\PGL@printTable\expanded{%
+      \Account@getNameFromId{#2}{#1};%
+    }%
+    \expandafter\PGL@Account@Loop\expanded{%
+      {\the\numexpr#1+1}%
+      {#2}%
+    }%
   }%
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@Loop}\marg{AccTypeID}\par
+% \begin{macro}{\PGL@AccType@Loop}\marg{AccTypeID}\par
 % \changes{v1.1.0}{2024/02/27}
 %   {勘定科目の種類についてリファクタしたのに伴ってアクセス用のマクロを変更．}
 % \changes{v1.1.0}{2024/02/27}
@@ -2699,21 +2759,32 @@
 %   {\cs{PGL@L@@p}の引数へ値を渡して処理できるように．}^^A
 % \changes{v1.1.2-alpha.19.10}{2025/12/23}
 %   {大小判定を逆に変更．}^^A
-% 各勘定科目の種類について\cmd{\PLG@L@@p}を呼び出す．
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {Rename: \cs{PLG@Loop} to \cs{PLG@AccType@Loop}，
+%            \cs{PLG@L@@p} to \cs{PGL@Account@Loop}．}^^A
+% 各勘定科目の種類について\cmd{\PGL@Account@Loop}を呼び出す．
 %    \begin{macrocode}
-\def\PGL@Loop#1{%
+\def\PGL@AccType@Loop#1{%
 %<dbg>\typeout{\BK@dbg@Start
-%<dbg>  \unexpanded{\PGL@Loop}}%
+%<dbg>  \unexpanded{\PGL@AccType@Loop}}%
 %<dbg>\typeout{\BK@dbg@Status
 %<dbg>  Args1(AccTypeID)=\unexpanded{#1}.}%
   \ifnum#1>\value{AccountTypeCount}\relax
-%<dbg>\typeout{\BK@dbg@Process
-%<dbg>  End loop in \unexpanded{\PGL@Loop}.}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\PGL@AccType@Loop}^^J\BK@dbg@Tab\space
+%<dbg>  End loop in \unexpanded{\PGL@AccType@Loop}.}%
     \expandafter\@gobble
   \else
     \expandafter\@firstofone
-  \fi{\expandafter\PGL@L@@p\expanded
-    {{1}{\AccType@getAccType{#1}}}%
+  \fi
+  {%
+    \expandafter\PGL@Account@Loop\expanded{%
+      {1}%
+      {\AccType@getAccType{#1}}%
+    }%
+    \expandafter\PGL@AccType@Loop\expanded{%
+      {\the\numexpr#1+1}%
+    }%
   }%
 }
 %    \end{macrocode}
@@ -2725,15 +2796,19 @@
 %   {\cs{PGL@Loop}の引数の取り方を変更したのに合わせて修正．}^^A
 % \changes{v1.1.2-alpha.19.10}{2025/12/23}
 %   {\cs{PGL@Loop}の引数へ値を渡して処理できるように．}^^A
+% \changes{v1.1.2-alpha.35}{2026/01/04}
+%   {Rename: \cs{PLG@Loop} to \cs{PLG@AccType@Loop} ．}^^A
 % 実際に総勘定元帳を出力するコマンド．
-% いくつかのパラメタを初期化して\cmd{\PLG@Loop}を呼び出す．
+% いくつかのパラメタを初期化して\cmd{\PLG@AccType@Loop}を呼び出す．
 %    \begin{macrocode}
 \newcommand{\printgeneralledger}{%
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\printgeneralledger}}%
   \gdef\n@xtprev{}%
   \gdef\n@xt{}%
-  \PGL@Loop{1}%
+  \PGL@AccType@Loop{1}%
+%<dbg>\typeout{\BK@dbg@Finish
+%<dbg>  \unexpanded{\printgeneralledger}}%
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
