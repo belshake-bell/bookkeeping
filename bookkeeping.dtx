@@ -2409,14 +2409,17 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@CarryPrev}%
+% \begin{macro}{\PGL@CarryPrev}^^A
+%   \jmeta{勘定科目名}\cntname{;}\meta{LEID}\cntname{;}\par
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
 % \changes{v1.1.2-alpha.35}{2026/01/04}
 %   {\cs{PGL@printline}の変更に合わせた修正．}^^A
+% \changes{v1.1.2-alpha.35.01}{2026/01/04}
+%   {引数を取るように変更．}^^A
 % 前頁繰越処理．
 %    \begin{macrocode}
-\def\PGL@CarryPrev{%
+\def\PGL@CarryPrev#1;#2;{%
   \\\BK@hline
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@CarryPrev}}%
@@ -2424,7 +2427,7 @@
   \gdef\n@xtcrhline{\\\BK@hline}%
   \PGL@printline
     {}{}{前頁繰越}{}{}%
-    {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+    {\the\sum@debit}{\the\sum@credit}{}{\Account@getLedgerBalance{#1}{#2}}%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\PGL@CarryPrev}}%
 }
@@ -2463,19 +2466,33 @@
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\PGL@CarryForward}%
+% \begin{macro}{\PGL@CarryForward}^^A
+%   \jmeta{勘定科目名}\cntname{;}\meta{LEID}\cntname{;}\par
 % \changes{v1.1.2-alpha.20}{2025/12/24}
 %   {\cs{hline}を\cs{BK@hline}に．}
 % \changes{v1.1.2-alpha.35}{2026/01/04}
 %   {\cs{PGL@printline}の変更に合わせた修正．}^^A
+% \changes{v1.1.2-alpha.35.01}{2026/01/04}
+%   {引数を取るように変更．}^^A
 % 次頁繰越処理．
 %    \begin{macrocode}
-\def\PGL@CarryForward{%
+\def\PGL@CarryForward#1;#2;{%
   \\\BK@hline
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@CarryForward}}%
-  \PGL@printline{}{}{\multicolumn{1}{r|}{次頁繰越}}{}{}%
-                {\the\sum@debit}{\the\sum@credit}{}{\the\c@LedgerEntryBalance}%
+%<dbg>\typeout{\BK@dbg@Status
+%<dbg>  Args1(Account)=\unexpanded{#1},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args1(LEID)=\unexpanded{#2}.}%
+  \PGL@printline
+    {}%
+    {}%
+    {\multicolumn{1}{r|}{次頁繰越}}%
+    {}%
+    {}%
+    {\the\sum@debit}%
+    {\the\sum@credit}%
+    {}%
+    {\Account@getLedgerBalance{#1}{#2}}%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\PGL@CarryForward}}%
   \\\BK@hline
@@ -2505,6 +2522,9 @@
 %   {\cs{hline}を\cs{BK@hline}に．}
 % \changes{v1.1.2-alpha.35}{2026/01/04}
 %   {マクロを分離．}^^A
+% \changes{v1.1.2-alpha.35.01}{2026/01/04}
+%   {\cs{PGL@CarryPrev}および\cs{PGL@CarryForward}を
+%    引数を取るように変更したので修正．}^^A
 % ある勘定科目の各仕訳について\cmd{\PGL@Transaction}を呼び出す．
 % その他改ページ処理など．
 %    \begin{macrocode}
@@ -2512,14 +2532,15 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@TableCount@Loop}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1(Account)=\unexpanded{#1}.}
+%<dbg>  Args1(Account)=\unexpanded{#1}.}%
   \ifnum\c@tableLineCount>\numexpr\maxtablelinenumber-1\relax
     \gdef\n@xt{\PGL@printTable#1;}%
-    \gdef\n@xtprev{\PGL@CarryPrev}%
+    \xdef\n@xtprev{%
+      \noexpand\PGL@CarryPrev\expanded{#1;\the\c@Iterator@Account@LEID;}}%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\PGL@TableCount@Loop}^^J\BK@dbg@Tab\space
 %<dbg>  CarryForward (\unexpanded{\PGL@TableCount@Loop}).}%
-    \PGL@CarryForward
+    \expandafter\PGL@CarryForward\expanded{#1;\the\c@Iterator@Account@LEID;}%
     \expandafter\@gobble
   \else
     \expandafter\@firstofone
@@ -2591,7 +2612,7 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@LEID@Loop}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1(Account)=\unexpanded{#1}.}
+%<dbg>  Args1(Account)=\unexpanded{#1}.}%
   \ifnum\c@Iterator@Account@LEID
       >\numexpr\Account@getpropertySmpl{#1}{LedgerCount}-1\relax
 %<dbg>\typeout{\BK@dbg@Finish
@@ -2664,7 +2685,7 @@
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\PGL@printTable}}%
 %<dbg>\typeout{\BK@dbg@Status
-%<dbg>  Args1(Account)=\unexpanded{#1}.}
+%<dbg>  Args1(Account)=\unexpanded{#1}.}%
   \begin{table}[ht]\centering
   \begin{tabular}{r|D{/}{/}{2/2}|l|l|r|r|r|c|r}
     \PGL@tableHeader
