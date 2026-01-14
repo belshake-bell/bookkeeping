@@ -1467,6 +1467,8 @@
 %   {JEのsetterを使用．}^^A
 % \changes{v1.1.2-alpha.23.04}{2025/12/29}
 %   {\cs{ledger@entry}の引数としてJEIDを渡すように変更．}^^A
+% \changes{v1.1.2-alpha.36}{2026/01/11}
+%   {\cs{ledger@entry}の引数としてMonthを渡すように変更．}^^A
 % 摘要の存在する仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\journ@lentry}[6]{%
@@ -1486,8 +1488,12 @@
   \JE@setCredit{#5}{#4}%
   \JE@setDescription{#6}{\iftrue}%
   \JE@setpropertySmpl{\JE@currentJournalCount}{Line}{3}%
-  \expandafter\ledger@entry\expanded{{#3}{#5}{D}{#4}{\JE@currentJournalCount}}%
-  \expandafter\ledger@entry\expanded{{#5}{#3}{C}{#4}{\JE@currentJournalCount}}%
+  \expandafter\ledger@entry\expanded{%
+    {#3}{#5}{D}{#4}{\JE@currentJournalCount}{\@arabic{#1}}%
+  }%
+  \expandafter\ledger@entry\expanded{%
+    {#5}{#3}{C}{#4}{\JE@currentJournalCount}{\@arabic{#1}}%
+  }%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\journ@lentry}}%
 }
@@ -1504,6 +1510,8 @@
 %   {JEのsetterを使用．}^^A
 % \changes{v1.1.2-alpha.23.04}{2025/12/29}
 %   {\cs{ledger@entry}の引数としてJEIDを渡すように変更．}^^A
+% \changes{v1.1.2-alpha.36}{2026/01/11}
+%   {\cs{ledger@entry}の引数としてMonthを渡すように変更．}^^A
 % 摘要の省略された仕訳を登録し，勘定元帳に仕訳内容を登録する．
 %    \begin{macrocode}
 \newcommand{\sjourn@lentry}[5]{%
@@ -1522,8 +1530,12 @@
   \JE@setCredit{#5}{#4}%
   \JE@setDescription{}{\iffalse}%
   \JE@setpropertySmpl{\JE@currentJournalCount}{Line}{2}%
-  \expandafter\ledger@entry\expanded{{#3}{#5}{D}{#4}{\JE@currentJournalCount}}%
-  \expandafter\ledger@entry\expanded{{#5}{#3}{C}{#4}{\JE@currentJournalCount}}%
+  \expandafter\ledger@entry\expanded{%
+    {#3}{#5}{D}{#4}{\JE@currentJournalCount}{\@arabic{#1}}%
+  }%
+  \expandafter\ledger@entry\expanded{%
+    {#5}{#3}{C}{#4}{\JE@currentJournalCount}{\@arabic{#1}}%
+  }%
 %<dbg>\typeout{\BK@dbg@Finish
 %<dbg>  \unexpanded{\sjourn@lentry}}%
 }
@@ -1595,9 +1607,12 @@
 %   \jmarg{相手科目名}^^A
 %   \jmarg{借（貸）方}^^A
 %   \jmarg{取引額}^^A
-%   \marg{JEID}\par
+%   \marg{JEID}^^A
+%   \marg{month}\par
 % \changes{v1.1.2-alpha.23.04}{2025/12/29}
 %   {引数としてJEIDを受け取るように変更．}^^A
+% \changes{v1.1.2-alpha.36}{2026/01/11}
+%   {引数としてMonthを受け取るように変更．}^^A
 % \cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Ledger\meta{AccLdgID}@\meta{prop.}}に
 % 各種値を代入していく．
 % そのほか\cntname{\cmd{\Account}\meta{AccType}\meta{AccID}@Month\meta{Month}@\meta{prop.}}に
@@ -1614,7 +1629,7 @@
 %% #3: is account Debit? (boolean; D or C)
 %% #4: Account value(if this is 0 then this ledger entry is Monthly closing)
 %% #5: JEID
-\def\ledger@entry#1#2#3#4#5{%
+\def\ledger@entry#1#2#3#4#5#6{%
 %<dbg>\typeout{\BK@dbg@Start
 %<dbg>  \unexpanded{\ledger@entry}}%
 %<dbg>\typeout{\BK@dbg@Status
@@ -1622,7 +1637,8 @@
 %<dbg>  Args2(相手科目名)=\unexpanded{#2},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args3(借（貸）方)=\unexpanded{#3},^^J\BK@dbg@Tab\BK@dbg@Tab\space
 %<dbg>  Args4(取引額)=\unexpanded{#4},^^J\BK@dbg@Tab\BK@dbg@Tab\space
-%<dbg>  Args5(JEID)=\unexpanded{#5}.}%
+%<dbg>  Args5(JEID)=\unexpanded{#5},^^J\BK@dbg@Tab\BK@dbg@Tab\space
+%<dbg>  Args5(Month)=\unexpanded{#6}.}%
 %    \end{macrocode}
 % 事前準備．
 % 見通しを良くするために\meta{AccType}\meta{AccID}を\cmd{\LE@tmpA}に定義しておく．
@@ -1671,7 +1687,7 @@
     {Ledger\LE@currentLedgerCount @AccountValue}%
     {#4}%
   \expandafter\LE@setMonthProperty\expanded{%
-     {#1}{#3}{#4}{\LE@currentLedgerCount}{#5}{\JE@getpropertySmpl{#5}{Month}}%
+     {#1}{#3}{#4}{\LE@currentLedgerCount}{#5}{#6}%
   }%
 %<dbg>\typeout{\BK@dbg@Finish\unexpanded
 %<dbg>          {\ledger@entry}}%
@@ -1882,6 +1898,8 @@
 %   {\cntname{AccountCount}についてGetterで取り出す．}^^A
 % \changes{v1.1.2-alpha.31}{2026/01/03}
 %   {数値表現の終端処理．}^^A
+% \changes{v1.1.2-alpha.36}{2026/01/11}
+%   {\cs{ledger@entry}の引数としてMonthを渡すように変更．}^^A
 % \meta{AccountID}をイテレーションして\cmd{\ledger@entry}で月次締切の登録をする．
 %    \begin{macrocode}
 \def\LMC@loop@Account#1;#2;#3;{% loop for each AccID
@@ -1903,6 +1921,7 @@
       {\unexpanded{\relax}}%
       {0}%
       {\the\value{JECount}}%
+      {#3}%
     }%
     \expandafter\@firstofone
   \fi{%
